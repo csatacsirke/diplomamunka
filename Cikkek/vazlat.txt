@@ -1,0 +1,29 @@
+
+introduction
+	miről szól, részletek nélkül
+	egyre szűkül a téma
+		1. mi ez a terület, mit cisnáltak mások, (pl mi az hogy hamisítás, miért kell ezt ellenőrizni, hogy lehet ellenőrizni, "ismert módszerek")
+		2. nyitott kérdések, mit nem oldottak meg, motiváció
+		3. konkrét kérdés amit vizsgálunk, megoldási terv ( eredmény nélkül / hipotézisek )
+background (először ezt írod)
+	mások cuccainak részletei
+	én módszereim előzményei
+		pl mi az h cnn, svm
+	
+methods (először ezt írod)
+    kísérleted reprodukciójához részletek
+	1. saját ( "uj" ) modszerek
+		svm, cnn, autoen: erre a feladatra hogy alkalmazható
+	2. adatbázisok
+	3. futtatási terv
+results (másodjára írod meg)
+    futtatási eredmények
+    számszerű eredmények, generált képek
+	magyarázat nélkül (erre ezt kaptam, arra azt kaptam...)
+discussion 
+    eredmények magyarázata
+conclusion
+    fordított intro : egyre tágul a téma
+    1. mire mit kaptam
+	2. ez miért jó, miért örülünk vagy sem; ha van megválaszolatlan kérdés (hiba), az tovább vizsgálható;
+	3. take home message: miért érdekeljen ez bárkit ismert

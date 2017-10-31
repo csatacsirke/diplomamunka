@@ -16,6 +16,17 @@ import evaluate
 # TODO
 # kb 1600x1600 as képeink vannak, kicsinyiteni ha nem muszáj nem akarunk
 # valszeg majd azt kéne csinálni hogy egy fix méretet középröl kivágunk
+"""
+ 1) kicsinyitás ( downscale ) !!!!
+ 2) 
+	random kivágás
+	fix kivágás
+		-középről
+		-sarkokról
+		
+		
+debug: 1-2 képre overfit a trainen
+"""
 
 img_width, img_height = 500, 500
 
@@ -48,6 +59,7 @@ log("Loading keras - this may be slow...")
 
 import tensorflow as tf
 
+# TODO megcsinálni
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
@@ -243,7 +255,19 @@ if K.image_data_format() == 'channels_first':
 else:
     input_shape = (img_width, img_height, 3)
 
-
+"""
+float16 ot meg lehet próbálni
+conv2 + dense:
+	kernel_regularizer
+	keras.regularizers.l2(0.001) % a hiperparamétert is be kell még  löni
+	
+	autoencoder:
+		conv2dtranspose
+		loss: squared error
+		tanitás csak az eredetiken
+		érdemes kézzel megnézni hogy a predict milyen képet generál
+	
+"""
 
 model = Sequential()
 model.add(Conv2D(32, (11, 11), input_shape=input_shape))
@@ -254,20 +278,23 @@ model.add(Conv2D(32, (7, 7)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
+
 model.add(Conv2D(64, (3, 3)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
+# 64 kicsi + lehet több dense egymás után
 model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
+# lehet a convok előtt is ( mindegyik előtt)
 model.add(Dropout(0.5))
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
 
 model.compile(loss='binary_crossentropy',
-              optimizer='rmsprop',
-              metrics=['accuracy'])
+              optimizer='rmsprop', # ADAM
+              metrics=['accuracy']) 
 
 
 
@@ -338,8 +365,14 @@ if evaluate_only:
 
 #model.save_weights('first_try.h5')
 while True:
-	
-
+	"""
+	callbacks:
+		early stopping 
+		terminate on nan
+		history
+		modell checkpoint
+	itt is használni a class weightset
+	"""
 	history = model.fit_generator(
 		training_generator,
 		steps_per_epoch=nb_train_samples // batch_size,
@@ -352,7 +385,7 @@ while True:
 	model.save_weights(file_name)
 	#log("Saved to : " + file_name)
 
-
+	#  ez legyen callbackban
 	log(str(history.history['val_loss']))
 	log(str(history.history['val_acc']))
 	log("=============================================")

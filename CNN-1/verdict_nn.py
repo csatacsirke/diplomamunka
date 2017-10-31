@@ -3,6 +3,7 @@ import csv
 import random as Random
 import numpy as np
 from sklearn.svm import SVC
+import sklearn
 
 # saját
 from log import log
@@ -101,7 +102,7 @@ def merge_twin_images(params):
 		#index1, record2 = next(enum, None)
 		#if record2 is None:
 		#	break
-
+		
 		if randomly_swap_images:
 			# elvileg a két kép független egymástól, nem szabad hogy a 
 			# kiértékelés a sorrendjüktől függjön
@@ -138,10 +139,39 @@ def createModel(X, Y):
 
 
 
-	# TODO cache size : email hogy mia az
+	# TODO 
+	"""
+	Validation+test (80 10 10)  
+		lehet random seed ( np.random.seed )
+	
+	train -> tanitás ( több féle hiperparaméterrel) 
+	valid -> tesztelés 
+		-> mohó kiválasztás, hogy melyik hiperparaméterre volt a legjobb
+		-> train + valid on ujratanitás csak a legjobb hiperparamtéerrel
+			-> tesztelés a teszt halmazon
+	hiperparaméterek:
+		C param
+		kernel
+			degree
+			gamma
+	hiperparaméterbeállítás:
+		log skálán kipróbálni minden félét (pl 2 hatványok kicsitől nagyig)
+		hyperopt ( python csomag )
+			minden paraméterrel egy min és max + eloszlás
+			param: egy függvény: {hiperparaméterek}, set1, set2 -> set2 hiba
+				set1 en tanit, set2-n tesztel
+				meg kell adni hogy melyik melyik (train / valid)
+				ebből megkapjuk a legjobb hiperparamétert
+				még egyszer meghivod (train + valid / test)-en
+	
+	"""
+	#http://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html#sklearn.utils.class_weight.compute_class_weight
 	# class weight: ha több az egyik osztáyl akk bekapcsolni "unbalanced"
-	clf = SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
-		decision_function_shape=None, degree=3, gamma='auto', kernel='rbf',
+	
+	class_weight = {k: v for (k, v) in zip([0, 1], sklearn.utils.class_weight.compute_class_weight(class_weight='balanced', classes=np.array([0, 1]), y=Y))}
+	
+	clf = SVC(C=1., cache_size=200, class_weight=class_weight, coef0=0.0,
+		decision_function_shape=None, degree=2, gamma='auto', kernel='rbf',
 		max_iter=-1, probability=False, random_state=None, shrinking=True,
 		tol=0.001, verbose=False)
 
@@ -172,8 +202,10 @@ def test(model, X, Y):
 		if Y[index] == Y_pred[index]:
 			passed += 1
 		total += 1
-		
-	log("Success rate ", 100 * passed / total, "%")
+	#  sklearn.metrics.accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)[source]¶
+	# metrics.f1_score(y_true, y_pred[, labels, …])
+	# metrics.roc_auc_score(y_true, y_score[, …])
+ 	log("Success rate ", 100 * passed / total, "%")
 
 
 	#passed = 0

@@ -38,3 +38,4 @@ Temp/
 */__pycache__/
 */working_dir/
 */weights/
+*.orig
