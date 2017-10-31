@@ -35,3 +35,6 @@ packages/
 SpaceTicket/
 /truecrypt_ntfs_6gb_3
 Temp/
+*/__pycache__/
+*/working_dir/
+*/weights/
