@@ -1,0 +1,15 @@
+Biztonsági nyomatok eredetiségének ellenőrzése mesterséges neurális hálózatokkal
+
+
+
+A biztonsági nyomatok eredetiségének vizsgálata napjainkban fontos probléma, hiszen gyakori a hamisításokkal való visszaélés, legyen szó bankjegyekről, okmányokról vagy márkás termékek védelméről.
+Az ilyen ellenőrzéseket gyakran szakemberek céleszközökkel végzik.
+A dolgozatban azt vizsgáljuk, hogy az eredetiség vizsgálata szakértelem nélkül, pusztán mobiltelefon segítségével is végrehajtható-e.
+
+Erre léteznek kézzel kalibrált osztályozási módszerek, a gépi tanulásban viszont általános tapasztalat, hogy a manuálisan kikísérletezett algoritmusok és változók nem általánosítanak elég jól új mintaelemekre.
+Célunk, hogy az ismert módszereket gépi tanulással helyettesítsük és a predikciót javítsuk.
+Három  eljárást fogunk összehasonlítani, egy már létező standard algoritmust, egy biztonsági nyomatok képeiből kinyert változókra tanított Tamasztóvektor Gépet és a nyers képekből tanított Mély Konvolúciós Neurális Hálót. 
+A módszereink jóságát valódi adatbázisokon demonstráljuk az osztályozási feladatoknál szokásos mérőszámok szerint.
+
+
+

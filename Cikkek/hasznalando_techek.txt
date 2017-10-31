@@ -1,0 +1,28 @@
+﻿training/test/validation
+Dropout 
+data augmentation
+data generation
+early stopping
+ROC görbe # sklearn.metrics -> accuracy(ne), f1_score, roc_auc_score
+
+
+autoencoder
+deep network
+svm
+advesary model
+
+
+
+cross validation
+
+binary_crossentropy
+
+ötletek:
+nagyobb konvolucio ablak
+random felkockázás, de csak az értelmes területen?
+batch méretet be kell lőni
+IIR filter a validation loss/accuracy mérésre
+
+
+
+dupla képelemzés
