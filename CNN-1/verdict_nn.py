@@ -2,7 +2,11 @@
 import csv
 import random as Random
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.svm import SVC
+from sklearn.utils.class_weight import compute_class_weight
+
+
 import sklearn
 
 # saját
@@ -10,8 +14,40 @@ from log import log
 import evaluate
 
 
+
+# TODO 
+"""
+Balance-olni a validationt is?
+
+Validation+test (80 10 10)  
+	lehet random seed ( np.random.seed )
+	
+train -> tanitás ( több féle hiperparaméterrel) 
+valid -> tesztelés 
+	-> mohó kiválasztás, hogy melyik hiperparaméterre volt a legjobb
+	-> train + valid on ujratanitás csak a legjobb hiperparamtéerrel
+		-> tesztelés a teszt halmazon
+hiperparaméterek:
+	C param
+	kernel
+		degree
+		gamma
+hiperparaméterbeállítás:
+	log skálán kipróbálni minden félét (pl 2 hatványok kicsitől nagyig)
+	hyperopt ( python csomag )
+		minden paraméterrel egy min és max + eloszlás
+		param: egy függvény: {hiperparaméterek}, set1, set2 -> set2 hiba
+			set1 en tanit, set2-n tesztel
+			meg kell adni hogy melyik melyik (train / valid)
+			ebből megkapjuk a legjobb hiperparamétert
+			még egyszer meghivod (train + valid / test)-en
+	
+"""
+
+
 use_two_images = False
 randomly_swap_images = True
+visualize = False
 
 def readGroundTruth(row):
 	line = row[0]
@@ -69,7 +105,8 @@ def hamming_distance(s1, s2):
 	"""Calculate the Hamming distance between two bit strings"""
 	#assert len(s1) == len(s2)
 	if not len(s1) == len(s2):
-		return 1000 # gányolás de gyorsan kellett
+		#return 1000 # gányolás de gyorsan kellett
+		return max(len(s1), len(s2))
 	return sum(c1 != c2 for c1, c2 in zip(s1, s2))
 
 def merge_twin_images(params):
@@ -131,49 +168,30 @@ def merge_twin_images(params):
 
 def createModel(X, Y):
 
-	#log(len(x), len(y))
 	assert(len(x) == len(y))
 
 
-	# X = X.reshape(1,-1) # valami deprecation warning miatt
 
-
-
-	# TODO 
-	"""
-	Validation+test (80 10 10)  
-		lehet random seed ( np.random.seed )
-	
-	train -> tanitás ( több féle hiperparaméterrel) 
-	valid -> tesztelés 
-		-> mohó kiválasztás, hogy melyik hiperparaméterre volt a legjobb
-		-> train + valid on ujratanitás csak a legjobb hiperparamtéerrel
-			-> tesztelés a teszt halmazon
-	hiperparaméterek:
-		C param
-		kernel
-			degree
-			gamma
-	hiperparaméterbeállítás:
-		log skálán kipróbálni minden félét (pl 2 hatványok kicsitől nagyig)
-		hyperopt ( python csomag )
-			minden paraméterrel egy min és max + eloszlás
-			param: egy függvény: {hiperparaméterek}, set1, set2 -> set2 hiba
-				set1 en tanit, set2-n tesztel
-				meg kell adni hogy melyik melyik (train / valid)
-				ebből megkapjuk a legjobb hiperparamétert
-				még egyszer meghivod (train + valid / test)-en
-	
-	"""
 	#http://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html#sklearn.utils.class_weight.compute_class_weight
 	# class weight: ha több az egyik osztáyl akk bekapcsolni "unbalanced"
 	
-	class_weight = {k: v for (k, v) in zip([0, 1], sklearn.utils.class_weight.compute_class_weight(class_weight='balanced', classes=np.array([0, 1]), y=Y))}
+	class_weight = {k: v for (k, v) in zip([0, 1], compute_class_weight(class_weight='balanced', classes=np.array([0, 1]), y=Y))}
 	
-	clf = SVC(C=1., cache_size=200, class_weight=class_weight, coef0=0.0,
-		decision_function_shape=None, degree=2, gamma='auto', kernel='rbf',
-		max_iter=-1, probability=False, random_state=None, shrinking=True,
-		tol=0.001, verbose=False)
+	clf = SVC(
+		C=1., 
+		cache_size=200, 
+		class_weight=class_weight, 
+		coef0=0.0,
+		decision_function_shape=None, 
+		degree=2, 
+		gamma='auto', 
+		kernel='rbf',
+		max_iter=-1,
+		probability=True, 
+		random_state=None, 
+		shrinking=True,
+		tol=0.001, 
+		verbose=False)
 
 
 	clf.fit(X, Y) 
@@ -187,51 +205,65 @@ def add_evaluation_coulumn(results):
 		new_row = (X, Y, Y_pred, y_diff, file_names)
 		results[index] = new_row
 
+#def convert_to_continuous(Y):
+#	return list(map(lambda x: float(x), Y))
+
+
+
+def convert_to_single_param(Y):
+	#  [1, 0] -> [0] 
+	#  [0, 1] -> [1] 
+	def fnc(x):		
+		first, second = x
+		assert(abs((first+second)-1) < 0.01)
+		return second
+	return list(map(fnc, Y))
+
+def create_roc_curve_plot(roc_curve, roc_auc):
+	fpr, tpr, thresholds = roc_curve
+
+	plt.figure()
+	lw = 2
+	plt.plot(fpr, tpr, color='darkorange',
+			 lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+	plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+	plt.xlim([0.0, 1.0])
+	plt.ylim([0.0, 1.05])
+	plt.xlabel('False Positive Rate')
+	plt.ylabel('True Positive Rate')
+	plt.title('Receiver operating characteristic')
+	plt.legend(loc="lower right")
+	plt.show()
+
 def test(model, X, Y):
 
 	Y_pred = model.predict(X)
-
+	
 	results = list(zip(X, Y, Y_pred, file_names))
 	add_evaluation_coulumn(results)
 
 	evaluate.write_results_to_csv(results)
+
+
+	Y_pred_proba = convert_to_single_param(model.predict_proba(X))
 	
-	passed = 0
-	total = 0
-	for index in range(len(X)):
-		if Y[index] == Y_pred[index]:
-			passed += 1
-		total += 1
-	#  sklearn.metrics.accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)[source]¶
-	# metrics.f1_score(y_true, y_pred[, labels, …])
-	# metrics.roc_auc_score(y_true, y_score[, …])
- 	log("Success rate ", 100 * passed / total, "%")
+	# sklearn.metrics -> accuracy(ne), f1_score, roc_auc_score
+
+	accuracy_score = sklearn.metrics.accuracy_score(Y, Y_pred, normalize=True, sample_weight=None)
+	log("accuracy_score", accuracy_score)
 
 
-	#passed = 0
-	#total = 0
-	#for index in range(len(X) - 1):
-		
-	#	# predict: le lehet tolni egyben
-	#	oneEntry = X[index].reshape(1, -1)
-	#	prediction = model.predict(oneEntry)
-	#	groundTruth = Y[index]
-	#	log(prediction, "(", groundTruth, ")")
-	#	# sklearn.metrics -> accuracy(ne), f1_score, roc_auc_score
-	#	if prediction == groundTruth:
-	#		passed = passed + 1
-	#	total = total + 1
+	f1_score = sklearn.metrics.f1_score(Y, Y_pred)
+	log("f1_score", f1_score)
 
-	# for i in range(20):
-	#     randomIndex = Random.randrange(numberOfSamples)
+	roc_auc_score = sklearn.metrics.roc_auc_score(Y, Y_pred_proba)
+	log("roc_auc_score", roc_auc_score)
+	
+	if visualize:
+		# fpr, tpr, thresholds 
+		roc_curve = sklearn.metrics.roc_curve(Y, Y_pred_proba)
 
-	#     oneEntry = X[randomIndex].reshape(1, -1)
-	#     prediction = model.predict(oneEntry)
-	#     groundTruth = Y[randomIndex]
-	#     log(prediction, "(", groundTruth, ")")
-	#     if prediction == groundTruth:
-	#         passed = passed + 1
-	#     total = total + 1
+		create_roc_curve_plot(roc_curve, roc_auc_score)
 	
 
 
@@ -247,7 +279,7 @@ if __name__ == "__main__":
 	log("reading params")
 	x, y, file_names = readParams(inputFile)
 
-
+	np.random.seed(seed = 1337)
 	permutation = np.random.permutation(len(x))
 
 
@@ -275,7 +307,8 @@ if __name__ == "__main__":
 	
 
 	log("testing")
-	test(model, X_test, Y_test)
+	#test(model, X_test, Y_test)
+	test(model, x, y)
 
 
 	# log(clf.predict([[-0.8, -1]]))
