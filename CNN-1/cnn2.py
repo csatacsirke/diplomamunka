@@ -32,18 +32,24 @@ import evaluate
 debug: 1-2 képre overfit a trainen
 """
 
-img_width, img_height = 200, 200
+img_height, img_width = 1000, 1000
 
 
 # tanulási paraméterek
 epochs = 5
-batch_size = 16
+batch_size = 5
 # batch_size = 16
 
 use_autoencoder = True
 recalculate = False
-evaluate_only = True
+evaluate_only = False
 weights_only = False
+
+
+stage = 2
+
+
+evaluate_show_pictures = True
 
 # Ezt töltsd ki ha szeretnéd betölteni a munkamenetet
 weight_file = None
@@ -56,9 +62,13 @@ if evaluate_only:
 	assert(recalculate == False)
 	recalculate = False
 
+if recalculate:
+	assert(stage == 1)
+	stage = 1
+
 	
-fnCopy = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_09_18_15_43_35_942_Marci.eredeti_1___.png"
-fnOrig = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_10_09_16_02_27_938_Marci.fenymasolt.copy_0___.png"
+#fnCopy = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_09_18_15_43_35_942_Marci.eredeti_1___.png"
+#fnOrig = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_10_09_16_02_27_938_Marci.fenymasolt.copy_0___.png"
 
 #weight_file = "weights/2017_10_17__12_28_56.h5"
 
@@ -73,7 +83,7 @@ fnOrig = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_10_09_16_02_27_938_Marci.
 #log_file_path = result_dir + get_current_time_as_string() + "_log" + ".txt"
 #set_log_file_path(log_file_path)
 
-log("Loading keras - this may be slow...")
+log("Loading keras - this may be slow...", level="warning")
 
 
 import tensorflow as tf
@@ -87,6 +97,9 @@ from keras import backend as K
 from keras.callbacks import History
 from keras.models import load_model
 
+# todo kidobni
+import keras
+
 import keras.preprocessing.image as KerasImage
 from PIL import Image as PilImage
 
@@ -97,15 +110,16 @@ from PIL import Image as PilImage
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.5
-set_session(tf.Session(config=config))
+session = tf.Session(config=config)
+set_session(session)
 
 
 # ez amúgy jó eséllyel nem kell mert alapból channels last, 
 # és ehhez alkalmazkodtunk
 if K.image_data_format() == 'channels_first':
-    input_shape = (3, img_width, img_height)
+    input_shape = (3, img_height, img_width)
 else:
-    input_shape = (img_width, img_height, 3)
+    input_shape = (img_height, img_width, 3)
 
 log("Done loading keras")
 
@@ -118,9 +132,7 @@ log("Start")
 
 #TODO EZT VISSZA
 
-(training_file_names, training_ground_truths,
-	validation_file_names, validation_ground_truths,
-	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new()
+
 
 
 
@@ -164,27 +176,28 @@ def create_single_sample_generator(file_names, ground_truths):
 			image = KerasImage.load_img(file_names[i])
 			image = processImage(image)
 			image_array = KerasImage.img_to_array(image)
+			
 			# a modell 4d array-t vár, ezért be kell csomagolni
 			flat = False
 			if flat:
-				image_array = np.array(image_array).reshape((1, img_width, img_height, 3))
+				image_array = np.array(image_array).reshape((1, img_height, img_width, 3))
 				ground_truth = np.array(ground_truths[i]).reshape((1,1))
 				yield image_array, ground_truth
 			else:
 				yield image_array, ground_truths[i]
-			#image_array = image_array.reshape((1, img_width, img_height, 3))
+			#image_array = image_array.reshape((1, img_height, img_width, 3))
 			#image_array = np.array(image_array)
 			
 			#yield image_array, ground_truths[i]
 
 
 # globalis parameter a batch_size
-def create_generator(file_names, ground_truths):
+def create_generator(file_names, ground_truths, use_autoencoder=False):
 	assert(len(ground_truths) == len(ground_truths))
 	single_sample_generator =  create_single_sample_generator(file_names, ground_truths)
 
 	while True:
-		x = np.empty([batch_size, img_width, img_height, 3])
+		x = np.empty([batch_size, img_height, img_width, 3])
 		y = np.empty([batch_size, 1])
 
 		for i in range(batch_size):
@@ -221,9 +234,9 @@ def create_generator(file_names, ground_truths):
 #			image = processImage(image)
 #			image_array = KerasImage.img_to_array(image)
 #			# a modell 4d array-t vár, ezért be kell csomagolni
-#			image_array = np.array(image_array).reshape((1, img_width, img_height, 3))
+#			image_array = np.array(image_array).reshape((1, img_height, img_width, 3))
 #			ground_truth = np.array(ground_truths[i]).reshape((1,1))
-#			#image_array = image_array.reshape((1, img_width, img_height, 3))
+#			#image_array = image_array.reshape((1, img_height, img_width, 3))
 #			#image_array = np.array(image_array)
 #			yield image_array, ground_truth
 
@@ -260,7 +273,7 @@ def evaluate():
 	for i in range(length):
 		file_name = file_names[i]
 		#file_name = test_file_names[i]
-		x = load_image_as_array(file_name).reshape((1, img_width, img_height, 3))
+		x = load_image_as_array(file_name).reshape((1, img_height, img_width, 3))
 		#y = test_ground_truths[i]
 		y = ground_truths[i]
 		y_pred = model.predict(x)
@@ -284,30 +297,51 @@ def rgb2gray(rgb):
 	
 	return gray
 
+def show_pictures(x, y, prediction):
+	
+	log(np.shape(prediction))
+
+	fig = plt.figure()
+
+	#img = img[:,:,::-1]
+	#red, green, blue, alpha = data.T 
+	#data = np.array([blue, green, red, alpha])
+
+	subplot = fig.add_subplot(1,2,1)
+	img = np.subtract(255, x)
+	plt.imshow(img)
+	#red, green, blue = x.T 
+	#img = np.array([blue, green, red])
+	#img = img.transpose()
+	#plt.imshow(img)
+
+	subplot = fig.add_subplot(1,2,2)
+	prediction = np.divide(prediction, 255)
+	plt.imshow(prediction)
+
+	#subplot = fig.add_subplot(1,3,3)
+	#gray = rgb2gray(prediction)
+	#plt.imshow(gray)
+
+	plt.show()
+
+def show_picutures_looped():
+	while True:
+		samples = next(training_generator)
+		for sample in samples:
+			x, y = sample
+			prediction = model.predict(x)
+
+			show_pictures(x, y, prediction)
+	
 
 def evaluate_autoencoder():
 	
 	#gen = create_generator([fnOrig], [1])
+	if evaluate_show_pictures:
+		show_picutures_looped()
 	
-	while True:
-		sample = next(training_generator)
-		x, y = sample
-
-		prediction = model.predict(x)
-		log(np.shape(prediction[0]))
-
-		fig = plt.figure()
-
-		subplot = fig.add_subplot(1,2,1)
-		gray = rgb2gray(prediction[0])
-		plt.imshow(gray)
-
-		subplot = fig.add_subplot(1,2,2)
-		plt.imshow(x[0])
-
-		plt.show()
-		#plt.waitforbuttonpress()
-
+	
 
 	return
 
@@ -340,7 +374,9 @@ def build_autoencoder_model():
 	
 	log("input shape: ", input_shape)
 
-	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+	#model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+	model.add(Conv2D(64, (5, 5), input_shape=(None, None, 3)))
+	
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -445,12 +481,20 @@ def load_or_build_model():
 
 		if weight_file is not None:
 			log("Loading weights from: " + weight_file)
-			model.load_weights(weight_file)
+			try:
+				model.load_weights(weight_file)
+			except:
+				log("Failed to laod weights!!!! probably different architecture")
 	return model
 
 
-training_generator = create_generator(training_file_names, training_ground_truths)
-validation_generator = create_generator(validation_file_names, validation_ground_truths)
+(training_file_names, training_ground_truths,
+	validation_file_names, validation_ground_truths,
+	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new()
+
+
+training_generator = create_generator(training_file_names, training_ground_truths, use_autoencoder=use_autoencoder)
+validation_generator = create_generator(validation_file_names, validation_ground_truths, use_autoencoder=use_autoencoder)
 
 
 #if False:	
@@ -505,62 +549,90 @@ if evaluate_only:
 		evaluate()
 	sys.exit()
 	
+if stage is 1:
+	log("Fitting")
+	while True:
+		"""
+		callbacks:
+			early stopping 
+			terminate on nan
+			history
+			modell checkpoint
+		itt is használni a class weightset
+		"""
+		# todo
+		callbacks = []
 
-log("Fitting")
-while True:
-	"""
-	callbacks:
-		early stopping 
-		terminate on nan
-		history
-		modell checkpoint
-	itt is használni a class weightset
-	"""
-	# todo
-	callbacks = []
+		history = model.fit_generator(
+			training_generator,
+			steps_per_epoch=steps_per_epoch,
+			epochs=epochs,
+			validation_data=validation_generator,
+			validation_steps=validation_steps,
+			callbacks=callbacks)
 
-	history = model.fit_generator(
-		training_generator,
-		steps_per_epoch=steps_per_epoch,
-		epochs=epochs,
-		validation_data=validation_generator,
-		validation_steps=validation_steps,
-		callbacks=callbacks)
-
-
-	
-	if weights_only:
-		file_name = get_current_time_as_string() + '.h5'
-		model.save_weights(file_name)
-	else:
-		file_name = get_current_time_as_string() + '.full_model.h5'
-		model.save(file_name)
 
 	
-	log("Saved weights to : " + file_name)
+		if weights_only:
+			file_name = get_current_time_as_string() + '.h5'
+			model.save_weights(file_name)
+		else:
+			file_name = get_current_time_as_string() + '.full_model.h5'
+			model.save(file_name)
 
-	#  ez legyen callbackban
-	log(str(history.history['val_loss']))
-	log(str(history.history['val_acc']))
-	log("=============================================")
 	
-	#if use_autoencoder:
-	#	evaluate_autoencoder()
+		log("Saved weights to : " + file_name)
 
-print("vege");
+		#  ez legyen callbackban
+		log(str(history.history['val_loss']))
+		log(str(history.history['val_acc']))
+		log("=============================================")
+	
+		#if use_autoencoder:
+		#	evaluate_autoencoder()
+	pass
+	
+
+if stage is 2:
+
+	training_generator = create_generator(training_file_names, training_ground_truths)
+	validation_generator = create_generator(validation_file_names, validation_ground_truths)
+
+	for i in range(10):
+		sample = next(training_generator)
+		x, y = sample
+		predictions = model.predict(x)
+		#keras.losses.mean_absolute_error
+		#MSE = []
+		for i in range(len(x)):
+			#MSE.append(keras.losses.mean_squared_error(x[i], predictions[i]))
+			MSE = keras.losses.mean_squared_error(x[i].reshape(-1), predictions[i].reshape(-1))
+			MSE = tf.to_float(MSE)
+			MSE = MSE.eval(session=session)
+			
+			log(y[i], MSE)
+			show_pictures(x[i], y[i], predictions[i])
+		#MSE = keras.losses.mean_squared_error(x, predictions)
+		#results = list(zip(y, MSE))
+
+		#log(results)
+		log()
+		log()
+		log()
+	pass
 
 
 
 ##################################################################################################################
 
 
-
+print("vege");
 
 
 
 #log("Fitting[Test]")
 #first, first_y = next(training_generator)
-#first = np.array(first).reshape((1, img_width, img_height, 3))
+#first = np.array(first).reshape((1, img_height, img_width, 3))
 #first_y = np.array(first_y).reshape((1,1))
 #model.fit(first, first_y)
 #log("Fitting[Test] - done")
