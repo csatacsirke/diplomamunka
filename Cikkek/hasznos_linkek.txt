@@ -26,3 +26,8 @@ http://repositori.uji.es/xmlui/bitstream/handle/10234/158958/67319.pdf?sequence=
 
 ----------------------------------------------------------------
 scihub
+
+
+pycharm
+bitbucket ->free private repo
+opencv

@@ -41,7 +41,7 @@ hiperparaméterbeállítás:
 			meg kell adni hogy melyik melyik (train / valid)
 			ebből megkapjuk a legjobb hiperparamétert
 			még egyszer meghivod (train + valid / test)-en
-	
+rontás kevesebb példával -> megnézni hogy függ a számuktól	
 """
 
 

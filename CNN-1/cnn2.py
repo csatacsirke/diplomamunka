@@ -28,25 +28,29 @@ import evaluate
 		-középről
 		-sarkokról
 		
-		
+col2im / im2col
+256->200 : valami ilyen arányt ide is 
+5 rész (sarkok+közép, 1 háló 5x példával) : autoencodernél háló predikciók összeátlagolása, osztályozónál meg mindegyikre ugyanaz a címke
+            		
 debug: 1-2 képre overfit a trainen
 """
 
-img_height, img_width = 1000, 1000
+img_height, img_width = 200, 200
+
 
 
 # tanulási paraméterek
 epochs = 5
-batch_size = 5
+batch_size = 16
 # batch_size = 16
 
-use_autoencoder = True
-recalculate = False
+use_autoencoder = False
+recalculate = True
 evaluate_only = False
 weights_only = False
 
 
-stage = 2
+stage = 1
 
 
 evaluate_show_pictures = True
@@ -307,23 +311,31 @@ def show_pictures(x, y, prediction):
 	#red, green, blue, alpha = data.T 
 	#data = np.array([blue, green, red, alpha])
 
-	subplot = fig.add_subplot(1,2,1)
-	img = np.subtract(255, x)
+	subplot = fig.add_subplot(1,3,1)
+	x = x / 255.0
+	img = np.subtract(1.0, x)
+	
 	plt.imshow(img)
 	#red, green, blue = x.T 
 	#img = np.array([blue, green, red])
 	#img = img.transpose()
 	#plt.imshow(img)
 
-	subplot = fig.add_subplot(1,2,2)
+	subplot = fig.add_subplot(1,3,2)
 	prediction = np.divide(prediction, 255)
 	plt.imshow(prediction)
+
+	subplot = fig.add_subplot(1,3,3)
+	diff = np.abs(prediction - x)
+	plt.imshow(diff)
 
 	#subplot = fig.add_subplot(1,3,3)
 	#gray = rgb2gray(prediction)
 	#plt.imshow(gray)
-
-	plt.show()
+	fig.savefig(get_current_time_as_string()+"_teszt__.png", dpi=600)
+	#plt.show()
+	plt.close(fig)
+	
 
 def show_picutures_looped():
 	while True:
@@ -390,6 +402,8 @@ def build_autoencoder_model():
 
 	#model.add(MaxPooling2D(pool_size=(2, 2)))
 	
+	# dense layer lehet dense is
+	
 	#####
 	
 
@@ -453,11 +467,11 @@ def build_model():
 
 	# lehet dropout a convok előtt is ( mindegyik előtt)
 	model.add(Dropout(0.5))
-	model.add(Dense(1))
-	model.add(Activation('sigmoid'))
+	model.add(Dense(2))#1))
+	model.add(Activation('softmax'))#'sigmoid'))
 
-	model.compile(loss='binary_crossentropy',
-				  optimizer='rmsprop', # ADAM
+	model.compile(loss='sparse_categorical_crossentropy', #'binary_crossentropy',
+				  optimizer='adam', #'rmsprop', # ADAM
 				  metrics=['accuracy']) 
 
 	return model
