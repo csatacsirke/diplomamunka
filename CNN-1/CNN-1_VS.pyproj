@@ -20,6 +20,9 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="batch_normalize.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="cnn1.py" />
     <Compile Include="cnn2.py">
       <SubType>Code</SubType>
@@ -30,6 +33,7 @@
     <Compile Include="evaluate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="image_processing.py" />
     <Compile Include="log.py">
       <SubType>Code</SubType>
     </Compile>

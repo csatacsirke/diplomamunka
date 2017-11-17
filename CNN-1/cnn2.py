@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import sys
+import os
 
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import imshow
@@ -11,6 +12,7 @@ from log import log
 from log import set_log_file_path
 from util import get_current_time_as_string
 from util import get_last_weight_file
+import image_processing
 
 import dataset_handler
 import evaluate
@@ -33,27 +35,39 @@ col2im / im2col
 5 rész (sarkok+közép, 1 háló 5x példával) : autoencodernél háló predikciók összeátlagolása, osztályozónál meg mindegyikre ugyanaz a címke
             		
 debug: 1-2 képre overfit a trainen
+
+TODO a transzformációt elöre kéne megcsinálni, nem röptében
 """
 
-img_height, img_width = 200, 200
+
+#base_dir = 'd:/diplomamunka/SpaceTicket_results/'
+#default_input_file_name = base_dir + 'Bpas-Verdict.csv'
+
+
+default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
+
+
+g_img_height, g_img_width = 256, 256
 
 
 
 # tanulási paraméterek
-epochs = 5
-batch_size = 16
-# batch_size = 16
+epochs = 50
+g_batch_size = 16
+# g_batch_size = 16
 
-use_autoencoder = False
-recalculate = True
+use_autoencoder = True
 evaluate_only = False
 weights_only = False
 
 
+recalculate = False
 stage = 1
 
 
 evaluate_show_pictures = True
+warn_for_no_corner_info = False
+use_normalized_images = True
 
 # Ezt töltsd ki ha szeretnéd betölteni a munkamenetet
 weight_file = None
@@ -66,9 +80,11 @@ if evaluate_only:
 	assert(recalculate == False)
 	recalculate = False
 
-if recalculate:
-	assert(stage == 1)
-	stage = 1
+
+
+if stage == 2:
+	assert(recalculate == False)
+	recalculate = False
 
 	
 #fnCopy = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_09_18_15_43_35_942_Marci.eredeti_1___.png"
@@ -95,10 +111,10 @@ import tensorflow as tf
 # TODO megcsinálni
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, UpSampling2D, ZeroPadding2D
+from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, UpSampling2D, ZeroPadding2D, Cropping2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
-from keras.callbacks import History
+from keras.callbacks import History, Callback
 from keras.models import load_model
 
 # todo kidobni
@@ -106,14 +122,14 @@ import keras
 
 import keras.preprocessing.image as KerasImage
 from PIL import Image as PilImage
-
+import cv2
 
 # a rendszer nem engedi lefoglalni az egész memoriát, viszont a 
 # tensorflow megprobalja
 # kb 0.3 ra mindig jó volt
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
+config.gpu_options.per_process_gpu_memory_fraction = 0.7
 session = tf.Session(config=config)
 set_session(session)
 
@@ -121,9 +137,9 @@ set_session(session)
 # ez amúgy jó eséllyel nem kell mert alapból channels last, 
 # és ehhez alkalmazkodtunk
 if K.image_data_format() == 'channels_first':
-    input_shape = (3, img_height, img_width)
+    input_shape = (3, g_img_height, g_img_width)
 else:
-    input_shape = (img_height, img_width, 3)
+    input_shape = (g_img_height, g_img_width, 3)
 
 log("Done loading keras")
 
@@ -138,17 +154,25 @@ log("Start")
 
 
 
+corners_list = dataset_handler.read_corners(default_input_file_name)
 
-
-
-def load_image_as_array(file_name):
-	image = KerasImage.load_img(file_name)
-	image = processImage(image)
-	image_array = KerasImage.img_to_array(image)
-	return image_array
-
-def processImage(image: PilImage) -> PilImage:
+def process_training_image(image, target_dims):
+	image = image_processing.crop_center(image, 0.6)
+	if use_autoencoder:
+		image = image_processing.crop_random(image, target_dims)
+	else:
+		image = image_processing.crop_top_right(image, target_dims)
+	return image
 	
+
+def ___process_image_with_corner_info(image, corners, crop=False):
+
+	image = image_processing.normalize_image(image, corners)
+	#if crop: # TODO
+	if stage == 1:
+		image = image_processing.crop_random(image, (g_img_width, g_img_height))
+	
+	"""
 	dx = np.random.randint(-image.width//4, image.width//4+1)
 	dy = np.random.randint(-image.height//4, image.height//4+1)
 
@@ -157,67 +181,130 @@ def processImage(image: PilImage) -> PilImage:
 	center_y = image.height // 2 + dy
 	# TODO randomizálni kicsit a centert
 
-	left = center_x - img_width // 2
-	top = center_y - img_height // 2
-	right = left + img_width
-	bottom = top + img_height
+	left = center_x - g_img_width // 2
+	top = center_y - g_img_height // 2
+	right = left + g_img_width
+	bottom = top + g_img_height
 	
 	image = image.crop((left, top, right, bottom))
 
-	assert(image.width == img_width and image.height == img_height)
-	
+	assert(image.width == g_img_width and image.height == g_img_height)
+	"""
 	return image
 
 
 
-def create_single_sample_generator(file_names, ground_truths):
+def load_image_as_array(file_name):
+	#image = KerasImage.load_img(file_name)
+	image = cv2.imread(file_name)
+	# corners_list -> global
+	
+	#image_array = KerasImage.img_to_array(image)
+	#return image_array
+	return image
+
+
+
+#use_normalized_images
+def create_single_sample_generator(file_names, ground_truths, target_dims, crop_image=True):
 	assert(len(ground_truths) == len(ground_truths))
 	count = len(file_names)
 	while True:
 		permutation = np.random.permutation(count)
 		for i in permutation:
-			# image = KerasImage.load_img(file_names[i], target_size=(img_width,img_height))
-			image = KerasImage.load_img(file_names[i])
-			image = processImage(image)
-			image_array = KerasImage.img_to_array(image)
+			file_name = file_names[i]
+			#normalized_file_name = dataset_handler.get_normalized_counterpart(file_name)
+			if not os.path.exists(file_name):
+				continue
+
+			#image_array = load_image_as_array(normalized_file_name)
+			image_array = load_image_as_array(file_name)
+
+			if crop_image:
+				image_array = process_training_image(image_array, target_dims)
+
+			if image_array is None:
+				continue
+			
+			yield image_array, ground_truths[i]
+	
+
+def __create_single_sample_generator(file_names, ground_truths):
+	assert(len(ground_truths) == len(ground_truths))
+	count = len(file_names)
+	while True:
+		permutation = np.random.permutation(count)
+		for i in permutation:
+			# image = KerasImage.load_img(file_names[i], target_size=(g_img_width,g_img_height))
+			#image = KerasImage.load_img(file_names[i])
+			#image = processImage(image)
+			#image_array = KerasImage.img_to_array(image)
+
+			image_array = load_image_as_array(file_names[i])
+
+			corners = dataset_handler.find_corners_in_list(corners_list, file_names[i])
+			if corners is None or len(corners) < 4:
+				if warn_for_no_corner_info:
+					log("Image has no corner information:", file_names[i])
+				continue
+
+			
+			image_array = process_image(image_array, corners)
+
+			if image_array is None:
+				continue
 			
 			# a modell 4d array-t vár, ezért be kell csomagolni
 			flat = False
 			if flat:
-				image_array = np.array(image_array).reshape((1, img_height, img_width, 3))
+				height, width, channels = image.shape
+				image_array = np.array(image_array).reshape((1, height, width, channels))
 				ground_truth = np.array(ground_truths[i]).reshape((1,1))
 				yield image_array, ground_truth
 			else:
 				yield image_array, ground_truths[i]
-			#image_array = image_array.reshape((1, img_height, img_width, 3))
+			#image_array = image_array.reshape((1, g_img_height, g_img_width, 3))
 			#image_array = np.array(image_array)
 			
 			#yield image_array, ground_truths[i]
 
 
-# globalis parameter a batch_size
-def create_generator(file_names, ground_truths, use_autoencoder=False):
+# globalis parameter a g_batch_size
+def create_generator(file_names, ground_truths, target_dims=(g_img_width, g_img_height), use_autoencoder=False, crop_image=True, batch_size=g_batch_size):
+
 	assert(len(ground_truths) == len(ground_truths))
-	single_sample_generator =  create_single_sample_generator(file_names, ground_truths)
+	single_sample_generator =  create_single_sample_generator(file_names, ground_truths, target_dims, crop_image=crop_image)
+
+
+
 
 	while True:
-		x = np.empty([batch_size, img_height, img_width, 3])
+		
+		x = None
+		images = []
 		y = np.empty([batch_size, 1])
 
 		for i in range(batch_size):
-			# todo , ez overkill, vagy ne generátor, vagy akkor a generátor legyen ujrahasználva
+			
 			if use_autoencoder:
 				ground_truth = 0
 				while ground_truth == 0:
 					image_array, ground_truth = next(single_sample_generator)
-				x[i] = image_array
-				y[i] = ground_truth
 			else:
 				image_array, ground_truth = next(single_sample_generator)
-				x[i] = image_array
-				y[i] = ground_truth
+
+			if x is None:
+				height, width, channels = image_array.shape
+				x = np.empty([batch_size, height, width, channels])
+
+			x[i] = image_array
+			y[i] = ground_truth
+
+
+			#images.append(image_array)
 			#np.append(x, image_array, axis=0)
 			#np.append(y, ground_truth, axis=0)
+		#x = np.array(images)
 		if use_autoencoder:
 			yield x,x
 		else:
@@ -233,14 +320,14 @@ def create_generator(file_names, ground_truths, use_autoencoder=False):
 #	while True:
 #		permutation = np.random.permutation(count)
 #		for i in permutation:
-#			# image = KerasImage.load_img(file_names[i], target_size=(img_width,img_height))
+#			# image = KerasImage.load_img(file_names[i], target_size=(g_img_width,g_img_height))
 #			image = KerasImage.load_img(file_names[i])
 #			image = processImage(image)
 #			image_array = KerasImage.img_to_array(image)
 #			# a modell 4d array-t vár, ezért be kell csomagolni
-#			image_array = np.array(image_array).reshape((1, img_height, img_width, 3))
+#			image_array = np.array(image_array).reshape((1, g_img_height, g_img_width, 3))
 #			ground_truth = np.array(ground_truths[i]).reshape((1,1))
-#			#image_array = image_array.reshape((1, img_height, img_width, 3))
+#			#image_array = image_array.reshape((1, g_img_height, g_img_width, 3))
 #			#image_array = np.array(image_array)
 #			yield image_array, ground_truth
 
@@ -264,7 +351,7 @@ def evaluate():
 	#test_generator = create_generator(test_file_names, test_ground_truths)
 	eval_full_dataset = True
 	if eval_full_dataset:
-		file_names, ground_truths = dataset_handler.read_input();
+		file_names, ground_truths = dataset_handler.read_full_input(default_input_file_name);
 	else:
 		file_names = test_file_names
 		ground_truths = test_ground_truths
@@ -277,7 +364,13 @@ def evaluate():
 	for i in range(length):
 		file_name = file_names[i]
 		#file_name = test_file_names[i]
-		x = load_image_as_array(file_name).reshape((1, img_height, img_width, 3))
+		
+		image = load_image_as_array(file_name)
+		height, width, channels = image.shape
+		x = image.reshape((1, height, width, channels))
+		if x is None:
+			#log("Skipping file (no corners):", file_name)
+			continue
 		#y = test_ground_truths[i]
 		y = ground_truths[i]
 		y_pred = model.predict(x)
@@ -332,7 +425,7 @@ def show_pictures(x, y, prediction):
 	#subplot = fig.add_subplot(1,3,3)
 	#gray = rgb2gray(prediction)
 	#plt.imshow(gray)
-	fig.savefig(get_current_time_as_string()+"_teszt__.png", dpi=600)
+	fig.savefig("images/" + get_current_time_as_string() + "_teszt__.png", dpi=600)
 	#plt.show()
 	plt.close(fig)
 	
@@ -386,18 +479,31 @@ def build_autoencoder_model():
 	
 	log("input shape: ", input_shape)
 
+	#kernel_sizes = [13, 13, 13]
+	kernel_sizes = [5, 5, 5]
+	kernel_sizes = [7, 7, 7]
+	kernel_dims = list(map(lambda x: (x,x), kernel_sizes))
+	iterator = iter(kernel_dims)
+	reverse_iterator = reversed(kernel_dims)
+
+	padding = "same"
+	#padding = "valid"
+
 	#model.add(Conv2D(64, (5, 5), input_shape=input_shape))
-	model.add(Conv2D(64, (5, 5), input_shape=(None, None, 3)))
+
+	padding_size = sum(kernel_sizes)*2
 	
+	model.add(ZeroPadding2D(padding=(padding_size, padding_size), input_shape=(None, None, 3)))
+	model.add(Conv2D(64, next(iterator), padding=padding))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
-	model.add(Conv2D(64, (5, 5)))
+	model.add(Conv2D(128, next(iterator), padding=padding))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
 
-	model.add(Conv2D(256, (5, 5)))
+	model.add(Conv2D(256, next(iterator), padding=padding))
 	model.add(Activation('relu'))
 
 	#model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -407,16 +513,18 @@ def build_autoencoder_model():
 	#####
 	
 
-	model.add(Conv2DTranspose(64, (5, 5)))
+	model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
 	model.add(Activation('relu'))
 	model.add(UpSampling2D(size=(2, 2)))
 	
 
-	model.add(Conv2DTranspose(64, (5, 5)))
+	model.add(Conv2DTranspose(64, next(reverse_iterator), padding=padding))
 	model.add(Activation('relu'))
 	model.add(UpSampling2D(size=(2, 2)))
 	
-	model.add(Conv2DTranspose(3, (5, 5)))
+	model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
+
+	model.add(Cropping2D(cropping=(padding_size, padding_size)))
 
 	#model.add(ZeroPadding2D())
 	#model.add(Activation('relu'))
@@ -440,18 +548,25 @@ def build_autoencoder_model():
 
 def build_model():
 	model = Sequential()
-	model.add(Conv2D(64, (11, 11), input_shape=input_shape))
+	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
-	model.add(Conv2D(64, (7, 7)))
+	model.add(Conv2D(64, (5, 5)))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
 
 
-	model.add(Conv2D(256, (3, 3)))
+	model.add(Conv2D(256, (5, 5)))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(pool_size=(2, 2)))
+
+	model.add(Conv2D(256, (5, 5)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+
+
+
 
 	# 64 kicsi + lehet több dense egymás után
 	model.add(Flatten())
@@ -498,13 +613,13 @@ def load_or_build_model():
 			try:
 				model.load_weights(weight_file)
 			except:
-				log("Failed to laod weights!!!! probably different architecture")
+				log("Failed to load weights!!!! probably different architecture")
 	return model
 
 
 (training_file_names, training_ground_truths,
 	validation_file_names, validation_ground_truths,
-	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new()
+	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new(default_input_file_name)
 
 
 training_generator = create_generator(training_file_names, training_ground_truths, use_autoencoder=use_autoencoder)
@@ -533,10 +648,10 @@ validation_generator = create_generator(validation_file_names, validation_ground
 nb_train_samples = len(training_file_names)
 nb_validation_samples = len(validation_file_names)
 
-steps_per_epoch = nb_train_samples // batch_size
+steps_per_epoch = nb_train_samples // g_batch_size
 
-#validation_steps = nb_validation_samples // batch_size
-validation_steps = nb_validation_samples // batch_size
+#validation_steps = nb_validation_samples // g_batch_size
+validation_steps = nb_validation_samples // g_batch_size
 
 
 #d1 = create_generator(training_file_names, training_ground_truths) 
@@ -547,9 +662,67 @@ validation_steps = nb_validation_samples // batch_size
 
 #sys.exit()
 
+# https://stackoverflow.com/questions/37293642/how-to-tell-keras-stop-training-based-on-loss-value
+class EarlyStoppingByLossVal(Callback):
+	def __init__(self, monitor='val_loss'):
+		super(Callback, self).__init__()
+
+		self.monitor = monitor
+		self.lowest_loss = None
+		self.consequitive_plateaus = 0
+		self.max_consequitive_plateaus = 3
+			
+	def on_epoch_end(self, epoch, logs={}):
+		current_loss = logs.get(self.monitor)
+		if current_loss is None:
+			warnings.warn("Early stopping requires %s available!" % self.monitor, RuntimeWarning)
+			return
+		if self.lowest_loss is None:
+			self.lowest_loss = current_loss
+
+
+		if self.lowest_loss < current_loss:
+			self.consequitive_plateaus = self.consequitive_plateaus + 1
+
+			log()
+			log("Warning: plateau %d" % self.consequitive_plateaus)
+			
+
+			if self.consequitive_plateaus >= self.max_consequitive_plateaus:
+				log("Early stopping")
+				self.model.stop_training = True
+		else:
+			self.consequitive_plateaus = 0
+			self.lowest_loss = current_loss
+
+
+class SaveRegularly(Callback):
+	def __init__(self, monitor='val_loss'):
+		super(Callback, self).__init__()
+
+		self.save_interval = 5
+		self.counter = 0
+			
+	def on_epoch_end(self, epoch, logs={}):
+		self.counter = self.counter + 1
+
+		if self.counter == self.save_interval:
+			self.counter = 0
+			save_model(self.model)
 
 
 
+def save_model(model):
+	
+	if weights_only:
+		file_name = get_current_time_as_string() + '.weights.h5'
+		model.save_weights(file_name)
+	else:
+		file_name = get_current_time_as_string() + '.full_model.h5'
+		model.save(file_name)
+
+	log()
+	log("Saved weights to : " + file_name)
 
 
 model = load_or_build_model()
@@ -575,7 +748,12 @@ if stage is 1:
 		itt is használni a class weightset
 		"""
 		# todo
-		callbacks = []
+
+		early_stopping = EarlyStoppingByLossVal()
+
+		callbacks = [
+			early_stopping, SaveRegularly()
+		]
 
 		history = model.fit_generator(
 			training_generator,
@@ -586,16 +764,7 @@ if stage is 1:
 			callbacks=callbacks)
 
 
-	
-		if weights_only:
-			file_name = get_current_time_as_string() + '.h5'
-			model.save_weights(file_name)
-		else:
-			file_name = get_current_time_as_string() + '.full_model.h5'
-			model.save(file_name)
-
-	
-		log("Saved weights to : " + file_name)
+		#save_model(model)
 
 		#  ez legyen callbackban
 		log(str(history.history['val_loss']))
@@ -604,13 +773,18 @@ if stage is 1:
 	
 		#if use_autoencoder:
 		#	evaluate_autoencoder()
+
+		break
+
 	pass
+	log("Starting stage 2 ")
+	stage = 2
 	
 
 if stage is 2:
 
-	training_generator = create_generator(training_file_names, training_ground_truths)
-	validation_generator = create_generator(validation_file_names, validation_ground_truths)
+	training_generator = create_generator(training_file_names, training_ground_truths, crop_image=False, batch_size=5)
+	#validation_generator = create_generator(validation_file_names, validation_ground_truths)
 
 	for i in range(10):
 		sample = next(training_generator)
@@ -646,7 +820,7 @@ print("vege");
 
 #log("Fitting[Test]")
 #first, first_y = next(training_generator)
-#first = np.array(first).reshape((1, img_height, img_width, 3))
+#first = np.array(first).reshape((1, g_img_height, g_img_width, 3))
 #first_y = np.array(first_y).reshape((1,1))
 #model.fit(first, first_y)
 #log("Fitting[Test] - done")

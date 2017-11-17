@@ -8,45 +8,73 @@ from six.moves import cPickle as pickle
 from log import log
 
 
-def readGroundTruth(row):
-    line = row[0]
-    if "copy" in line:
-        return 0
-    else:
-        return 1
-
-
-def readInputParamsFromCsv(inputFile):
-    
-    f = open(inputFile, "r")
-
-    # lines = f.readlines()
-    reader = csv.reader(f, delimiter=',')
-    ground_truths = []
-    file_names = []
-    # x = []
-
-    for row in reader:
-    
-        if( len(row) < 1):
-            print("fail - ", len(row))
-            continue
-
-        
-        #x_row = readSvmParams(row)
-
-        #x.append(x_row)
-        file_name = row[0]
-        file_names.append(file_name)
-        ground_truths.append(readGroundTruth(row))
-
-
-    return file_names, ground_truths
 
 
 
+def read_corners_from_csv_row(row : list):
+
+	corners = []
+
+	if(len(row) < 2):
+		return corners
+	
+
+	last_col = row[len(row)-2]
+	
+	#reader = csv.reader(last_col, delimiter=';')
+	#iterator = list(reader)
+	
+	iterator = iter(last_col.split(';'))
+	try:
+		while True:
+			coord_x_str = next(iterator)
+			coord_y_str = next(iterator)
+
+			coord_x = float(coord_x_str)
+			coord_y = float(coord_y_str)
+
+			corners.append([coord_x, coord_y])
+	except StopIteration:
+		pass
+
+	return corners
 
 
+def read_corners(input_csv):
+	
+	f = open(input_csv, "r")
+	
+	reader = csv.reader(f, delimiter=',')
+	ground_truths = []
+	file_names = []
+	corners_list = []
+	
+	for row in reader:
+		
+		if( len(row) < 1):
+		    print("fail - ", len(row))
+		    continue
+		
+		
+		#x_row = readSvmParams(row)
+		
+		#x.append(x_row)
+		file_name = row[0]
+		file_names.append(file_name)
+		ground_truths.append(readGroundTruth(row))
+		
+		corners = read_corners_from_csv_row(row)
+		corners_list.append(corners)
+
+		
+	return list(zip(file_names, corners_list))
+
+def find_corners_in_list(list, file_name_to_find):
+	for entry in list:
+		file_name, corners = entry
+		if file_name == file_name_to_find:
+			return corners
+	return None
 
 
 #training_file_names = file_names[0:validation_offset]
@@ -58,12 +86,58 @@ def readInputParamsFromCsv(inputFile):
 
 #pickle_file = os.path.join(data_root, 'dataset_separation.pickle')
 pickle_file = "dataset_separation.pickle"
-def read_input():
-	base_dir = 'd:/diplomamunka/SpaceTicket_results/'
-	input_csv = base_dir + 'Bpas-Verdict.csv'
+#def read_full_input(corners_list=None):
+	
 
-	return readInputParamsFromCsv(input_csv)
-	#file_names, ground_truths = readInputParamsFromCsv(input_csv)
+#	return readInputParamsFromCsv(default_input_csv, corners_list=corners_list)
+#	#file_names, ground_truths = readInputParamsFromCsv(input_csv)
+
+def readGroundTruth(row):
+    line = row[0]
+    if "copy" in line:
+        return 0
+    else:
+        return 1
+
+
+def read_full_input(inputFile, corners_list=None, zip_results=False, filter_nonexistent=True):
+	if corners_list is None:
+		corners_list = []
+	f = open(inputFile, "r")
+	
+	# lines = f.readlines()
+	reader = csv.reader(f, delimiter=',')
+	ground_truths = []
+	file_names = []
+	# x = []
+	
+	for row in reader:
+		
+		if( len(row) < 1):
+		    print("fail - ", len(row))
+		    continue
+		
+		
+		#x_row = readSvmParams(row)
+		
+		#x.append(x_row)
+		file_name = row[0]
+
+		if filter_nonexistent and not os.path.exists(file_name):
+			continue
+
+		file_names.append(file_name)
+		ground_truths.append(readGroundTruth(row))
+		if corners_list is not None:
+			corners = read_corners_from_csv_row(row)
+			corners_list.append(corners)
+
+	if zip_results:
+		return list(zip(file_names, ground_truths, corners_list))
+		
+	else:
+		return file_names, ground_truths
+
 
 def filter_fnc_pos(tuple):
 	_, y = tuple
@@ -108,7 +182,7 @@ def balance_input(x, y):
 
 	return (x_balanced, y_balanced)
 
-def create_new_random_dataset_separation():
+def create_new_random_dataset_separation(input_file):
 	#global training_file_names, training_ground_truths
 	#global validation_file_names, validation_ground_truths
 	#global test_file_names, test_ground_truths
@@ -117,7 +191,7 @@ def create_new_random_dataset_separation():
 	#input_csv = base_dir + 'Bpas-Verdict.csv'
 
 	#file_names, ground_truths = readInputParamsFromCsv(input_csv)
-	file_names, ground_truths = read_input()
+	file_names, ground_truths = read_full_input(input_file)
 
 	#file_names, ground_truths = balance_input(file_names, ground_truths)
 
@@ -169,7 +243,7 @@ def create_new_random_dataset_separation():
 	return dataset
 
 
-def load_dataset_or_create_new():
+def load_dataset_or_create_new(csv_file_name):
 	#global training_file_names, training_ground_truths
 	#global validation_file_names, validation_ground_truths
 	#global test_file_names, test_ground_truths
@@ -181,15 +255,16 @@ def load_dataset_or_create_new():
 	if os.path.isfile(pickle_file):
 	
 		with open(pickle_file, 'rb') as f:
-			save = pickle.load(f)
-			training_file_names = save['train_dataset']
-			training_ground_truths = save['train_labels']
-			validation_file_names = save['valid_dataset']
-			validation_ground_truths = save['valid_labels']
-			test_file_names = save['test_dataset']
-			test_ground_truths = save['test_labels']
+			saved_data = pickle.load(f)
+			training_file_names = saved_data['train_dataset']
+			training_ground_truths = saved_data['train_labels']
+			validation_file_names = saved_data['valid_dataset']
+			validation_ground_truths = saved_data['valid_labels']
+			test_file_names = saved_data['test_dataset']
+			test_ground_truths = saved_data['test_labels']
 
-			del save  # hint to help gc free up memory
+
+			del saved_data  # hint to help gc free up memory
 			log("Loaded dataset")
 
 			return (training_file_names, training_ground_truths,
@@ -197,7 +272,7 @@ def load_dataset_or_create_new():
 				test_file_names, test_ground_truths)
 		
 	else :
-		return create_new_random_dataset_separation()
+		return create_new_random_dataset_separation(csv_file_name)
 	
 	
 
@@ -233,6 +308,17 @@ def save_dataset(dataset):
 		raise
 
 
+#def get_normalized_counterpart(path):
+#	name = os.path.basename(path)
+#	dir = os.path.dirname(path)
+
+		
+#	new_name = "normalized_" + name
+#	new_path = dir + new_name
+
+#	return new_path
+	
+	
 
 
 
