@@ -60,7 +60,7 @@ def one_minus(array):
 	return array
 
 def mean_squared_error(a, b):
-	return np.sum(np.square(a-b))
+	return np.sum(np.square(a-b))/len(a)
 
 
 class IntervalTransform:
