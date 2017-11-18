@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import sys
 import os
+import gc
 
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import imshow
@@ -15,7 +16,7 @@ from util import get_last_weight_file
 import image_processing
 
 import dataset_handler
-import evaluate
+import statistics 
 
 
 ########################################################################################
@@ -62,7 +63,7 @@ weights_only = False
 
 
 recalculate = False
-stage = 1
+stage = 2
 
 
 evaluate_show_pictures = True
@@ -156,12 +157,13 @@ log("Start")
 
 corners_list = dataset_handler.read_corners(default_input_file_name)
 
-def process_training_image(image, target_dims):
+def process_image(image, target_dims=None, training_phase=True):
 	image = image_processing.crop_center(image, 0.6)
-	if use_autoencoder:
-		image = image_processing.crop_random(image, target_dims)
-	else:
-		image = image_processing.crop_top_right(image, target_dims)
+	if training_phase:
+		if use_autoencoder:
+			image = image_processing.crop_random(image, target_dims)
+		else:
+			image = image_processing.crop_top_right(image, target_dims)
 	return image
 	
 
@@ -196,7 +198,7 @@ def ___process_image_with_corner_info(image, corners, crop=False):
 
 def load_image_as_array(file_name):
 	#image = KerasImage.load_img(file_name)
-	image = cv2.imread(file_name)
+	image = cv2.imread(file_name).astype(float)/255.0
 	# corners_list -> global
 	
 	#image_array = KerasImage.img_to_array(image)
@@ -206,7 +208,7 @@ def load_image_as_array(file_name):
 
 
 #use_normalized_images
-def create_single_sample_generator(file_names, ground_truths, target_dims, crop_image=True):
+def create_single_sample_generator(file_names, ground_truths, target_dims, training_phase=True):
 	assert(len(ground_truths) == len(ground_truths))
 	count = len(file_names)
 	while True:
@@ -220,8 +222,7 @@ def create_single_sample_generator(file_names, ground_truths, target_dims, crop_
 			#image_array = load_image_as_array(normalized_file_name)
 			image_array = load_image_as_array(file_name)
 
-			if crop_image:
-				image_array = process_training_image(image_array, target_dims)
+			image_array = process_image(image_array, target_dims=target_dims, training_phase=training_phase)
 
 			if image_array is None:
 				continue
@@ -229,51 +230,12 @@ def create_single_sample_generator(file_names, ground_truths, target_dims, crop_
 			yield image_array, ground_truths[i]
 	
 
-def __create_single_sample_generator(file_names, ground_truths):
-	assert(len(ground_truths) == len(ground_truths))
-	count = len(file_names)
-	while True:
-		permutation = np.random.permutation(count)
-		for i in permutation:
-			# image = KerasImage.load_img(file_names[i], target_size=(g_img_width,g_img_height))
-			#image = KerasImage.load_img(file_names[i])
-			#image = processImage(image)
-			#image_array = KerasImage.img_to_array(image)
-
-			image_array = load_image_as_array(file_names[i])
-
-			corners = dataset_handler.find_corners_in_list(corners_list, file_names[i])
-			if corners is None or len(corners) < 4:
-				if warn_for_no_corner_info:
-					log("Image has no corner information:", file_names[i])
-				continue
-
-			
-			image_array = process_image(image_array, corners)
-
-			if image_array is None:
-				continue
-			
-			# a modell 4d array-t vár, ezért be kell csomagolni
-			flat = False
-			if flat:
-				height, width, channels = image.shape
-				image_array = np.array(image_array).reshape((1, height, width, channels))
-				ground_truth = np.array(ground_truths[i]).reshape((1,1))
-				yield image_array, ground_truth
-			else:
-				yield image_array, ground_truths[i]
-			#image_array = image_array.reshape((1, g_img_height, g_img_width, 3))
-			#image_array = np.array(image_array)
-			
-			#yield image_array, ground_truths[i]
-
 
 # globalis parameter a g_batch_size
-def create_generator(file_names, ground_truths, target_dims=(g_img_width, g_img_height), use_autoencoder=False, crop_image=True, batch_size=g_batch_size):
+def create_generator(file_names, ground_truths, target_dims=(g_img_width, g_img_height), use_autoencoder=False, training_phase=True, batch_size=g_batch_size):
 
 	assert(len(ground_truths) == len(ground_truths))
-	single_sample_generator =  create_single_sample_generator(file_names, ground_truths, target_dims, crop_image=crop_image)
+	single_sample_generator =  create_single_sample_generator(file_names, ground_truths, target_dims, training_phase=training_phase)
 
 
 
@@ -428,7 +390,15 @@ def show_pictures(x, y, prediction):
 	fig.savefig("images/" + get_current_time_as_string() + "_teszt__.png", dpi=600)
 	#plt.show()
 	plt.close(fig)
-	
+
+def np_wrap(image):
+	h, w, ch = image.shape
+	return image.reshape((1, h, w, ch))
+
+def np_unwrap(image):
+	dims, h, w, ch = image.shape
+	assert(dims == 1)
+	return image.reshape((h, w, ch))
 
 def show_picutures_looped():
 	while True:
@@ -749,10 +719,9 @@ if stage is 1:
 		"""
 		# todo
 
-		early_stopping = EarlyStoppingByLossVal()
 
 		callbacks = [
-			early_stopping, SaveRegularly()
+			EarlyStoppingByLossVal(), SaveRegularly()
 		]
 
 		history = model.fit_generator(
@@ -782,9 +751,123 @@ if stage is 1:
 	
 
 if stage is 2:
+	#dataset_handler.read_full_input(
+	#dataset_handler.read_full_input(default_input_file_name, zip_results=True)
 
-	training_generator = create_generator(training_file_names, training_ground_truths, crop_image=False, batch_size=5)
+	entries = list(zip(training_file_names, training_ground_truths))
+	np.random.shuffle(entries) # in-place
+
+	#entries = entries[0:50]
+
+	results = []
+
+	#for entry in entries:
+	#for index, entry in enumerate(entries):
+	#	file_name, y = entry
+	#	x = load_image_as_array(file_name)
+	#	x = process_image(x, training_phase=False)
+	#	#h, w, ch = x.shape
+	#	#x = x.reshape((1, h, w, ch)) # [x] -> [[x]]
+	#	
+	#
+	#	prediction = model.predict(np_wrap(x))
+	#	prediction = np_unwrap(prediction)
+	#
+	#	MSE_np = keras.losses.mean_squared_error(x.reshape(-1), prediction.reshape(-1))
+	#	#MSE = tf.to_float(MSE)
+	#	MSE = MSE_np.eval(session=session)
+	#
+	#	#record = (x, prediction, y, file_name)
+	#	record = (MSE, y, file_name)
+	#	results.append(record)
+	#
+	#	#show_pictures(x, y, prediction)
+	#	log(index, " / ", len(entries))
+	#
+	#	gc.collect()
+
+	#for index, entry in enumerate(entries):
+	batch_size = 20
+	for i in range(0, len(entries), batch_size):
+
+
+		batch = entries[i:i+batch_size]
+		x = []
+		for entry in batch:
+			file_name, y = entry
+			image = load_image_as_array(file_name)
+			image = process_image(image, training_phase=False)
+			x.append(image)
+
+
+		x = np.array(x)
+		predictions = model.predict(x)
+
+		for index, prediction in enumerate(predictions):
+			pass
+			x_linear = x[index].reshape(-1)
+			prediction_linear = prediction.reshape(-1)
+			#MSE_np = keras.losses.mean_squared_error(x_linear, prediction_linear)
+			MSE_np = statistics.mean_squared_error(x_linear, prediction_linear)
+
+			MSE = MSE_np
+			#MSE = MSE_np.eval(session=session)
+			#
+			file_name, y = batch[index]
+			##record = (x, prediction, y, file_name)
+			record = (MSE, y, file_name)
+			results.append(record)
+
+		"""
+		x = np.array(x)
+
+		predictions = model.predict(x)
+		#predictions = x.copy()
+
+		for index, prediction in enumerate(predictions):
+			
+			MSE_np = keras.losses.mean_squared_error(x[index].reshape(-1), prediction.reshape(-1))
+			#MSE = tf.to_float(MSE)
+			MSE = MSE_np.eval(session=session)
+
+			file_name, y = batch[index]
+			#record = (x, prediction, y, file_name)
+			record = (MSE, y, file_name)
+			results.append(record)
+		"""
+		#file_name, y = entry
+		#x = load_image_as_array(file_name)
+		#x = process_image(x, training_phase=False)
+		##h, w, ch = x.shape
+		##x = x.reshape((1, h, w, ch)) # [x] -> [[x]]
+		
+
+		#prediction = model.predict(np_wrap(x))
+		#prediction = np_unwrap(prediction)
+
+		#MSE_np = keras.losses.mean_squared_error(x.reshape(-1), prediction.reshape(-1))
+		##MSE = tf.to_float(MSE)
+		#MSE = MSE_np.eval(session=session)
+
+		##record = (x, prediction, y, file_name)
+		#record = (MSE, y, file_name)
+		#results.append(record)
+
+		##show_pictures(x, y, prediction)
+		log(i, " / ", len(entries))
+
+		gc.collect()
+
+	
+	#statistics.eval(results)
+	statistics.write_results_to_csv(results, postfix=".stage2")
+
+	"""
+
+	training_generator = create_generator(training_file_names, training_ground_truths, training_phase=False, batch_size=5)
 	#validation_generator = create_generator(validation_file_names, validation_ground_truths)
+
+	results = []
 
 	for i in range(10):
 		sample = next(training_generator)
@@ -800,6 +883,9 @@ if stage is 2:
 			
 			log(y[i], MSE)
 			show_pictures(x[i], y[i], predictions[i])
+
+			results.append()
+
 		#MSE = keras.losses.mean_squared_error(x, predictions)
 		#results = list(zip(y, MSE))
 
@@ -808,7 +894,7 @@ if stage is 2:
 		log()
 		log()
 	pass
-
+	"""
 
 
 ##################################################################################################################

@@ -7,11 +7,11 @@ from sklearn.svm import SVC
 from sklearn.utils.class_weight import compute_class_weight
 
 
-import sklearn
 
 # saját
 from log import log
 import evaluate
+from statistics import create_roc_curve_plot
 
 
 
@@ -219,21 +219,6 @@ def convert_to_single_param(Y):
 		return second
 	return list(map(fnc, Y))
 
-def create_roc_curve_plot(roc_curve, roc_auc):
-	fpr, tpr, thresholds = roc_curve
-
-	plt.figure()
-	lw = 2
-	plt.plot(fpr, tpr, color='darkorange',
-			 lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
-	plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-	plt.xlim([0.0, 1.0])
-	plt.ylim([0.0, 1.05])
-	plt.xlabel('False Positive Rate')
-	plt.ylabel('True Positive Rate')
-	plt.title('Receiver operating characteristic')
-	plt.legend(loc="lower right")
-	plt.show()
 
 def test(model, X, Y):
 
@@ -298,7 +283,7 @@ if __name__ == "__main__":
 	X_test = np.array(x[test_offset:])
 	Y_test = np.array(y[test_offset:])
 
-	# todo ahol hibázik megnézni miért szar
+	# todo ahol hibázik megnézni miért rossz
 
 
 	log("creating model")

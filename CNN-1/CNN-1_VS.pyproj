@@ -30,7 +30,7 @@
     <Compile Include="dataset_handler.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="evaluate.py">
+    <Compile Include="statistics.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="image_processing.py" />
