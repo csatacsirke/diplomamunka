@@ -3,7 +3,9 @@ import os
 import numpy as np
 import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
+from enum import Enum
 
+#import tkMessageBox
 
 from log import log
 import util
@@ -80,12 +82,95 @@ class IntervalTransform:
 		value = value * (self.max - self.min) + self.min
 		return value
 
+def eval_errors(stage_3_results):
+	tp = tn = fp = fn = 0
+	for entry in stage_3_results:
+		MSE, y, pred, file_name = entry
+		
 
-def eval(results):
+		y = int(y)
+		pred = int(pred)
+
+		if y == 0 and pred == 0 : tn += 1	
+		if y == 0 and pred == 1 : fp += 1	
+		if y == 1 and pred == 0 : fn += 1	
+		if y == 1 and pred == 1 : tp += 1	
+	log("true pos:", tp)
+	log("true neg:", tn)
+	log("false pos:", fp)
+	log("false neg:", fn)
+
+
+
+def calc_errors(mse_values, y_values, threshold):
+	entries = zip(mse_values, y_values)
+	tp = tn = fp = fn = 0
+
+	for entry in entries:
+		mse, y = entry
+		#mse = float(mse)
+		#y = int(y)
+
+		pred = 1 if mse < threshold else 0
+
+		if y == 0 and pred == 0 : tn += 1	
+		if y == 0 and pred == 1 : fp += 1	
+		if y == 1 and pred == 0 : fn += 1	
+		if y == 1 and pred == 1 : tp += 1	
+
+	return (fp, fn)
+
+
+class ErrorTypes(Enum):
+	true_positive = 1
+	false_positive = 2
+	true_negative = 3
+	false_negative = 4
+	wat = -1
+
+# In statistical hypothesis testing, a type I error is the incorrect
+# rejection of a true null hypothesis (also known as a "false positive" finding),
+# while a type II error is incorrectly retaining a false null hypothesis
+# (also known as a "false negative" finding).
+
+def get_error_type(y, pred):
+	if y == 0 and pred == 0 : return ErrorTypes.true_negative
+	if y == 0 and pred == 1 : return ErrorTypes.false_positive
+	if y == 1 and pred == 0 : return ErrorTypes.false_negative
+	if y == 1 and pred == 1 : return ErrorTypes.true_positive
+	return ErrorTypes.wat
+
+def find_sweetspot(stage_2_results):
+	
+	mse_values = list(map(lambda entry: (lambda MSE, y, file_name: float(MSE))(*entry), stage_2_results))
+	y_values = list(map(lambda entry: (lambda MSE, y, file_name: int(y))(*entry), stage_2_results))
+
+	#print(y_values)
+
+	min = np.min(mse_values)
+	max = np.max(mse_values)
+	steps = 1000
+
+	log(min, " - ", max)
+	
+
+
+	for threshold in np.linspace(min, max, num=steps):
+		(fp, fn) = calc_errors(mse_values, y_values, threshold)
+		log(threshold, "->", fp, ", ", fn)
+		
+
+	return -1
+
+
+def eval(stage_2_results):
+	#find_sweetspot(stage_2_results)
+	#return
+
 	# record = (MSE, y, file_name)
 
-	r = [list(a) for a in zip(*results)]
-	#r = list(zip(*results))
+	r = [list(a) for a in zip(*stage_2_results)]
+	#r = list(zip(*stage_2_results))
 	#print(r)
 
 	MSE_list = r[0]
@@ -95,9 +180,16 @@ def eval(results):
 	y_list = np.array(y_list).astype(np.float)
 	MSE_list = np.array(MSE_list).astype(np.float)
 
+	
+	#_r = map(stage_2_results
+
+
+
+
+
 	tr = IntervalTransform(MSE_list)
 
-	MSE_list = tr.transform(MSE_list)
+	MSE_list_01 = tr.transform(MSE_list)
 	#MSE_list = one_minus(normalize(MSE_list))
 
 	print(MSE_list)
@@ -106,20 +198,18 @@ def eval(results):
 
 	# TODO
 	#ex_has_prob_hatar = 0.5
-	ex_has_prob_hatar = 0.8
+	#ex_has_prob_hatar = 0.0940293102095
 
-	visualize_data = True
-	if visualize_data:
-		roc_auc_score = metrics.roc_auc_score(y_list, MSE_list)
-		roc_curve = metrics.roc_curve(y_list, MSE_list)
-		create_roc_curve_plot(roc_curve, roc_auc_score)
 	
-	ex_has_hatar = tr.inverse_transform(ex_has_prob_hatar)
+	#ex_has_hatar = tr.inverse_transform(ex_has_prob_hatar)
 
-	log("hatar: ", ex_has_hatar)
+	# todo
+	ex_has_hatar = 0.0940293102095
+	#log("hatar: ", ex_has_hatar)
+
 
 	predictions = []
-	for record in results:
+	for record in stage_2_results:
 		# (MSE, y, file_name)
 		MSE, y, file_name = record
 		MSE = float(MSE)
@@ -127,7 +217,7 @@ def eval(results):
 
 
 		#log(MSE, "->", tr.transform(MSE))
-		log(MSE, "->", pred, "/", y)
+		#log(MSE, "->", pred, "/", y)
 
 		predictions.append((MSE, y, pred, file_name))
 		#predictions = {
@@ -136,8 +226,26 @@ def eval(results):
 		#	"y_pred": pred,
 		#	"file" : file_name
 		#}
+
+
+	
+	predictions = filter(lambda entry: (lambda MSE, y, pred, file_name: "eredetibol.nyomtatott." not in file_name)(*entry), predictions)
+
+	eval_errors(predictions)
+	#result = tkMessageBox.askquestion("Save?", "Save results?", icon='warning')
+	#if result == "yes":
 	header = ("MSE", "y", "pred", "file_name")
-	#write_results_to_csv(predictions, header=header, postfix=".stage3")			
+
+	save_results = False
+	if save_results:
+		write_results_to_csv(predictions, header=header, postfix=".stage3")
+
+	
+	visualize_data = True
+	if visualize_data:
+		roc_auc_score = metrics.roc_auc_score(y_list, MSE_list_01)
+		roc_curve = metrics.roc_curve(y_list, MSE_list_01)
+		create_roc_curve_plot(roc_curve, roc_auc_score)
 
 	return
 

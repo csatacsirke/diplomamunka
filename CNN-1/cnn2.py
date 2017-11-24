@@ -37,7 +37,7 @@ col2im / im2col
             		
 debug: 1-2 képre overfit a trainen
 
-TODO a transzformációt elöre kéne megcsinálni, nem röptében
+*TODO a transzformációt elöre kéne megcsinálni, nem röptében
 """
 
 
@@ -57,13 +57,13 @@ epochs = 50
 g_batch_size = 16
 # g_batch_size = 16
 
-use_autoencoder = True
+use_autoencoder = False
 evaluate_only = False
 weights_only = False
 
 
-recalculate = False
-stage = 2
+recalculate = True
+stage = 1
 
 
 evaluate_show_pictures = True
@@ -155,7 +155,7 @@ log("Start")
 
 
 
-corners_list = dataset_handler.read_corners(default_input_file_name)
+#corners_list = dataset_handler.read_corners(default_input_file_name)
 
 def process_image(image, target_dims=None, training_phase=True):
 	image = image_processing.crop_center(image, 0.6)
@@ -167,32 +167,32 @@ def process_image(image, target_dims=None, training_phase=True):
 	return image
 	
 
-def ___process_image_with_corner_info(image, corners, crop=False):
+#def ___process_image_with_corner_info(image, corners, crop=False):
 
-	image = image_processing.normalize_image(image, corners)
-	#if crop: # TODO
-	if stage == 1:
-		image = image_processing.crop_random(image, (g_img_width, g_img_height))
+#	image = image_processing.normalize_image(image, corners)
+#	#if crop: # TODO
+#	if stage == 1:
+#		image = image_processing.crop_random(image, (g_img_width, g_img_height))
 	
-	"""
-	dx = np.random.randint(-image.width//4, image.width//4+1)
-	dy = np.random.randint(-image.height//4, image.height//4+1)
+#	"""
+#	dx = np.random.randint(-image.width//4, image.width//4+1)
+#	dy = np.random.randint(-image.height//4, image.height//4+1)
 
 	
-	center_x = image.width // 2 + dx
-	center_y = image.height // 2 + dy
-	# TODO randomizálni kicsit a centert
+#	center_x = image.width // 2 + dx
+#	center_y = image.height // 2 + dy
+#	# TODO randomizálni kicsit a centert
 
-	left = center_x - g_img_width // 2
-	top = center_y - g_img_height // 2
-	right = left + g_img_width
-	bottom = top + g_img_height
+#	left = center_x - g_img_width // 2
+#	top = center_y - g_img_height // 2
+#	right = left + g_img_width
+#	bottom = top + g_img_height
 	
-	image = image.crop((left, top, right, bottom))
+#	image = image.crop((left, top, right, bottom))
 
-	assert(image.width == g_img_width and image.height == g_img_height)
-	"""
-	return image
+#	assert(image.width == g_img_width and image.height == g_img_height)
+#	"""
+#	return image
 
 
 
@@ -274,24 +274,6 @@ def create_generator(file_names, ground_truths, target_dims=(g_img_width, g_img_
 
 
 
-
-## nem volt jó mert 1 méretü batcheket csinált
-#def __deprecated_create_generator(file_names, ground_truths):
-#	assert(len(ground_truths) == len(ground_truths))
-#	count = len(file_names)
-#	while True:
-#		permutation = np.random.permutation(count)
-#		for i in permutation:
-#			# image = KerasImage.load_img(file_names[i], target_size=(g_img_width,g_img_height))
-#			image = KerasImage.load_img(file_names[i])
-#			image = processImage(image)
-#			image_array = KerasImage.img_to_array(image)
-#			# a modell 4d array-t vár, ezért be kell csomagolni
-#			image_array = np.array(image_array).reshape((1, g_img_height, g_img_width, 3))
-#			ground_truth = np.array(ground_truths[i]).reshape((1,1))
-#			#image_array = image_array.reshape((1, g_img_height, g_img_width, 3))
-#			#image_array = np.array(image_array)
-#			yield image_array, ground_truth
 
 def beautfy_result(results_row):
 	"""
@@ -421,8 +403,6 @@ def evaluate_autoencoder():
 	return
 
 
-# modell épités
-log("Building model")
 
 
 """
@@ -587,14 +567,6 @@ def load_or_build_model():
 	return model
 
 
-(training_file_names, training_ground_truths,
-	validation_file_names, validation_ground_truths,
-	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new(default_input_file_name)
-
-
-training_generator = create_generator(training_file_names, training_ground_truths, use_autoencoder=use_autoencoder)
-validation_generator = create_generator(validation_file_names, validation_ground_truths, use_autoencoder=use_autoencoder)
-
 
 #if False:	
 	
@@ -615,13 +587,6 @@ validation_generator = create_generator(validation_file_names, validation_ground
 #debug = next(create_generator(training_file_names, training_ground_truths))
 #debug2 = next(create_generator(validation_file_names, validation_ground_truths))
 
-nb_train_samples = len(training_file_names)
-nb_validation_samples = len(validation_file_names)
-
-steps_per_epoch = nb_train_samples // g_batch_size
-
-#validation_steps = nb_validation_samples // g_batch_size
-validation_steps = nb_validation_samples // g_batch_size
 
 
 #d1 = create_generator(training_file_names, training_ground_truths) 
@@ -695,6 +660,17 @@ def save_model(model):
 	log("Saved weights to : " + file_name)
 
 
+################################################################################################
+	
+(training_file_names, training_ground_truths,
+	validation_file_names, validation_ground_truths,
+	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new(default_input_file_name)
+
+
+training_generator = create_generator(training_file_names, training_ground_truths, use_autoencoder=use_autoencoder)
+validation_generator = create_generator(validation_file_names, validation_ground_truths, use_autoencoder=use_autoencoder)
+
+
 model = load_or_build_model()
 
 
@@ -711,10 +687,10 @@ if stage is 1:
 	while True:
 		"""
 		callbacks:
-			early stopping 
+			*early stopping 
 			terminate on nan
 			history
-			modell checkpoint
+			*modell checkpoint
 		itt is használni a class weightset
 		"""
 		# todo
@@ -723,6 +699,12 @@ if stage is 1:
 		callbacks = [
 			EarlyStoppingByLossVal(), SaveRegularly()
 		]
+
+		
+		nb_train_samples = len(training_file_names)
+		nb_validation_samples = len(validation_file_names)
+		steps_per_epoch = nb_train_samples // g_batch_size
+		validation_steps = nb_validation_samples // g_batch_size
 
 		history = model.fit_generator(
 			training_generator,

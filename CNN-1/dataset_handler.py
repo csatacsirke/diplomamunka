@@ -180,7 +180,29 @@ def balance_input(x, y):
 
 		assert(negative_samples[index % len(negative_samples)][1] == 0)
 
+	log("Duplicated ", (len(x_balanced)-len(x)), "samples to balance the input")
 	return (x_balanced, y_balanced)
+
+
+def filter_offset_counterfeits(file_names, ground_truths):
+
+	
+	pairs = zip(file_names, ground_truths)
+
+	pairs = list(filter(lambda entry: (lambda file_name, _: "eredetibol.nyomtatott." not in file_name)(*entry), pairs))
+
+
+	filtered_file_names = list(map(lambda entry: (lambda fn, _: fn)(*entry), pairs))
+	filtered_ground_truths = list(map(lambda entry: (lambda _, gt: gt)(*entry), pairs))
+
+
+	assert(len(filtered_file_names) == len(filtered_ground_truths))
+
+	log("filtered offsets: ", len(file_names) - len(filtered_file_names))
+
+	return filtered_file_names, filtered_ground_truths
+
+
 
 def create_new_random_dataset_separation(input_file):
 	#global training_file_names, training_ground_truths
@@ -193,6 +215,13 @@ def create_new_random_dataset_separation(input_file):
 	#file_names, ground_truths = readInputParamsFromCsv(input_csv)
 	file_names, ground_truths = read_full_input(input_file)
 
+	log("total samples: ", len(file_names))
+
+	no_offset_counterfeit = True
+	if no_offset_counterfeit:
+		file_names, ground_truths = filter_offset_counterfeits(file_names, ground_truths)
+
+
 	#file_names, ground_truths = balance_input(file_names, ground_truths)
 
 	sample_count = len(file_names)
@@ -203,7 +232,7 @@ def create_new_random_dataset_separation(input_file):
 	file_names = list(map(lambda x: file_names[x] , permutation))
 	ground_truths = list(map(lambda x: ground_truths[x] , permutation))
 
-
+	
 	# TODO majd 'test set'
 	training_ratio = 0.70
 	validation_ratio = 0.15
@@ -318,6 +347,15 @@ def save_dataset(dataset):
 
 #	return new_path
 	
+
+def main():
+	default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
+	create_new_random_dataset_separation(default_input_file_name)
+
+	return
+
+if __name__ == "__main__":
+	main()
 	
 
 
