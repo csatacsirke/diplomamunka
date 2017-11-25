@@ -1,8 +1,132 @@
+
+
+
 % Ajánlott minden fő fejezetet külön fájlba írni, pl.:
+
+
 
 %\include{tex/bevezeto}
 %\include{tex/felhasznaloi}
 %\include{tex/fejlesztoi}
 %\include{tex/irodalom}
+
+
+
+%A diplomamunkának a következő fő részekből kell állnia: 
+%1. A dolgozatban megoldott probléma megfogalmazása.
+%2. A problémakör irodalmának, az előzményeknek rövid áttekintése.
+%3. A probléma megoldásának részletes ismertetése, a választott megoldás indoklása.
+%4. Az eredmények összefoglaló értékelése és a levonható következtetések leírása.
+%5. 5. Ha a diplomamunka fő eredménye egy program, akkor a dolgozat része a program felhasználói
+%dokumentációja, fejlesztési dokumentációja
+
+% III. A diplomamunkára vonatkozó formai követelmények:
+% 1. A diplomamunkát nyomtatva, bekötve kell benyújtani az illetékes tanszékre.
+% 2. A diplomamunka első oldalán fel kell tüntetni a diplomamunka címét, szerzőjének nevét,
+% szakját, az illetékes tanszéket, a témavezető nevét, a külső konzulens nevét, a beadás helyét és
+% a védés évét.
+% 3. A dolgozat 2. oldala a hivatalos diplomamunkai témabejelentő.
+% 4. A Bevezetés tartalmazzon a Diplomamunka-téma bejelentő lapon kitűzött feladat teljesítésének
+% mértékére vonatkozó információt.
+% 5. A diplomamunka fő részei a dolgozat önálló fejezetei legyenek.
+% 6. A diplomamunkának legyen Tartalomjegyzéke és a felhasznált irodalomról Irodalomjegyzéke.
+% 7. A diplomamunkában be kell tartani a hivatkozások és idézések standard szabályait. 
+
+
+We did a pretty good\textsuperscript{\textit{job}}so far
+
+\section{Bevezetés}
+\section{Háttér}
+
+
+
+
+nyomdász
+vonalvastagság
+legkisebb nyomtatható elem
+különböző nyomda és fénymásoló technika
+akár azt is meg lehet mondani mivel készült
+aktív track and trace + biztonsági elemek
+-> másfeles kategóriás cuccot szeretnénk
+OVD
+
+
+roc
+
+
+\subsection{Mikor biztonságos egy nyomat?}
+
+Alapvetően akkor, hogy ha megpróbáljuk valahogy reprodukálni, akkor
+mérhető lesz a különbség az eredeti és a hamis között.
+
+Ha védeni szeretnénk egy dokumentumot vagy bankjegyet általában 
+többféle módszert használunk egyszerre, amelyek optimális esetben 
+ortogonálisak, tehát hamisításnál mindegyikre valahogy máshogyan kell 
+felkészülni. Ezek a \textit{feature-öket} alapvetően két kategóriába tudjuk sorolni. 
+Az első amit az utca embere is könnyen ellenőrizhet, például a Magyar Forintokon 
+a fémszalag, vagy a színváltó tinta, de akár a papír taktilitása is.
+A második amihez már valamilyen speciális eszköz is kell. Erre a legismertebb 
+példa az UV lámpa, ami mindenhol megtalálható ahol pénz forog.
+A valóságban létezik egy harmadik kategória is, ami a titkos, csak 
+laborban kimutatható tulajdonságokat tartalmazza, de ezekkel érthető
+módon nem foglalkozunk.
+
+
+\subsection{Előző megoldások}
+
+Ha egy nyomdász vagy szakértő ránéz egy biztonsági nyomatra, 
+általában már a hagyományos, tintával készült részekből meg tudja
+állapítani az eredetiséget. Ennek oka, hogy a hamisításhoz jó esetben nem áll 
+rendelkezésre sem ugyanolyan papír, sem ugyanolyan nyomtató vagy olyan fénymásoló,
+amely pont olyan eredményt produkál mint az eredeti.
+Ennek feltétele, hogy mikor tervezzük a nyomatot tudjuk azt, hogy
+milyen géppel fog készülni, és úgy tervezzük meg a nyomtatandó struktúrákat,
+hogy azok éppen csak nyomtathatóak legyenek.
+
+
+Kézenfekvő, hogy ezt a tudást szerették volna algoritmizálni. Így születtek olyan
+programok amik ilyen képek alapján próbálják megállapítani az eredetiséget. 
+Ilyenkor készítettek különböző hamisítványokat, és összehasonlították őket az eredetiekkel,
+és addig csiszolták az algoritmusokat, amíg azok elfogadható eredményeket nem adtak.
+
+
+Így születtek olyan megoldások, amik az első és a második fent említett kategória 
+közé esnek, azaz az utca emberének lettek tervezve, de mégis céleszközt használva
+ellenőrzik a nyomatot, ám ezeket egy okostelefon birtokában bárki elérheti.
+Az ötlet, hogy lefényképezzük a dokumentumot, és ezt helyben, egy \textit{appal} elemezzük.
+
+
+Speciálisan, az általunk részben felhasznált megoldás különböző szempontok alapján méréseket
+végez a képen, és néhány (nagyságrendileg 10-12) mérőszámot ad eredményül, melyeket aztán
+aggregál, és egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni biztonsággal}.
+
+A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például nagyon jó hamisítvány is,
+de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
+
+\subsection{Gépi tanulás}
+
+valamit általánosan a gép tanulásról?
+
+\subsubsection{Támasztóvektor Gép}
+
+A Támasztóvektor Gép (Support Vector Machine, SVM)
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Megoldási módszerek}
+\subsection{Támasztóvektor gép}
+\subsection{Konvolúciós háló}
+\subsection{Autoencoder}
+\section{Eredmények}
+
 
 
