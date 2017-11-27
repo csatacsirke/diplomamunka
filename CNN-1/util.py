@@ -24,8 +24,8 @@ def get_last_file_with_ending(extension):
 		return None
 	
 
-def get_last_weight_file():
-	return get_last_file_with_ending(".h5")
+def get_last_weight_file(postfix=""):
+	return get_last_file_with_ending(postfix+".h5")
 
 
 #def get_last_weight_file():

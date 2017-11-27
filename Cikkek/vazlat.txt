@@ -1,4 +1,4 @@
-
+﻿
 introduction
 	miről szól, részletek nélkül
 	egyre szűkül a téma

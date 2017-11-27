@@ -4,6 +4,7 @@ import numpy as np
 import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 from enum import Enum
+import win32api
 
 #import tkMessageBox
 
@@ -163,7 +164,7 @@ def find_sweetspot(stage_2_results):
 	return -1
 
 
-def eval(stage_2_results):
+def eval_autoencoder(stage_2_results):
 	#find_sweetspot(stage_2_results)
 	#return
 
@@ -249,6 +250,20 @@ def eval(stage_2_results):
 
 	return
 
+def eval_predictor(stage_2_results):
+
+	
+	predicted_values = list(map(lambda entry: (lambda pred, y, file_name: float(pred))(*entry), stage_2_results))
+	y_values = list(map(lambda entry: (lambda pred, y, file_name: int(y))(*entry), stage_2_results))
+
+
+	visualize_data = True
+	if visualize_data:
+		roc_auc_score = metrics.roc_auc_score(y_values, predicted_values)
+		roc_curve = metrics.roc_curve(y_values, predicted_values)
+		create_roc_curve_plot(roc_curve, roc_auc_score)
+
+	return
 
 def main():
 	csv_file_name = util.get_last_file_with_ending("stage2.csv")
@@ -260,7 +275,19 @@ def main():
 	for row in reader:
 		rows.append(row)
 
-	eval(rows)
+	if "autoencoder" in csv_file_name:
+		eval_fnc = eval_autoencoder
+		#eval_autoencoder(rows)
+	elif "predictor" in csv_file_name:
+		eval_fnc = eval_predictor
+		#eval_predictor(rows)
+	else:
+		log("missing metadatada in filename - trying autoencoder config")
+		eval_fnc = eval_autoencoder
+		pass
+
+	eval_fnc(rows)
+
 	return
 
 if __name__ == "__main__":

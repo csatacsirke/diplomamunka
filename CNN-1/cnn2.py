@@ -58,12 +58,12 @@ g_batch_size = 16
 # g_batch_size = 16
 
 use_autoencoder = False
-evaluate_only = False
+#evaluate_only = False
 weights_only = False
 
 
-recalculate = True
-stage = 1
+recalculate = False
+stage = 2
 
 
 evaluate_show_pictures = True
@@ -72,14 +72,14 @@ use_normalized_images = True
 
 # Ezt töltsd ki ha szeretnéd betölteni a munkamenetet
 weight_file = None
-if not recalculate:
-	weight_file = get_last_weight_file()
+#if not recalculate:
+#	weight_file = get_last_weight_file()
 
 	
 
-if evaluate_only:
-	assert(recalculate == False)
-	recalculate = False
+#if evaluate_only:
+#	assert(recalculate == False)
+#	recalculate = False
 
 
 
@@ -159,11 +159,13 @@ log("Start")
 
 def process_image(image, target_dims=None, training_phase=True):
 	image = image_processing.crop_center(image, 0.6)
-	if training_phase:
-		if use_autoencoder:
+	if use_autoencoder:
+		if training_phase:
 			image = image_processing.crop_random(image, target_dims)
-		else:
-			image = image_processing.crop_top_right(image, target_dims)
+	else:
+		image = image_processing.crop_top_right(image, target_dims)
+	
+		
 	return image
 	
 
@@ -403,8 +405,6 @@ def evaluate_autoencoder():
 	return
 
 
-
-
 """
 float16 ot meg lehet próbálni
 conv2 + dense:
@@ -496,7 +496,7 @@ def build_autoencoder_model():
 	return model
 
 
-def build_model():
+def build_predictor_model():
 	model = Sequential()
 	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
 	model.add(Activation('relu'))
@@ -541,6 +541,168 @@ def build_model():
 
 	return model
 
+
+class Scheme:
+	def __init__(self, postfix=""):
+		self.postfix = postfix
+	
+
+	def load_or_build_model(self, force_recalculate=False):
+		model = None
+		#if force_recalculate:
+		weight_file = None if force_recalculate else get_last_weight_file(postfix=self.postfix)
+
+		log("Weight file :", weight_file)
+
+		if weight_file is not None:
+			try:
+				model = load_model(weight_file)
+				log("Successfully loaded full model: ", weight_file, "\r\n")
+			except ValueError:
+				log("Invalid model file (probably only saved weights)", weight_file, "\r\n")
+				model = None
+
+		if model is None:
+			model = self.build_model()
+			log("Rebuilt model from scratch")
+			#if use_autoencoder:
+			#	model = build_autoencoder_model()
+			#else:
+			#	model = build_predictor_model()
+
+
+			if weight_file is not None:
+				log("Loading weights from: " + weight_file)
+				try:
+					model.load_weights(weight_file)
+				except:
+					log("Failed to load weights!!!! probably different architecture")
+		return model
+
+
+	def save_model(model):
+		postfix = self.postfix;
+		postfix = "" if postfix=="" else "." + postfix
+
+		if weights_only:
+			file_name = get_current_time_as_string() + '.weights' + postfix +'.h5'
+			model.save_weights(file_name)
+		else:
+			file_name = get_current_time_as_string() + '.full_model' + postfix +'.h5'
+			model.save(file_name)
+
+		log()
+		log("Saved weights to : " + file_name)
+
+
+
+class AutoencoderScheme(Scheme):
+	
+	def __init__(self):
+		super().__init__(postfix="autoencoder")
+
+	def build_model(self):
+		return build_autoencoder_model()
+	
+	def eval(self, model):
+		
+		entries = list(zip(training_file_names, training_ground_truths))
+		np.random.shuffle(entries) # in-place
+
+		#entries = entries[0:50]
+
+		results = []
+
+		batch_size = 20
+		for i in range(0, len(entries), batch_size):
+
+
+			batch = entries[i:i+batch_size]
+			x = []
+			for entry in batch:
+				file_name, y = entry
+				image = load_image_as_array(file_name)
+				image = process_image(image, training_phase=False)
+				x.append(image)
+
+
+			x = np.array(x)
+			predictions = model.predict(x)
+
+			for index, prediction in enumerate(predictions):
+			
+				x_linear = x[index].reshape(-1)
+				prediction_linear = prediction.reshape(-1)
+				#MSE_np = keras.losses.mean_squared_error(x_linear, prediction_linear)
+				MSE_np = statistics.mean_squared_error(x_linear, prediction_linear)
+
+				MSE = MSE_np
+				#MSE = MSE_np.eval(session=session)
+				#
+				file_name, y = batch[index]
+				##record = (x, prediction, y, file_name)
+				record = (MSE, y, file_name)
+				results.append(record)
+
+		
+			log(i, " / ", len(entries))
+
+			gc.collect()
+
+	
+		#statistics.eval(results)
+		statistics.write_results_to_csv(results, postfix="."+self.postfix+".stage2")
+
+
+class PredictorScheme(Scheme):
+	def __init__(self):
+		super().__init__(postfix="predictor")
+
+	def build_model(self):
+		return build_predictor_model()
+
+	def eval(self, model):
+		
+		entries = list(zip(training_file_names, training_ground_truths))
+		np.random.shuffle(entries) # in-place
+
+		#entries = entries[0:50]
+
+		results = []
+
+		batch_size = 20
+		for i in range(0, len(entries), batch_size):
+
+
+			batch = entries[i:i+batch_size]
+			x = []
+			for entry in batch:
+				file_name, y = entry
+				image = load_image_as_array(file_name)
+				image = process_image(image, training_phase=False, target_dims=(g_img_width, g_img_height))
+				x.append(image)
+
+
+			x = np.array(x)
+			predictions = model.predict(x)
+
+			for index, prediction in enumerate(predictions):
+			
+				file_name, y = batch[index]
+				record = (prediction[1], y, file_name)
+				results.append(record)
+
+		
+			log(i, " / ", len(entries))
+
+			gc.collect()
+
+	
+		#statistics.eval(results)
+		statistics.write_results_to_csv(results, postfix="."+self.postfix+".stage2")
+
+
+
 def load_or_build_model():
 	model = None
 	if weight_file is not None:
@@ -555,7 +717,7 @@ def load_or_build_model():
 		if use_autoencoder:
 			model = build_autoencoder_model()
 		else:
-			model = build_model()
+			model = build_predictor_model()
 
 
 		if weight_file is not None:
@@ -643,7 +805,8 @@ class SaveRegularly(Callback):
 
 		if self.counter == self.save_interval:
 			self.counter = 0
-			save_model(self.model)
+			scheme.save_model(self.model)
+			#save_model(self.model)
 
 
 
@@ -660,6 +823,9 @@ def save_model(model):
 	log("Saved weights to : " + file_name)
 
 
+
+
+
 ################################################################################################
 	
 (training_file_names, training_ground_truths,
@@ -671,16 +837,23 @@ training_generator = create_generator(training_file_names, training_ground_truth
 validation_generator = create_generator(validation_file_names, validation_ground_truths, use_autoencoder=use_autoencoder)
 
 
-model = load_or_build_model()
+if use_autoencoder:
+	scheme = AutoencoderScheme()
+else:
+	scheme = PredictorScheme()
 
 
-if evaluate_only:
-	log("Evaluating")
-	if use_autoencoder:
-		evaluate_autoencoder()
-	else:
-		evaluate()
-	sys.exit()
+model = scheme.load_or_build_model(force_recalculate=recalculate)
+#model = load_or_build_model()
+
+
+#if evaluate_only:
+#	log("Evaluating")
+#	if use_autoencoder:
+#		evaluate_autoencoder()
+#	else:
+#		evaluate()
+#	sys.exit()
 	
 if stage is 1:
 	log("Fitting")
@@ -733,9 +906,9 @@ if stage is 1:
 	
 
 if stage is 2:
-	#dataset_handler.read_full_input(
-	#dataset_handler.read_full_input(default_input_file_name, zip_results=True)
-
+	
+	scheme.eval(model)
+	"""
 	entries = list(zip(training_file_names, training_ground_truths))
 	np.random.shuffle(entries) # in-place
 
@@ -743,32 +916,6 @@ if stage is 2:
 
 	results = []
 
-	#for entry in entries:
-	#for index, entry in enumerate(entries):
-	#	file_name, y = entry
-	#	x = load_image_as_array(file_name)
-	#	x = process_image(x, training_phase=False)
-	#	#h, w, ch = x.shape
-	#	#x = x.reshape((1, h, w, ch)) # [x] -> [[x]]
-	#	
-	#
-	#	prediction = model.predict(np_wrap(x))
-	#	prediction = np_unwrap(prediction)
-	#
-	#	MSE_np = keras.losses.mean_squared_error(x.reshape(-1), prediction.reshape(-1))
-	#	#MSE = tf.to_float(MSE)
-	#	MSE = MSE_np.eval(session=session)
-	#
-	#	#record = (x, prediction, y, file_name)
-	#	record = (MSE, y, file_name)
-	#	results.append(record)
-	#
-	#	#show_pictures(x, y, prediction)
-	#	log(index, " / ", len(entries))
-	#
-	#	gc.collect()
-
-	#for index, entry in enumerate(entries):
 	batch_size = 20
 	for i in range(0, len(entries), batch_size):
 
@@ -786,7 +933,7 @@ if stage is 2:
 		predictions = model.predict(x)
 
 		for index, prediction in enumerate(predictions):
-			pass
+			
 			x_linear = x[index].reshape(-1)
 			prediction_linear = prediction.reshape(-1)
 			#MSE_np = keras.losses.mean_squared_error(x_linear, prediction_linear)
@@ -800,42 +947,7 @@ if stage is 2:
 			record = (MSE, y, file_name)
 			results.append(record)
 
-		"""
-		x = np.array(x)
-
-		predictions = model.predict(x)
-		#predictions = x.copy()
-
-		for index, prediction in enumerate(predictions):
-			
-			MSE_np = keras.losses.mean_squared_error(x[index].reshape(-1), prediction.reshape(-1))
-			#MSE = tf.to_float(MSE)
-			MSE = MSE_np.eval(session=session)
-
-			file_name, y = batch[index]
-			#record = (x, prediction, y, file_name)
-			record = (MSE, y, file_name)
-			results.append(record)
-		"""
-		#file_name, y = entry
-		#x = load_image_as_array(file_name)
-		#x = process_image(x, training_phase=False)
-		##h, w, ch = x.shape
-		##x = x.reshape((1, h, w, ch)) # [x] -> [[x]]
 		
-
-		#prediction = model.predict(np_wrap(x))
-		#prediction = np_unwrap(prediction)
-
-		#MSE_np = keras.losses.mean_squared_error(x.reshape(-1), prediction.reshape(-1))
-		##MSE = tf.to_float(MSE)
-		#MSE = MSE_np.eval(session=session)
-
-		##record = (x, prediction, y, file_name)
-		#record = (MSE, y, file_name)
-		#results.append(record)
-
-		##show_pictures(x, y, prediction)
 		log(i, " / ", len(entries))
 
 		gc.collect()
@@ -845,39 +957,6 @@ if stage is 2:
 	statistics.write_results_to_csv(results, postfix=".stage2")
 
 	"""
-
-	training_generator = create_generator(training_file_names, training_ground_truths, training_phase=False, batch_size=5)
-	#validation_generator = create_generator(validation_file_names, validation_ground_truths)
-
-	results = []
-
-	for i in range(10):
-		sample = next(training_generator)
-		x, y = sample
-		predictions = model.predict(x)
-		#keras.losses.mean_absolute_error
-		#MSE = []
-		for i in range(len(x)):
-			#MSE.append(keras.losses.mean_squared_error(x[i], predictions[i]))
-			MSE = keras.losses.mean_squared_error(x[i].reshape(-1), predictions[i].reshape(-1))
-			MSE = tf.to_float(MSE)
-			MSE = MSE.eval(session=session)
-			
-			log(y[i], MSE)
-			show_pictures(x[i], y[i], predictions[i])
-
-			results.append()
-
-		#MSE = keras.losses.mean_squared_error(x, predictions)
-		#results = list(zip(y, MSE))
-
-		#log(results)
-		log()
-		log()
-		log()
-	pass
-	"""
-
 
 ##################################################################################################################
 
