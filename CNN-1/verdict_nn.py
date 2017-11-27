@@ -5,12 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.utils.class_weight import compute_class_weight
-
+import sklearn
 
 
 # saját
 from log import log
-import evaluate
+import statistics
 from statistics import create_roc_curve_plot
 
 
@@ -227,7 +227,7 @@ def test(model, X, Y):
 	results = list(zip(X, Y, Y_pred, file_names))
 	add_evaluation_coulumn(results)
 
-	evaluate.write_results_to_csv(results)
+	statistics.write_results_to_csv(results)
 
 
 	Y_pred_proba = convert_to_single_param(model.predict_proba(X))
