@@ -35,9 +35,6 @@
 % 6. A diplomamunkának legyen Tartalomjegyzéke és a felhasznált irodalomról Irodalomjegyzéke.
 % 7. A diplomamunkában be kell tartani a hivatkozások és idézések standard szabályait. 
 
-
-We did a pretty good\textsuperscript{\textit{job}}so far
-
 \section{Bevezetés}
 \section{Háttér}
 
@@ -178,7 +175,14 @@ Ekkor a súlyok:
 
 $ \underline{w} = \sumn{i} c_i y_i x_i $
 
-$ b = \underline{w}^T \cdot \underline{x}  - y_i$
+\noindent
+Keressünk egy margón lévő $ (x_i, y_i) $ párt:
+$ b = \underline{w}^T \cdot \underline{x}_i  - y_i$
+
+\noindent
+Egy minta osztályozása:
+
+$ \overline{y} = sgn(\underline{w} \cdot \underline{x} - b) $
 
 \noindent
 TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
@@ -208,13 +212,27 @@ $ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
 $ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\varphi(x_i) \cdot \varphi(x_j)) y_i c_j $
 
 \noindent
-és
+ahol $ \forall i: $
+
+$  \sumn{i} c_i y_i = 0 $
+
+$ 0 \leq c_i \leq \frac{1}{2n\lambda} $
+
+\noindent
+és ekkor
 
 $ \underline{w} = \sumn{i} c_i y_i \varphi(x_i) $
 
-$ b = \underline{w}^T \cdot \varphi(\underline{x})  - y_i$
+\noindent
+Keressünk egy margón lévő $ (x_i, y_i) $ párt:
+
+$ b = \underline{w}^T \cdot \varphi(\underline{x}_i)  - y_i$
 
 
+\noindent
+Egy minta osztályozása ekkor:
+
+$ \overline{y} = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) $
 
 
 \paragraph{Kernel trükk} 
@@ -226,10 +244,21 @@ elvégeznénk.
 
 
 \noindent
-Vezessük be a \textit{kernel függvényeket}:
+Ehhez vezessük be a \textit{kernel függvényeket}:
 
 $ K(x_i, x_j) = \varphi(x_i)^T \cdot \varphi(x_j) $
 
+\noindent
+Látható, hogy a maximalizálás ekkor is elvégezhető, és a predikció is csak kicsit módosul
+egy $ x' $ mintára:
+
+$ y' = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) = $
+$ sgn(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}') - b) $
+
+
+
+
+\subsubsection{Konvolúciós háló}
 
 
 
@@ -254,6 +283,11 @@ $ K(x_i, x_j) = \varphi(x_i)^T \cdot \varphi(x_j) $
 \subsection{Konvolúciós háló}
 \subsection{Autoencoder}
 \section{Eredmények}
+
+
+
+We did a pretty good\textsuperscript{\textit{job}}so far
+
 
 
 
