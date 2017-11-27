@@ -1,5 +1,8 @@
 
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
 
+
+\newcommand{\sumn}[1]{\sum\limits_{{#1}=1}^{n}}
 
 % Ajánlott minden fő fejezetet külön fájlba írni, pl.:
 
@@ -105,11 +108,135 @@ de akár egy rossz kép is, például ha remegett az ember keze fényképezésko
 
 \subsection{Gépi tanulás}
 
-valamit általánosan a gép tanulásról?
+TODO valamit általánosan a gép tanulásról?
 
 \subsubsection{Támasztóvektor Gép}
 
-A Támasztóvektor Gép (Support Vector Machine, SVM)
+A Támasztóvektor Gép (Support Vector Machine, SVM) egy klaszterező eljárás, amivel egy adathalmaz két 
+csoportra bontható. Alapja, hogy teret egy hipersíkkal ketté osztjuk úgy, hogy a két csoport előjeles 
+távolsága ($ d_1, d_2 $) a hipersíktól maximális legyen. 
+Egy csoport és sík távolsága alatt a sík és az ahhoz legközelebbi, az adott csoportba tartozó elem távolságát értjük. 
+
+
+A két távolság összegét hívjuk \textit{margónak}: $ d = d_1 + d_2 $.
+
+A bemenő adatok vektorait $ \underline{x_i} $-vel, a hozzájuk tartozó kimenetet
+$ y_i $-vel, ahol $ y_i=-1 $, ha az első csoportba tartozik, és $ y_i=1 $, ha a másodikba.
+
+A hipersíkot a normálvektorával(súlyával, weight): $ \underline{w} $, és \textit{bias}-szal 
+(részlehajlás): $ b $ ábrázoljuk.
+
+
+Ekkor a sík pontjai $ \underline{x}: \underline{x}^T \cdot \underline{w} - b = 0 $
+
+A csoportok margójához tartozó hipersíkok pedig:
+
+$ \underline{x}: \underline{x}^T \cdot \underline{w} - b = +1 $
+
+$ \underline{x}: \underline{x}^T \cdot \underline{w} - b = -1 $
+\\
+Ekkor a feladat $ \underline{w} $ és $ b $ meghatározása úgy, hogy 
+
+$ \underline{x}^T \cdot \underline{w} - b \geq +1 $ ha $  y=1 $
+
+$ \underline{x}^T \cdot \underline{w} - b \leq -1 $ ha $  y=-1 $
+
+Ekkor $ d_1 = d_2 = \frac{2}{\norm{\underline{w}}} $  
+\\
+Mivel $ d $-t szeretnénk maximalizálni, a feladat felírható:
+
+$ y_i \cdot (\underline{x}^T \cdot \underline{w} + b) \geq 1 $
+
+$ \min\limits_{w, b} \norm{\underline{w}} $
+
+Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
+vezessünk be egy olyan költségfüggvényt, ami azt bünteti ami rossz oldalon van.
+
+$ C(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline{w}} $
+
+
+
+\noindent
+Megmutatható, hogy a feladat megegyezik a következővel (duális probléma): 
+
+$ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
+$ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (x_i \cdot x_j) y_i c_j $
+
+\noindent
+ahol $ \forall i: $
+
+$  \sumn{i} c_i y_i = 0 $
+
+$ 0 \leq c_i \leq \frac{1}{2n\lambda} $
+
+\noindent
+Ennek megoldására létezik hatékony numerikus módszer.
+
+\noindent
+Ekkor a súlyok:
+
+$ \underline{w} = \sumn{i} c_i y_i x_i $
+
+$ b = \underline{w}^T \cdot \underline{x}  - y_i$
+
+\noindent
+TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
+
+
+
+
+\paragraph{Nem lineáris feladatok} 
+
+
+Sok esetben a feladat nem lineárisan szeparálható, viszont ha a problémateret
+transzformáljuk, lehet hogy már igen. 
+
+Vezessük be a bázisfüggvényeket, amelyek az eredeti adatot egy másik térbe,
+a jellemző(\textit{feature}) térbe képezik:
+
+
+$ \varphi : \mathbb{R}^n \rightarrow \mathbb{R}^m $
+
+(általában $ m >> n $ )
+
+
+\noindent
+Ekkor a feladat a következőképpen módosul:
+
+$ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
+$ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\varphi(x_i) \cdot \varphi(x_j)) y_i c_j $
+
+\noindent
+és
+
+$ \underline{w} = \sumn{i} c_i y_i \varphi(x_i) $
+
+$ b = \underline{w}^T \cdot \varphi(\underline{x})  - y_i$
+
+
+
+
+\paragraph{Kernel trükk} 
+
+A jellemzőtér nagy, vagy akár végtelen dimenziós is lehet. Bizonyos esetekben a fenti képletben lévő
+$ \varphi(x_i) \cdot \varphi(x_j) $ skaláris szorzatot ki tudjuk számolni anélkül, hogy a transzformációt 
+elvégeznénk.
+
+
+
+\noindent
+Vezessük be a \textit{kernel függvényeket}:
+
+$ K(x_i, x_j) = \varphi(x_i)^T \cdot \varphi(x_j) $
+
+
+
+
+
+
+
+
 
 
 
