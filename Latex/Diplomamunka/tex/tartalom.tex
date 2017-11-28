@@ -1,8 +1,13 @@
 
+
 \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
 
 
+
 \newcommand{\sumn}[1]{\sum\limits_{{#1}=1}^{n}}
+
+
+\newcommand{\derivative}[2]{\dfrac{\partial {#1}}{\partial {#2}}}
 
 % Ajánlott minden fő fejezetet külön fájlba írni, pl.:
 
@@ -40,7 +45,7 @@
 
 
 
-
+TODO
 nyomdász
 vonalvastagság
 legkisebb nyomtatható elem
@@ -257,25 +262,238 @@ $ sgn(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}') - b) $
 
 
 
+\subsubsection{Mély hálók}
 
-\subsubsection{Konvolúciós háló}
-
-
-
-
-
-
+Általánosságban egy mély háló egy nagy bemenetet (ez esetben képet) úgy képez
+a kimenetre, hogy több kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
+amíg a dimenziója el nem éri a várt kimenetét. 
+(Nálunk ez egy 0 és 1 közti szám, ahol 1 az eredeti, 0 a hamis.)
 
 
+Ez egy felügyelt tanulás, tehát a háló tanításához szükségünk van az inputhoz ($ \underline{x} $) 
+tartozó outputra, a \textit{ground truth}ra ($ \underline{y} $). 
+A háló súlyait kezdetben véletlenszerűen inicializáljuk.
+Ezután minden iterációban néhány inputra lefuttatjuk a hálót, 
+kapva ezzel egy kimenetet ($ \underline{y}' $).
+
+\noindent
+Nézzük ekkor a négyzetes hibát($ J $) a belső súlyok függvényében($ \underline{w} $):
+
+$ J(\underline{w}) = \sumn{i} \norm{y_i-y_i'}_2^2 $
+
+\noindent
+Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
+a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
+A különbség a konvergencia sebessége és a lokális szélsőértékkel szembeni 
+hibatűrő képességükben van.
+
+Ehhez visszafelé haladva (\textit{backpropagation}) rétegenként visszaterjeszti a hibát,
+és a gradienssel ellentétes irányba $ \underline{w} $-t, így csökkentve a költségfüggvény értékét.
+
+
+$ \underline{w}' = \underline{w} - \gamma \cdot \triangledown J(\underline{w})$
+
+\noindent
+Ahol $ \gamma < 1 $ a tanulási együttható.
+
+
+\noindent
+\paragraph{Példa}
+Tekintsünk egy sűrű perceptron réteget, ahol $ (x_i, y_i) $ a 
+bemenet és a hozzá tartozó kimenet:
+
+$ \underline{y}' = Relu(W \cdot \underline{x} + \underline{b}) $
+
+$ W' = W - \gamma \cdot  \triangledown  J(\underline{W})$
+$ = W - \gamma \cdot \derivative{J(W)}{W} $
+
+$ = W - \gamma \cdot  \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-y_i'}_2^2}{W} $
+
+
+$ = W - \gamma \cdot \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-Relu(W \cdot \underline{x}_i + \underline{b})}_2^2}{W} $
+
+$ = W - \gamma \cdot \dfrac{1}{n} \sumn{i} 2 (y_i-Relu(W \cdot \underline{x}_i + \underline{b})) \cdot   $
+$ Relu'(W \cdot \underline{x}_i + b) \cdot  diag(\underline{x}_i) $
+
+\noindent
+ahol 
+
+$ Relu(x) =  $
+$ \begin{cases}
+x, & \text{ha}\ x > 0 \\
+0, & \text{különben}
+\end{cases} $
+
+$ Relu'(x) =  $
+$ \begin{cases}
+1, & \text{ha}\ x > 0 \\
+0, & \text{különben}
+\end{cases} $
+
+$ Relu(\underline{x}) = (Relu(x_1), Relu(x_2) \cdots Relu(x_n))^T $
+
+
+
+\subsubsection{Rétegek}
+
+
+Egy mély háló különböző rétegekből épülhet fel, ám a fenti deriváltakat
+mindig ki lehet számolni analitikusan, ezzel növelve a robosztusságot.
+Nézzük mi milyen rétegeket használunk!
+
+\paragraph{Sűrű} (\textit{dense}) rétegről beszélünk, ha a bemenet és kimenet 
+minden pontja között van kapcsolat.
+
+\paragraph{Aktivációs} réteg például a fenti $ Relu() $ függvény, ami 
+valamilyen nem-linearitást visz a modellbe, ezáltal növelve a háló 
+kifejezőerejét. Ha ez nem lenne $ W_1 \cdot W_2 \cdot W_3 $ a szorzást 
+elvégezve összevonható lenne egy közös $ W $ mátrixba, tehát redundáns 
+lenne. Ilyen tipikus függvény még a \textit{softmax} és a \textit{sigmoid}:
+
+$ softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}} $
+
+
+$ sigmoid(x) = \dfrac{e^x}{e^x + 1} $
+
+\noindent
+Az előbbit általában osztályozásnál használjuk, az utóbbit pedig 
+bárhol ahol \textit{Relu}-t is használnánk, de nem akarunk végtelen 
+nagy értékeket.
+
+
+
+\paragraph{Konvolúciós réteg} Általában kétdimenziós(plusz csatornák) 
+képekre használják, de létezik tetszőleges dimenziós változata. 
+Matematikailag:
+
+
+$ (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k] $
+
+$ (x*k)[n, m] =  
+\sum\limits_{i=-\infty}^{\infty} 
+\sum\limits_{j=-\infty}^{\infty} 
+x[n, m] \cdot k[n-i, m-j] $
+
+\noindent
+Ekkor $ k $-t kernelnek hívjuk.
+Ez képeknél egy $ n \times m $ dimenziós mátrix, 
+ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
+
+
+Konvolúciós hálóknál ilyen kereneleket rendelünk egy réteghez.
+Tanításnál minden kernellel elkészítjük a kép konvolúcióját,
+majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorba rakjuk.
+Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
+
+\noindent
+Egy konvolúciós réteg alakja tehát:
+
+$ \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} $
+
+\noindent
+ahol $ w, h,d $ az előző réteg szélessége, magassága és mélysége, 
+$ n $ pedig a szűrők(a jellemző-vektor elemeinek) száma.
 
 
 
 
+TODO same/valid padding
+
+
+
+\paragraph{Dekonvolúciós reteg}
+A konvolúciós réteg inverze.
+Autóenkódernél használjuk, mikor vissza szeretnénk állítani
+a tömörített képet. Matematikailag ugyanaz mint a konvolúció,
+a különbség csak az eredmény dimenziójában van.
+
+
+\paragraph{Alulmintavételező réteg} (\textit{Pooling, subsampling})
+Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen, erre 
+jó módszer, hogy a képet feleakkorára* csökkentjük, azaz négyesével összevonjuk
+a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értéket.
+
+
+Legtipikusabb a maxpooling réteg, ami a négy pixel maximumát veszi.
+
+(\textit{* Lehet n-ed részére is csökkenteni a képet, nem csak a felére})
+
+\paragraph{Felülmintavételező réteg} (\textit{Upsampling})
+
+Az alulmintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg
+méretét.
 
 
 
 
+\subsubsection{Autóenkóder}
 
+Az autóenkóder egy olyan speciális háló, amelynél a cél, hogy 
+egy bemenetet veszteségesen egy belső reprezentációra képezünk,
+majd ebből megpróbáljuk visszaállítani az eredeti inputot.
+Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
+A költségfüggvény a következőképpen alakul:
+
+
+$ J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'} $
+
+%\noindent
+%Általában $ \norm{.} $ alatt az $ L2 $ normát értjük, azaz az átlagos 
+%négyzetes hibát számoljuk (\textit{Mean square error, MSE}).
+
+
+
+\subsubsection{Költségfüggvények}
+
+Általános alakban ha $ y $ az elvárt eredmény, és $ y' $ a háló
+outputja, akkor a hibafüggvény a következő:
+
+$ J(\underline{w}) = \dfrac{1}{n} \sumn{i} f(y, y') $
+
+
+\paragraph{Átlagos négyzetes hiba} (\textit{Mean square error, MSE})
+
+
+$ f(y, y') = \norm{y - y'}_2^2 $
+
+\noindent
+Az autóenkódernél ezt használjuk.
+
+
+\paragraph{Keresztentrópia} (\textit{Cross-entropy})
+
+Legyen $ y = (0, 0, \cdots 1 \cdots 0, 0)^T, $ 
+ahol az 1 helye a hozzá tartozó osztály indexe.
+
+Bináris esetben $ y=(0, 1) $ ha a mintha az egyik, és
+$ y=(1, 0) $ ha a másik csoportba tartozik.
+
+$ f(\underline{y}, \underline{y}') = - \underline{y}^T \cdot ln(\underline{y}') $
+
+\noindent
+Osztályozásnál ezt használjuk.
+
+
+
+\subsubsection{A tanulás segítése}
+
+
+\paragraph{Túltanulás} (\textit{overfitting})
+
+Egy modell akkor jó, ha a tanító példák mellett akkor is jól működik,
+ha olyan inputot kap, amilyet eddig még "nem látott". Túltanulásnak nevezzük
+azt az állapotot, mikor az új adaton jelentősen romlik a teljesítmény.
+Ennek több oka is lehet. Például az egyik osztályból nem kapott 
+(elég) minta adatot a modell tanuláskor. Vagy ha kapott is, a minták túlságosan 
+hasonlítottak egymásra, miközben a valóságban változatosabbak.
+
+
+TODO 
+dropout, normalizálás, balancing, augmentation
+loss/accuracy - roc görbe "siker mérése"
+kis kikockázás
+test/val/train
+early stopping
 
 
 \section{Megoldási módszerek}
