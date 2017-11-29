@@ -468,14 +468,14 @@ ahol az 1 helye a hozzá tartozó osztály indexe.
 Bináris esetben $ y=(0, 1) $ ha a mintha az egyik, és
 $ y=(1, 0) $ ha a másik csoportba tartozik.
 
-$ f(\underline{y}, \underline{y}') = - \underline{y}^T \cdot ln(\underline{y}') $
+$ f(\underline{y}, \underline{y}') = - \underline{y}^T \cdot log(\underline{y}') $
 
 \noindent
 Osztályozásnál ezt használjuk.
 
 
 
-\subsubsection{A tanulás segítése}
+\subsubsection{Kapcsolódó fogalmak}
 
 
 \paragraph{Túltanulás} (\textit{overfitting})
@@ -486,26 +486,183 @@ azt az állapotot, mikor az új adaton jelentősen romlik a teljesítmény.
 Ennek több oka is lehet. Például az egyik osztályból nem kapott 
 (elég) minta adatot a modell tanuláskor. Vagy ha kapott is, a minták túlságosan 
 hasonlítottak egymásra, miközben a valóságban változatosabbak.
+Ennek kiküszöbölésére lássunk  néhány módszert!
 
 
-TODO 
-dropout, normalizálás, balancing, augmentation
-loss/accuracy - roc görbe "siker mérése"
-kis kikockázás
-test/val/train
-early stopping
+\paragraph{Hiperparaméterek}
+
+Gépi tanulásnál megkülönböztetjük a modell belső változóit, amit 
+a tanítás során az algoritmus maga állít, és a modell minden más tulajdonságát
+amit a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}.
+Ide tartozik például egy kernel mérete, vagy a rétegek szerkezete.
+
+\paragraph{Adat szeparálás}
+
+Bevett szokás, hogy ketté osztjuk az adathalmazt, az egyik részén tanítjuk a
+modellt (\textit{tanító halmaz, training set}), a másikkal ellenőrizzük, hogy mennyire teljesít jól a predikció (\textit{validációs halmaz, validation set}).
+
+Ha csak ez a két halmazunk lenne, akkor előfordulhatna, hogy a hiperparaméterekkel
+addig-addig kísérletezünk amíg egyszer csak elfogadható validációs hibát kapunk. 
+Ez azonban lehet, hogy az éppen kiválasztott adat sajátossága, azaz véletlen,
+ezért bevezetünk egy harmadik, a \textit{teszt halmazt}, melynek célja, hogy
+mikor úgy ítéljük meg, hogy a validációs halmazzal elértük a kívánt eredményt,
+ellenőrizni tudjuk, hogy valóban jól teljesítünk-e.
+
+Ideális esetben a validációs és a teszt hiba közel megegyező.
 
 
-\section{Megoldási módszerek}
+\paragraph{Kiejtés} (\textit{dropout})
+A célja, hogy a tanuló adatot szándékosan elrontsuk egy kicsit, ezáltal 
+növeljük az általánosítást.
+Tartozik hozzá egy valószínűségi érték, amekkora eséllyel
+egy adatértéket kinullázunk mielőtt tovább adjuk a következő rétegnek.
+
+
+\paragraph{Kiegyensúlyozás}
+Az eredményt torzíthatja, ha a tanító adatok között
+nagy a relatív elemszámkülönbség: ezt nevezzük kiegyensúlyozatlanságnak.
+Ennek kiküszöbölésére az egyik módszer, hogy minden halmazból 
+megpróbálunk közel egyelőre eséllyel válogatni tanításnál, vagy
+amit több programcsomag is támogat, hogy az osztályoknak súlyokat adunk,
+ami alapján paraméter állításnál jobban vagy kevésbé fogja
+az adott algoritmus figyelembe venni az adott példát.
+
+\paragraph{Adatgenerálás} (\textit{data augmentation})
+Amennyiben nem áll rendelkezésünkre elég adat, és ez képeknél 
+különösen gyakori probléma, úgy tudjuk növelni a tanító halmaz
+elemszámát, hogy valós időben új adatokat generálunk a már
+meglévők alapján, például egy képet affin transzformálunk,
+vagy valamilyen hisztogram transzformációt alkalmazunk.
+
+
+\subsubsection{A teljesítmény mérése}
+
+Egy neuronháló tanítása általában hosszú folyamat. Valahogy meg kell
+tudnunk állapítani, ha elértük a kívánt eredményt és megállhatunk,
+valamint ha az optimalizálás már nem konvergál tovább, azaz elért egy 
+lokális minimumot.
+Ezen kívül mérni szeretnénk, hogy mennyire teljesítünk jól. 
+Ezekre többféle metrika is létezik, ezek közül tekintünk néhányat.
+Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalmakat:
+
+
+Igaz-pozitív (\textit{true positive, tp}), 
+Igaz-negatív (\textit{true negative, tn}): \\
+Amikor egy példát a megfelelően osztályozunk.
+
+Fals pozitív / Elsőfajú hiba (\textit{fp}) 
+és Fals negatív / Másodfajú hiba(\textit{fn}): \\
+A mi kontextusunkban az előbbi ha egy hamisítványt eredetinek
+osztályozunk, a második ennek ellentéte.
+
+Azért fontos ezek kettéválasztása, mert ez a két hiba egymás rovására 
+javítható. Egy adott feladatnál preferálhatjuk, hogy melyik az elfogadhatóbb.
+Egészségügyben például kisebb kárt okozhat a fals pozitív, mint egy fals negatív;
+mi viszont szívesebben engedünk át egy hamisítványt, mint mondjuk  azt egy eredetire, hogy hamis.
+
+
+
+\paragraph{ROC-görbe}
+Az előző két hiba arányát a Vevő működési karakterisztika 
+(\textit{Receiver operating characteristic}) 
+görbével szoktuk jellemezni. A két tengelyen az egyes hibák 
+rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú 
+hiba-rátához mekkora másodfajú tartozik.
+
+
+
+\paragraph{Pontosság} (\textit{accuracy})
+
+Azt méri, hogy az osztályozásnál a minták hányad részben
+kerültek jó osztályba.
+Ha $ (y_i, y_i') $ az elvárt értékek és a hozzájuk tartozó 
+predikciók, akkor
+
+$ acc = \dfrac{\sumn{i} \chi\{y_i = y_i'\}}{n} $ 
+
+Bár személetes, nem tükrözi igazán jól a hatékonyságot.
+
+
+\paragraph{F1 score} \mbox{} 
+
+
+$ F_1 = \dfrac{2tp}{2tp + fn + fp} $
+
+\noindent
+Hasonló a pontossághoz, de jobb mérőszám, ha az osztályok kiegyenlítetlenek.
+
+
+
+\paragraph{ROC görbe alatti terület} (\textit{ROC-AUC score})
+
+Azt mutatja mennyire jól szeparálható a két adathalmaz. 
+Ha az értéke 1, akkor tökéletesen elkülönül az két eloszlás, 
+minél kisebb, annál rosszabb. Ha $ \frac{1}{2} $-nél kisebb számot kapunk,
+akkor gyanakodhatunk, hogy felcseréltük a két osztályt.
+
+\paragraph{Validációs hiba} (\textit{validation loss})
+
+A fent részletezett költségfüggvények eredménye. Ezt használjuk
+tanítás közben annak mérésére, hogy a modell konvergál-e még,
+és ha igen milyen sebességgel. Nem igazán személetes, végső kiértékelésnél
+nem használjuk. Jó tulajdonsága, hogy nem csak azt méri, hogy jól
+osztályozunk-e, hanem azt is hogy mennyire volt egyértelmű a döntés,
+valamint félreosztályozásnál figyelembe veszi, hogy kicsit lőttünk-e
+mellé, vagy nagyon.
+
+
+
+\subsubsection{A tanítás menete}
+
+Neuronháló tanításakor példákat mutatunk a modellnek, majd a kimenet
+hibája alapján korrigálunk a súlyokon. Ezt a korrigálást viszont nem
+minden minta után végezzük el, hanem kötegeket (\textit{mini batch}) 
+készítünk, egy ilyennek az átlagos hibájával számolunk, ezáltal 
+növelve a hatékonyságot és az általánosítást. Ügyelni kell azonban, hogy
+akkora kötegméretet válasszunk, hogy beleférjünk a memóriába, ugyanis 
+képeknél ez könnyen probléma lehet.
+
+
+Bevált technika, hogy készítünk egy véletlen permutációt a tanító adatból,
+és ebben a sorrendben adjuk be a példákat. Azt a ciklust, ami alatt 
+az egész halmaz egyszer feldolgozásra kerül, \textit{eposz}nak hívjuk.
+Eposzonként új permutációt használunk. Ezekkel biztosítjuk, hogy minden
+példa azonos valószínűséggel szerepeljen.
+
+\paragraph{Megállás}
+
+A megállási feltétel lehet explicit, például ami alatt a validációs hibának
+lennie kell. Értelemszerűen megállunk, ha a tanulási hiba már nem csökken tovább.
+Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba
+viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett
+túltanulni, és ilyenkor megállunk (\textit{early-stopping}).
+
+
+
+
+
+\section{Megoldási terv}
 \subsection{Támasztóvektor gép}
+
+
+
 \subsection{Konvolúciós háló}
+mekkorát vágtunk ki mert elfogyott a memória
 \subsection{Autoencoder}
 \section{Eredmények}
 
 
 
+kis kikockázás
+
+TODO 
+batch, eposz
+dropout, normalizálás, balancing, augmentation
+loss/accuracy - roc görbe "siker mérése"
+test/val/train
+early stopping
+
+
+
 We did a pretty good\textsuperscript{\textit{job}}so far
-
-
-
 
