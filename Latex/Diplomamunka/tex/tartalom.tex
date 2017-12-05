@@ -41,6 +41,13 @@
 % 7. A diplomamunkában be kell tartani a hivatkozások és idézések standard szabályait. 
 
 \section{Bevezetés}
+
+lorem ipsum
+
+ide majd szöveg kerül
+
+
+\newpage
 \section{Háttér}
 
 
@@ -103,7 +110,7 @@ Az ötlet, hogy lefényképezzük a dokumentumot, és ezt helyben, egy \textit{a
 
 Speciálisan, az általunk részben felhasznált megoldás különböző szempontok alapján méréseket
 végez a képen, és néhány (nagyságrendileg 10-12) mérőszámot ad eredményül, melyeket aztán
-aggregál, és egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni biztonsággal}.
+aggregál, és egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}.
 
 A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például nagyon jó hamisítvány is,
 de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
@@ -114,9 +121,9 @@ TODO valamit általánosan a gép tanulásról?
 
 \subsubsection{Támasztóvektor Gép}
 
-A Támasztóvektor Gép (Support Vector Machine, SVM) egy klaszterező eljárás, amivel egy adathalmaz két 
-csoportra bontható. Alapja, hogy teret egy hipersíkkal ketté osztjuk úgy, hogy a két csoport előjeles 
-távolsága ($ d_1, d_2 $) a hipersíktól maximális legyen. 
+A Támasztóvektor Gép (Support Vector Machine, SVM) egy klaszterező eljárás, amivel egy adathalmaz két csoportra bontható. 
+
+Alapja, hogy teret egy hipersíkkal ketté osztjuk úgy, hogy a két csoport előjeles távolsága ($ d_1, d_2 $) a hipersíktól maximális legyen. 
 Egy csoport és sík távolsága alatt a sík és az ahhoz legközelebbi, az adott csoportba tartozó elem távolságát értjük. 
 
 
@@ -261,6 +268,8 @@ $ y' = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) = $
 $ sgn(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}') - b) $
 
 
+TODO mutassunk bázisfüggvényeket
+
 
 \subsubsection{Mély hálók}
 
@@ -315,8 +324,10 @@ $ = W - \gamma \cdot \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-Relu(W \cdot \
 $ = W - \gamma \cdot \dfrac{1}{n} \sumn{i} 2 (y_i-Relu(W \cdot \underline{x}_i + \underline{b})) \cdot   $
 $ Relu'(W \cdot \underline{x}_i + b) \cdot  diag(\underline{x}_i) $
 
+
 \noindent
-ahol 
+ahol Relu - \textit{Rectified Linear Unit}:
+
 
 $ Relu(x) =  $
 $ \begin{cases}
@@ -639,23 +650,246 @@ túltanulni, és ilyenkor megállunk (\textit{early-stopping}).
 
 
 
+TODO bele lehetne írni a regularizációt
 
 
+
+\newpage
 \section{Megoldási terv}
-\subsection{Támasztóvektor gép}
+
+A gépi tanulást két helyen vizsgáltuk a témakörben.
+Először egy már meglévő applikáció mért eredményeit használjuk fel,
+javítva a döntési folyamatot. Ehhez Támasztóvektor Gépet(SVM) használunk.
+Másodszor konvolúciós hálók segítségével próbáljuk ugyanezt a döntést 
+a nyers adatból, a képből meghozni. 
+
+\subsection{Eszközök}
+
+A megvalósítás nyelvének python-t választottunk.
+A gépi tanuláshoz a \texttt{Keras} \ref{keras} és \texttt{Sklearn} \ref{sklearn} könyvtárakat 
+használtuk. Ezek a \texttt{Tensorflow} \ref{tensorflow} csomag segítségével képesek a
+GPU-n futni, ezáltal gyorsítva a tanítás folyamatát, ami különösképpen a 
+képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
+százszoros sebességnövekedést mértünk.
+
+Az említett csomagok az előző fejezetben leírt módszereket használva egy
+keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíteni,
+és azonnal kipróbálni, valamint jól illeszkednek a python többi könyvtárához,
+például a \texttt{numpy} (általános aritmetikai könyvtár) és \texttt{opencv} \ref{opencv}
+(computer vision, képfeldolgozás).
+
+
+
+TODO jurás cucc
+
+
+
+\subsection{Döntéshozás SVM-mel}
+
+
+
+
+
+
+TODO valahova beleirni hogy kevés mintán is tud üzemelni
+
+TODO az svm többi paraméterét leírni
+ ? és az az általánosba kell vagy ide? 
+
+
+
+voltak random adatok
+nincs szükség arra hogy tudjuk mit jelentenek a mért adatok
+általános
+minden projekt ilyen elveken mukodott, bármelyikre lehet alkalmazni
+verdict
+hasonlóan működött az eredeti algo cska kézzel volt minden megcsinálva
 
 
 
 \subsection{Konvolúciós háló}
+
+Ennél a megközelítésnél maguk a képek voltak a tanító adatok.
+Mivel a képek érkezhetnek különböző felbontású forrásokból, célszerű volt
+egyformára méreteznünk őket, ám ennél tovább mentünk, és a célzó körök koordinátái 
+és az \texttt{opencv} könyvtár inverz perspektivikus transzformációja segítségével 
+normalizáltuk a képeket. Végeredménynek egységesen $ 1000 \times 1000 $ pixeles képeket
+választottunk.
+
+A célzó koordináták már rendelkezésünkre álltak, de jó kutatási terület lehet ezek 
+megtalálása egy erre készített neurális hálóval.
+
+
+\subsubsection{A háló szerkezete}
+
+Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a következő:
+
+
+
+\begin{enumerate} [itemsep=-1ex]
+	\item Bemenet
+	\item Konvolúciós + alul mintavételező rétegek
+	\item Sűrű rétegek
+	\item Osztályozó réteg
+	\item Predikció
+\end{enumerate}
+
+A végső szerkezet Keras-sal megvalósítva:
+
+TODO WTF az bal oldali szaggatott cucc?
+
+\lstset{language=Python}
+\begin{lstlisting}  
+	model = Sequential()
+	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+	model.add(Conv2D(64, (5, 5)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+	
+	model.add(Conv2D(256, (5, 5)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+	model.add(Conv2D(256, (5, 5)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+	
+	model.add(Flatten())
+	model.add(Dense(256))
+	model.add(Activation('relu'))
+	
+	model.add(Dense(256))
+	model.add(Activation('relu'))
+	
+	model.add(Dense(256))
+	model.add(Activation('relu'))
+	
+	
+	model.add(Dropout(0.5))
+	model.add(Dense(2))
+	model.add(Activation('softmax'))
+	
+	
+	model.compile(
+		loss='sparse_categorical_crossentropy',
+		optimizer='adam',
+		metrics=['accuracy']
+	) 
+
+\end{lstlisting}
+
+
+Az $ 5 \times 5 $-ös kerneleket \textit{Relu} nemlinearitással találtuk legcélszerűbbnek,
+valamint $ 2 \times 2 $ \textit{max pooling} minden réteg után.
+A konvolúciós és a sűrű rétegek között egy \textit{Flatten} réteg található,
+ami a $ \mathbb{R}^{w \times h \times d} $ három dimenziós mátrix formából 
+$ \mathbb{R}^{w \cdot h \cdot d} $ vektort képez. Ezután további sűrű rétegek
+következek \textit{Relu} nemlinearitással. Az utolsó az osztályozó
+réteg, amelynek két eleme van, és a \textit{softmax} függvény segítségével kapjuk
+a háló válaszát. Ez kategóriánként egy 0 és 1 közötti valós szám, ahol a kategóriák 
+összege 1 (ld. softmax függvény definíció). Bár nincs közük a valószínűségszámításhoz, 
+ezek a számok felfoghatók úgy, hogy mekkora eséllyel tartozik a minta az adott osztályba.
+Amennyiben közelebb vagyunk nullához vagy egyhez, akkor magabiztosabb a becslés, 
+$ \frac{1}{2} $ esetén bizonytalan.
+
+Kötlségfüggvénynek \textit{keresztentrópiát} használunk. Ez végtelen nagy ha $ |y-y'|=1 $,
+és 0, ha $ |y-y'|=0 $. Vegyük észre, hogy a \textit{softmax} miatt csak akkor lesz 0
+a költség, ha az egyik osztály pontosan 1, a másik pedig pontosan 0.
+
+A keresztentrópiának több változata létezik, ám ezek csak az input formájában térnek
+el. Lehet például általános $ n $ elemű, bináris két elemű, vagy bináris egyváltozós.
+Mi az általános esetet használtuk, de a három közül bármelyik megfelelt volna.
+
+
+\subsubsection{Tanítási paraméterek}
+
+\paragraph{Kötegméret}
+Megválasztásakor arra törekedtünk, hogy minél nagyobb legyen, ezzel gyorsítva a feldolgozást.
+Matematikailag is magabiztosabb a konvergencia egy határig, ha ezt növeljük, 
+valamint a GPU-RAM átviteli sávszélessége ugyan nagy, de nagy a konstans késletetés, 
+ami abból adódik, hogy a videókártya vezérlőszofver nem azonnal hajtja végre az adatmozgatást,
+hanem csak ha elég sok összegyűlt, vagy némi idő eltelt, ezzel javítva az teljesítményt teljes 
+kihasználtság esetén. Egy eposz feldolgozása akár tízszer lassabb is lehet, ha a példákat
+egyesével tápláljuk be.
+
+
+
+
+Megjegyzés: Talán hiba, mindenesetre létező jelenség a Tensorflow csomagban, ha GPU implementációt használunk a program kezdetekor megpróbálja a lehető legtöbb 
+munkamemóriát lefoglalni magának, ami nem mindig sikerül, 
+ezért előfordulhat hogy hibával elszáll a program. Erre jó workaroundnak bizonyult, hogy
+korlátoztuk, hogy maximum mennyit foglalhat le. Erre szolgál a következő utasítás a kódban:
+\begin{lstlisting}
+	config.gpu_options.per_process_gpu_memory_fraction = 0.7
+\end{lstlisting}
+
+
+Felmerül a kérdés, hogy miért nem mindent a GPU-n tárolunk, ezzel megspórolva az adatmozgatást.
+Sajnos körülbelül 1000 tanító képünk volt, $ 1600 \times 1600 $ felbontásban. 
+Tömörítetlenül ez nem fért el a memóriában. Ezt később ugyan lecsökkentettük
+$ 1000 \times 1000 $-re, így elméletben már elfért volna, de ez nem került implementálásra,
+mert hosszú távon több kép esetén úgyis probléma lenne.
+
+
+
+Találkozhatunk egy figyelmeztető üzenettel, ha elfogy a memória, ami bár nem 
+okoz elszállást, de ilyenkor lassabban fut a program. Ezért érdemes úgy megválasztani
+a paramétereket, hogy ez ne következzen be.
+
+
+Ezek miatt a kötegeket dinamikusan töltjük be a lemezről, és adjuk át feldolgozásra.
+Egy köteg mérete jelenleg 16, de ez erősebb vagy gyengébb hardver függvényében 
+növelhető vagy csökkenthető. A jelenlegi modellméret és képfelbontás mellett, ez 
+körülbelül a határ a tesztgépen. Ez abból adódik, hogy a Keras felépíti memóriában 
+a teljes futószalagot (\textit{pipeline}), ami csak az első rétegben
+$ 3 \times 1000 \times 1000 \times \times 256 $ bájt memóriát foglal.
+
+
+
+
+memória warning
+
+batchek száma, early stopping, checkpoint
+
+tensorflow gpu 
+on the fly loading - nem fér be 1000 kép
+adatB méret
+honnan vannak, különböző telefonok
+hiányosságok
+a rossz képek előszűrve vannak a pontkeresés miatt de ez még kutatásra szorul
+
+
+megszopatta az offset nyomat
 mekkorát vágtunk ki mert elfogyott a memória
+egyentranszformáció
+mennyi képünk volt
+súly vs teljes modell
+
+statisztikai mérés / külön modul
+
 \subsection{Autoencoder}
+
+
+
+
 \section{Eredmények}
 
 
 
+\section{Konklúzió}
+
+lehetne majd pozicionálásra is megpróbálni
+
+
+\paragraph{TODO:}
+
 kis kikockázás
 
-TODO 
 batch, eposz
 dropout, normalizálás, balancing, augmentation
 loss/accuracy - roc görbe "siker mérése"
