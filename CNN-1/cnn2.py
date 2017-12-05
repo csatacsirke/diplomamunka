@@ -38,6 +38,8 @@ col2im / im2col
 debug: 1-2 képre overfit a trainen
 
 *TODO a transzformációt elöre kéne megcsinálni, nem röptében
+
+TODO kéne egy olyan futtatási opció amivel csak predikálni lehet
 """
 
 
@@ -137,6 +139,8 @@ set_session(session)
 
 # ez amúgy jó eséllyel nem kell mert alapból channels last, 
 # és ehhez alkalmazkodtunk
+# TODO ezt jó eséllyel ki is lehet hagyni az összes image-könyvtárral együtt,
+# mivel már opencv-t hasznuálunk betöltésre is
 if K.image_data_format() == 'channels_first':
     input_shape = (3, g_img_height, g_img_width)
 else:
@@ -151,12 +155,6 @@ log("Start")
 # todo majd a végén ezeket pl command line paraméternek
 
 
-#TODO EZT VISSZA
-
-
-
-#corners_list = dataset_handler.read_corners(default_input_file_name)
-
 def process_image(image, target_dims=None, training_phase=True):
 	image = image_processing.crop_center(image, 0.6)
 	if use_autoencoder:
@@ -168,34 +166,6 @@ def process_image(image, target_dims=None, training_phase=True):
 		
 	return image
 	
-
-#def ___process_image_with_corner_info(image, corners, crop=False):
-
-#	image = image_processing.normalize_image(image, corners)
-#	#if crop: # TODO
-#	if stage == 1:
-#		image = image_processing.crop_random(image, (g_img_width, g_img_height))
-	
-#	"""
-#	dx = np.random.randint(-image.width//4, image.width//4+1)
-#	dy = np.random.randint(-image.height//4, image.height//4+1)
-
-	
-#	center_x = image.width // 2 + dx
-#	center_y = image.height // 2 + dy
-#	# TODO randomizálni kicsit a centert
-
-#	left = center_x - g_img_width // 2
-#	top = center_y - g_img_height // 2
-#	right = left + g_img_width
-#	bottom = top + g_img_height
-	
-#	image = image.crop((left, top, right, bottom))
-
-#	assert(image.width == g_img_width and image.height == g_img_height)
-#	"""
-#	return image
-
 
 
 def load_image_as_array(file_name):
