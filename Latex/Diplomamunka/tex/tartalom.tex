@@ -655,7 +655,7 @@ TODO bele lehetne írni a regularizációt
 
 
 \newpage
-\section{Megoldási terv}
+\section{Megoldás}
 
 A gépi tanulást két helyen vizsgáltuk a témakörben.
 Először egy már meglévő applikáció mért eredményeit használjuk fel,
@@ -707,7 +707,7 @@ hasonlóan működött az eredeti algo cska kézzel volt minden megcsinálva
 
 
 
-\subsection{Konvolúciós háló}
+\subsection{Képelemzés Konvolúciós Hálóval}
 
 Ennél a megközelítésnél maguk a képek voltak a tanító adatok.
 Mivel a képek érkezhetnek különböző felbontású forrásokból, célszerű volt
@@ -719,6 +719,14 @@ választottunk.
 A célzó koordináták már rendelkezésünkre álltak, de jó kutatási terület lehet ezek 
 megtalálása egy erre készített neurális hálóval.
 
+
+Összességében azt várjuk, hogy a háló az eredeti és a hamis képeken más-más 
+jellemzőket talál és tanul meg a konvolúciós szűrők segítségével, és ezeket
+a \textit{feature-öket} a sűrű háló már könnyen kategorizálni tudja.
+
+Ahogy azt a mély hálóknál szokás, a rétegek fokozatosan csökkentik a probléma
+dimenzióját (kezdetben a teljes kép), amíg el nem érjük a keresett választ, 0 vagy 1 - 
+egy dimenzió.
 
 \subsubsection{A háló szerkezete}
 
@@ -734,7 +742,7 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 	\item Predikció
 \end{enumerate}
 
-A végső szerkezet Keras-sal megvalósítva:
+A végső szerkezet Keras segítségével megvalósítva:
 
 TODO WTF az bal oldali szaggatott cucc?
 
@@ -820,7 +828,7 @@ egyesével tápláljuk be.
 
 
 
-Megjegyzés: Talán hiba, mindenesetre létező jelenség a Tensorflow csomagban, ha GPU implementációt használunk a program kezdetekor megpróbálja a lehető legtöbb 
+\textit{Megjegyzés}: Talán hiba, de mindenesetre létező jelenség a Tensorflow csomagban, ha GPU implementációt használunk a program kezdetekor megpróbálja a lehető legtöbb 
 munkamemóriát lefoglalni magának, ami nem mindig sikerül, 
 ezért előfordulhat hogy hibával elszáll a program. Erre jó workaroundnak bizonyult, hogy
 korlátoztuk, hogy maximum mennyit foglalhat le. Erre szolgál a következő utasítás a kódban:
@@ -847,30 +855,218 @@ Egy köteg mérete jelenleg 16, de ez erősebb vagy gyengébb hardver függvény
 növelhető vagy csökkenthető. A jelenlegi modellméret és képfelbontás mellett, ez 
 körülbelül a határ a tesztgépen. Ez abból adódik, hogy a Keras felépíti memóriában 
 a teljes futószalagot (\textit{pipeline}), ami csak az első rétegben
-$ 3 \times 1000 \times 1000 \times \times 256 $ bájt memóriát foglal.
+$ 3 \times 1000 \times 1000 \times \times 256 $ bájt memóriát foglalna.
+Ezt kicsivel csökkentettük azzal, hogy a képeknek csak az egyik, jobb felső,
+$ 256 \times 256 $ pixeles sarkát használtuk fel. A kísérletek szerint ez nem okozott
+jelentős minőségromlást, de természetesen egy éles, ipari környezetben ez nem lenne
+elhanyagolható.
+
+
+\paragraph{Képformátum}
+Az \texttt{opencv} könyvtárat használjuk a képek betöltésére.
+A bemeneti képeink fájlformátuma bármi olyan lehet, amit az \texttt{opencv} támogat.
+Mi \texttt{PNG}-t használunk a veszteségmentes tömörítés miatt, de nem elképzelhetetlen
+a \texttt{TIFF} sem.
+
+
+A \texttt{cv2.imread()} egy 8 bites egészeket
+tartalmazó \texttt{numpy} tömböt ad vissza. Viszont mivel mi lebegőpontos számokkal fogunk számolni,
+0 és 1 közé transzformáljuk a bemenetet. Ez a modell szempontjából irreleváns lenne,
+de ha az ember ilyen képeket szeretne hibakeresés céljából megjeleníteni, akkor a
+könyvtári megjelenítő függvények konvencionálisan ilyen értékeket várnak.
+
+
+A képek reprezentációja könyvtáraktól függően különbözhet továbbá az egyes dimenziók 
+sorrendjében, ezért fontos hogy konzisztensek legyünk. Mi az \texttt{opencv}-hez
+igazodtunk, ahol a tömb \textit{alakja (shape)} : 
+$ \mathbb{R}^{height \times width \times channels } $. 
+Tehát egy pixel három színe három, fizikailag egymás mellett lévő érték,
+míg más reprezentációkban előfordul, hogy a csatornák vannak elől, azaz három különálló
+szürkeárnyalatos képünk van.
+
+
+\paragraph{Adathalmaz}
+
+Körülbelül 1000 kép állt rendelkezésünkre tanításkor, ezek 80\%-a volt
+eredeti, a maradék 20\% hamisítvány. 
+
+
+Emiatt szükséges volt a mintát kiegyensúlyozni, tehát gondoskodni arról,
+hogy tanításnál mindkét csoportból azonos valószínűséggel lásson mintát 
+a modell. Az egyik, kevésbé elegáns módszer az volt, hogy a kisebb (negatív) 
+halmazból addig szúrtunk be véletlenszerűen a tanító minták közé, 
+amíg egyenlő nem lett a két halmaz elemszáma.
+Ennél szofisztikáltabb megoldás, a \texttt{Keras} \texttt{class\_weights} paraméterét
+használni, amellyel megadhatjuk, hogy egy-egy osztályt milyen mértékben vegyen 
+figyelembe a tanításnál. Az \texttt{sklearn} csomag biztosít egy függvényt,
+\texttt{sklearn.utils.compute\_class\_weight} néven, vagy kézzel könnyen kiszámolhatjuk 
+magunknak:
+
+$ w_k' =  \dfrac{n}{ \sumn{i} \chi\{y_i = k\}}  $
+
+$ w_k =  \dfrac{w_k'}{\sumn{i} w_i'} $
+
+
+A képek különböző telefonokkal készültek, némely állványról, a többi pedig kézből.
+Ez nagyban tudja befolyásolni a képminőséget.
+
+
+Tanítás előtt képezünk egy tanító, egy validációs és egy teszt halmazt, ahol 
+$ 70:15:15 $ az elemek számának aránya. Ezután, hacsak nem volt változás az adathalmazban,
+ezt használtuk a végsőkig.
 
 
 
+\paragraph{Adat augmentálás}
 
-memória warning
+Fent írtunk arról, hogy ha relatív kevés tanító adatunk van, hogyan is tudunk
+ezekből újakat generálni. Képfeldolgozással foglalkozó témákban ez azt jelenti,
+hogy valamilyen affin transzformációt hajtunk végre a képen, ezáltal növelve a 
+generalizálást. Viszont mivel mi a kezdő lépésben normalizáljuk a képünket azzal,
+hogy a négy célzópontot egy négyzetté transzformáljuk, elveszítjük ennek a módszernek
+a jelentőségét.
 
+
+Jó kutatási terület lehet, hogy ezt hogyan lehet feladatspecifikusan és valósághűen 
+mégis véghez vinni, például a fényviszonyok változásának szimulálásával.
+
+\paragraph{Dropout} Továbbra is működik véletlenszerű kiejtés módszere,
+azaz tanítás során két réteg között az áramló adat véletlenszerűen elveszik
+egy előre megadott valószínűségi változó szerint. Mi $ p=0.5 $ egyenletes 
+eloszlást használtunk. Ez a módszer jó mind konvolúciós, mind a sűrű rétegekre.
+
+
+
+\paragraph{Optimalizáló}
+
+Ahogy az előző fejezetben írtunk a tanítás problémáját tulajdonképpen visszavezettük
+egy numerikus optimalizációs feladatra. Erre több módszer létezik, de általában a 
+Gradiens Módszeren alapulnak. Mi az Adaptív Momemtum Becslés 
+(\textit{Adaptive Moment Estimation, Adam~\cite{adam} }) módszert használtuk.
+
+\noindent
+Az algoritmus röviden:
+
+$ m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w J(w_t) $
+
+$ v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w J(w_t))^2 $
+
+$ \hat{m}_w = \dfrac{m_w^{t+1}}{1 - \beta_1} $
+
+$ \hat{v}_w = \dfrac{v_w^{t+1}}{1 - \beta_2} $
+
+$ w^{t+1} = w^{t} - \gamma \dfrac{\hat{m}_w}{\hat{v}_w + \epsilon}   $
+
+\noindent
+Ahol $ \beta_{1,2} $ a felejtési együtthatók, $ \gamma $ a tanulási együttható,
+$ w $ az optimalizálandó paraméter, és $ J $ a költségfüggvény.
+
+\noindent
+\texttt{Kerasban} az alapbeállítások: 
+$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
+
+%Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
+
+
+\subsubsection{Modell készítés}
+
+A paraméterek függvényében ellenőrizzük, hogy elérhető-e előző munkamenet.
+Ha igen, akkor megpróbáljuk betölteni. Az elmentett modell kétféle lehet:
+
+\begin{itemize}
+	\item 
+	Csak súlyok. Csak akkor van értelme, ha már végleges verziónk van.
+	\item 
+	"Teljes modell", ahol a súlyok mellett a háló szerkezete, és az optimalizáló állapota
+	is elmentésre kerül.
+\end{itemize}
+
+
+
+Ezután két részre bontottuk a feladatot, amelyek egymástól függetlenül futtathatók.
+Az első a háló tanítása (akár meglévő finomítása), a második modell használata 
+és statisztikai értékelése.
+
+
+\subsubsection{Első fázis}
+
+Ha elkészült a modell, akkor készen állunk a tanításra. Ha teljes modellt töltöttünk be,
+akkor pont onnan folytatjuk, ahol abbahagytuk, csak súlyok esetén jelentősen visszaesünk 
+eleinte, modell nélkül pedig "nulláról"(véletlenszerűen inicializált állapotból) kezdünk.
+
+Az effektív tanítás \texttt{keras.models.Sequential.fit\_generator()} metódus segítségével 
+történik.
+
+Ennek a paramétereiként meg kell adnunk a tanító és a validációs halmazokat \texttt{python} 
+generátorok formájában. Ezek olyan \texttt{numpy} tömböt adnak vissza, amely megfelel 
+egy kötegnek, és egy eleme egy kép. A \texttt{steps\_per\_epoch} paraméterrel azt adjuk
+meg, hogy egy \textit{eposz} hány köteg. A \texttt{callbacks} paraméterrel függvényeket
+adunk a modellnek, amelyek bizonyos események bekövetkeztével meghívódnak. Tipikusan a
+\texttt{on\_epoch\_end} callbacket használtuk.
+
+\noindent
+A következőket definiáltuk:
+
+\paragraph{Korai megállás} (\textit{Early stopping})
+
+Nem a \texttt{Keras} beépített függvényét használtuk, hanem sajátot írtunk a
+nagyobb szabadság miatt. A feladata, hogy ha a validációs hiba már nem csökken akkor 
+szakítsa meg a tanítást. Viszont azt tapasztaltuk, hogy előfordul, hogy néha
+egy-egy eposz erejéig a hiba nő, ámde a következőben újra stabilan csökken.
+Ezért csak akkor állunk meg ha a validációs hiba három egymást követő eposzban
+nem csökkent.
+
+\texttt{Kerasban} a validációs hibát a \texttt{on\_epoch\_end(self, epoch, logs=\{\})} 
+callback függvényben a \texttt{logs.get(self.monitor)} utasítással kapjuk meg.
+
+Megadhatunk explicit legtöbb eposz-számot is, és validációs hibahatárt, ami alá ha
+elérünk akkor elvégezettnek tekintjük a feladatot, de ezt a gyakorlatban nem használtuk.
+Addig tanítottuk, ameddig csak lehetett.
+
+\paragraph{Ellenőrzőpont}
+
+Mivel a tanítás hosszú folyamat, eközben akár össze is omolhat a rendszer, vagy
+a modell elkezdhet egy idő után \textit{túltanulni}. Többek között ezek miatt fontos,
+hogy rendszeres időközönként elmentsük a jelenlegi állapotot. Ehhez egy 
+\textit{Checkpoint~Callbacket} implementáltunk, amely a jelenlegi verzióban minden ötödik
+eposz után a lemezre menti a modellt, ellátva egy időbélyegzővel.
+
+
+
+\subsubsection{Második fázis}
+
+A második fázisban egy már betanított modellt használunk.
+
+
+
+\noindent\rule{15cm}{0.4pt}
+
+
+*memória warning
+*float vs int
 batchek száma, early stopping, checkpoint
 
-tensorflow gpu 
-on the fly loading - nem fér be 1000 kép
-adatB méret
-honnan vannak, különböző telefonok
+*tensorflow gpu 
+*on the fly loading - nem fér be 1000 kép
+*adatB méret
+*honnan vannak, különböző telefonok
 hiányosságok
 a rossz képek előszűrve vannak a pontkeresés miatt de ez még kutatásra szorul
 
+*augmentálás fail, dropout
 
 megszopatta az offset nyomat
-mekkorát vágtunk ki mert elfogyott a memória
-egyentranszformáció
-mennyi képünk volt
+*mekkorát vágtunk ki mert elfogyott a memória
+*egyentranszformáció
+*mennyi képünk volt
 súly vs teljes modell
 
+3stage - külön értékelhető / javitható stb
 statisztikai mérés / külön modul
+
+talán megmutatni hogy hogy meg a konv net tanítás?
+betöltés vagy ujragenerálás
+logolásról lehetne pár szó
 
 \subsection{Autoencoder}
 
@@ -895,6 +1091,19 @@ dropout, normalizálás, balancing, augmentation
 loss/accuracy - roc görbe "siker mérése"
 test/val/train
 early stopping
+MERGED images??? dunno?
+
+
+
+
+\begin{thebibliography}{9}
+	\bibitem{adam} 
+	Diederik P. Kingma, Jimmy Ba:
+	Adam: A Method for Stochastic Optimization
+	arXiv:1412.6980v9 [cs.LG]
+	
+\end{thebibliography}
+
 
 
 
