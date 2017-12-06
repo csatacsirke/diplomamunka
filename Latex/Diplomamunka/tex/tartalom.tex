@@ -654,8 +654,16 @@ TODO bele lehetne írni a regularizációt
 
 
 
+
+
+
+
+
+
+% TODO lehet hogy egészségesebb lenne külön fájlba a fejezeteket
+
 \newpage
-\section{Megoldás}
+\section{Megvalósítás}
 
 A gépi tanulást két helyen vizsgáltuk a témakörben.
 Először egy már meglévő applikáció mért eredményeit használjuk fel,
@@ -678,6 +686,9 @@ keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíte
 például a \texttt{numpy} (általános aritmetikai könyvtár) és \texttt{opencv} \ref{opencv}
 (computer vision, képfeldolgozás).
 
+
+
+TODO néhány szó hogy mi kell még a gpu futtatáshoz : cuda, nvidia neuronos izé
 
 
 TODO jurás cucc
@@ -1034,12 +1045,58 @@ eposz után a lemezre menti a modellt, ellátva egy időbélyegzővel.
 
 
 \subsubsection{Második fázis}
+\label{sec:masodik.fazis}
 
-A második fázisban egy már betanított modellt használunk.
+A második fázisban egy már betanított modellt használunk. Ekkor már tudunk predikciókat 
+végezni, és ezáltal hatékonyságot mérni. A bináris osztályozó tulajdonsága, hogy bár
+a formátum különbözhet, az eredmény végső soron egy 0 és 1 közötti szám. Meg kell egy határoznunk egy-egy diszjunkt intervallumot az osztályokhoz, amelyikbe beleesik azt mondjuk
+a klasszifikáció eredményének. Ha szükséges felvehetünk egy harmadik intervallumot is 
+az előző kettő közé, amelyben nem vagyunk biztosak.
+
+
+Ezeket az intervallumokat nem tudjuk triviálisan meghatározni, ugyanis függnek az 
+elvárt maximális első- és másodfajú hibarátától. Tekintsük a kétintervallumos esetet!
+
+Ahogy azt már korábban említettük, a kétféle hibaráta egymás rovására javítható a 
+vágópont különböző megválasztásával. Az ezek közti összefüggést jól mutatja a 
+ROC-görbe, ahol a fals pozitív ráta függvényében láthatjuk a tényleges
+pozitív rátát, ahol $ tp = 1 - fn $. 
+(\ref{fig:roc.pelda}. ábra)
+
+
+\begin{figure}[htbp]
+	\centering
+	\includesvg[scale=0.5]{img/rocexample}
+	\caption{ROC-görbe}
+	\label{fig:roc.pelda}
+\end{figure}
+
+
+TODO lehetne egy dupla hisztogramot iderakni
+
+Ha az adathalmaz nem tökéletesen szeparálható ( a görbe alatti terület nem 1), akkor
+nem tudunk univerzálisan jó vágópontot mondani, viszont azt igen hogy egy adott ponthoz 
+mekkora fals és tényleges ráta tartozik. Ezek alapján el kell döntenünk, hogy az 
+első- vagy a másodfajú hiba a kritikusabb, erre meghatároznunk egy maximum hibarátát,
+például 1\%, és ez alapján megadni a küszöböt.
+
+
+Amennyiben három intervallumot használunk mindkét hibát kontrollálni tudjuk, cserébe a 
+bizonytalanságért. Viszont ez az állapot javítható újbóli mintavételezéssel, azaz 
+ez esetben új kép készítésével, vagy esetleg egy másik módszer ajánlásával.
+
+
+
+
+
+
+
+
 
 
 
 \noindent\rule{15cm}{0.4pt}
+roc görbe, vágás, dunno,
 
 
 *memória warning
@@ -1068,21 +1125,127 @@ talán megmutatni hogy hogy meg a konv net tanítás?
 betöltés vagy ujragenerálás
 logolásról lehetne pár szó
 
-\subsection{Autoencoder}
 
 
 
 
+
+\subsection{Képelemzés Autoencoderrel}
+
+
+Egy másik megközelítés volt a konvolúciós hálók alkalmazására, hogy autoencoder modellt 
+építünk, majd a rekonstrukciós hiba alapján döntünk.
+
+Egy autoencoder feladata hogy a kapott inputot úgy tömörítse a rejtett rétegeket
+használva, hogy a veszteség a lehető legkisebb legyen.
+
+Az modell tanításához kiválogattuk az eredeti képeket, és csak azokon tanítottunk.
+Azt vártuk, hogy jelentős különbséget fogunk tapasztalni az eredeti és a hamis 
+kimenetekben. Erről részletesen az eredmények fejezetben.
+
+
+\subsubsection{Modell}
+\noindent
+\textbf{Keras segítségével a következő modellt építettük:}
+
+
+\lstset{language=Python}
+\begin{lstlisting}  
+
+	model = Sequential()
+	
+	kernel_sizes = [7, 7, 7]
+	kernel_dims = list(map(lambda x: (x,x), kernel_sizes))
+	iterator = iter(kernel_dims)
+	reverse_iterator = reversed(kernel_dims)
+	
+	padding = "same"
+	
+	padding_size = sum(kernel_sizes)*2
+	
+	model.add(ZeroPadding2D(padding=(padding_size, padding_size), input_shape=(None, None, 3)))
+	model.add(Conv2D(64, next(iterator), padding=padding))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+	model.add(Conv2D(128, next(iterator), padding=padding))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+	model.add(Conv2D(256, next(iterator), padding=padding))
+	model.add(Activation('relu'))
+	
+	# Visszaalakitas
+	
+	model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
+	model.add(Activation('relu'))
+	model.add(UpSampling2D(size=(2, 2)))
+	
+	model.add(Conv2DTranspose(64, next(reverse_iterator), padding=padding))
+	model.add(Activation('relu'))
+	model.add(UpSampling2D(size=(2, 2)))
+	
+	model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
+	model.add(Cropping2D(cropping=(padding_size, padding_size)))
+	
+	model.compile(
+		loss='mean_squared_error',
+		optimizer='adam', 
+		metrics=['accuracy']) 
+) 
+
+\end{lstlisting}
+
+
+Az előző fejezet konvolúciós hálójához hasonlóan Konvolúció-Relu-MaxPooling hármasokat
+fűztünk egymás után. Úgy találtuk hogy az általánosítás $ 7 \time 7 $-es kernelméret 
+mellett volt. Kisebb túltanult, jelentősen nagyobb ($ 11  $és felette) már nem volt 
+képes értékelhető eredményt adni.
+
+A háló második fel az első tükrözve, figyelve arra, hogy a végső dimenzió pont akkora 
+legyen, mint a bemenet. A MaxPoolingok párja egy-egy UpSampling réteg, amely az adott
+pixelt egy $ 2 \times 2 $-es ablakban megtöbbszörözi.
+
+Költségfüggvények átlagos hiba-négyzetet (\textit{MSE}) használunk, hiszen arra vagyunk 
+kíváncsiak, hogy fizikailag mennyire voltunk közel az eredeti képhez.
+
+
+Érdekessége a hálónak, hogy \textit{hely-invariáns}, azaz a kép koordinátáitól nem függ az adott
+adategységhez tartozó kimenet, kizárólag a szomszédaitól és a megtanult szűrőktől.
+Ezt ki is használjuk: az \texttt{ input\_shape=(None, None, 3)} utasítással annyit
+specifikálunk csak, hogy az input 3 színcsatornával kell rendelkezzen, de tetszőleges
+a szélesség és a magasság. Ekkor bár az kötött, hogy tanításkor a példák egyforma 
+dimenziójúak legyenek a hatékonyság miatt, de a méretük így is tetszőleges.
+
+
+Megtehetjük tehát, hogy tanításnál sok kis kockát mutatunk a modellnek, viszont tesztelésnél
+már az egész képet állítjuk vissza, az eredmény ugyanaz lesz. Ez magyarázható a konvolúció 
+tulajdonságaival, erre alapul például jelfeldolgozásban az \textit{overlap-save} módszer.
+
+
+
+\subsubsection{Osztályozás}
+
+A háló kimenete az átlagos rekonstrukciós hiba. Az osztályozás ez alapján történik,
+hasonlóan a \ref{sec:masodik.fazis} pontban leírtakhoz, azaz választunk egy küszöböt:
+ha ez alatt van a hiba, akkor az eredetiség mellett döntünk, különben ellene.
+
+
+
+\newpage
 \section{Eredmények}
+TODO
 
-
-
+\newpage
 \section{Konklúzió}
 
-lehetne majd pozicionálásra is megpróbálni
+
 
 
 \paragraph{TODO:}
+
+lehetne majd pozicionálásra is megpróbálni
+
 
 kis kikockázás
 
@@ -1095,7 +1258,7 @@ MERGED images??? dunno?
 
 
 
-
+\newpage
 \begin{thebibliography}{9}
 	\bibitem{adam} 
 	Diederik P. Kingma, Jimmy Ba:
@@ -1108,4 +1271,6 @@ MERGED images??? dunno?
 
 
 We did a pretty good\textsuperscript{\textit{job}}so far
+
+
 
