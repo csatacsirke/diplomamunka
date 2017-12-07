@@ -468,7 +468,7 @@ $ J(\underline{w}) = \dfrac{1}{n} \sumn{i} f(y, y') $
 $ f(y, y') = \norm{y - y'}_2^2 $
 
 \noindent
-Az autóenkódernél ezt használjuk.
+Az autoencodernél ezt használjuk.
 
 
 \paragraph{Keresztentrópia} (\textit{Cross-entropy})
@@ -697,11 +697,87 @@ TODO jurás cucc
 
 \subsection{Döntéshozás SVM-mel}
 
+Az alapvető ötlet az volt, hogy vigyünk gépi tanulást egy már meglévő projektbe,
+és nézzük meg, hogy ezzel tudunk-e javítani rajta. Ez a meglévő projekt, bár több 
+alkalmazás készült egy-egy ipari megoldáshoz, lényegében egy képet elemez 
+különböző szempontok szerint, ebből fix darab számszerű jellemzőt készít, 
+majd ezek alapján döntést hoz. Ez az algoritmus minden alprojekthez egyesével
+volt kézzel megírva a szakértői tapasztalatok alapján. 
+
+Ezt a mechanizmust szerettük volna automatizálni. Abban reménykedünk, hogy egy 
+mesterséges intelligencia esetleg olyan összefüggéseket is felismerhet a jellemzők
+között, ami felett az ember esetleg elsiklik, valamint ha csak küszöbválasztásra
+gondolunk egy elemi döntésnél biztonságosabbnak tűnik azt automatikusan, statisztikai
+alapokon beállítani, mint kézzel kikísérletezni, hogy az adott példákra mikor működik jól.
+További előny, hogy ha akár ugyanabba a projektbe új minta érkezik, gondoljunk akár újféle 
+hamisítványra, akkor az újratanítást automatikusan el lehet végezni az új adathalmazon,
+nem kell hozzá új algoritmust kitalálni. Amennyiben folyamatosan nő az adathalmazunk, 
+bizonyos időközönként akár automatikusan is tudunk új szoftververziót készíteni,
+ami jobban illeszkedik az új mintákhoz, és biztonságosabban ítél.
+
+
+A jellemző adatokra fekete dobozként tekintettük, semmilyen formában nem használtuk fel
+a jelentésüket, hagytuk hogy a gép magától találjon összefüggéseket.
+
+
+Építhettünk volna egy neurális hálót is, de sokkal egyszerűbb és hatékony
+megoldásnak bizonyult az SVM, amely kiváló ilyen bináris adat-klaszterezésekre.
+További előnye, hogy viszonylag kevés mintán is jól és gyorsan tud tanulni.
+Mindezek mellett kevesebb a hiperparamétere.
+
+
+\subsubsection{Adatok}
+
+Az adatainkat egy \texttt{csv} fájlból olvassuk ki, amit ez előzőekben említett program 
+generált. Egy-egy sor tartalmazza az adott fájl elérési útját, a \textit{ground truth}-t,
+a Jurás program predikcióját, néhány metaadatot, és végül a számunkra érdekes jellemzőket.
+Körülbelül 1000 mintánk állt rendelkezésre.
+
+Esetlegesen tartalmazhat egy sor egy hibaüzenetet, ha a képet nem sikerült elemezni, például 
+ha annyira homályos, hogy célzóköröket nem sikerült megtalálni. Az ilyen sorokat figyelmen kívül hagyjuk.
+
+Tekintve, hogy a tanítás időtartama alatt nem változnak az adatok, a kézzel adjuk
+meg a jellemzők oszlopindexeit. A kódban ez:
+\begin{lstlisting}  
+	valueableParamIndices = [18, 20, 22, 24, 26, 27, 29, 30, 32, 33, 35, 36, 38, 39, 41, 42]
+\end{lstlisting}
+
+Ezeket a rekordokat kigyűjtöttük egy $ x $ tömbbe, az elvárt eredményeket egy $ y $-ba:
+ezek lesznek a modellünk paraméterei.
+
+
+
+\subsubsection{A modell}
+
+Az SVN-ünket az \texttt{Sklearn} csomag segítségével építjük fel. 
+
+
+\begin{lstlisting}  
+
+
+	clf = SVC(
+			C=1., 
+			cache_size=200, 
+			class_weight=class_weight, 
+			coef0=0.0,
+			decision_function_shape=None, 
+			degree=2, 
+			gamma='auto', 
+			kernel='rbf',
+			max_iter=-1,
+			probability=True, 
+			random_state=None, 
+			shrinking=True,
+			tol=0.001, 
+			verbose=False)
+
+\end{lstlisting}
 
 
 
 
 
+négyzetes tanítási idő, nem működik 100k példára
 TODO valahova beleirni hogy kevés mintán is tud üzemelni
 
 TODO az svm többi paraméterét leírni
@@ -1236,10 +1312,14 @@ ha ez alatt van a hiba, akkor az eredetiség mellett döntünk, különben ellen
 \section{Eredmények}
 TODO
 
+összehasonlítani a jurás eredménnyel
+
 \newpage
 \section{Konklúzió}
 
+további feladatok:
 
+például mobilra átültetni
 
 
 \paragraph{TODO:}
