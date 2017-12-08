@@ -261,14 +261,30 @@ Ehhez vezessük be a \textit{kernel függvényeket}:
 $ K(x_i, x_j) = \varphi(x_i)^T \cdot \varphi(x_j) $
 
 \noindent
-Látható, hogy a maximalizálás ekkor is elvégezhető, és a predikció is csak kicsit módosul
+Látható, hogy a maximalizálás ekkor is elvégezhető:
+
+
+$ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
+$ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(x_i, x_j) y_i c_j $
+
+\noindent
+ahol $ \forall i: $
+
+$  \sumn{i} c_i y_i = 0 $
+
+$ 0 \leq c_i \leq \frac{1}{2n\lambda} $
+
+\noindent
+És a predikció is csak kicsit módosul
 egy $ x' $ mintára:
 
 $ y' = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) = $
 $ sgn(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}') - b) $
 
 
-TODO mutassunk bázisfüggvényeket
+%TODO mutassunk bázisfüggvényeket
+%ez a megvalósítás részbe került
+% de az rbf ez lehet hogy ide lehetn rakni?...
 
 
 \subsubsection{Mély hálók}
@@ -775,22 +791,106 @@ Az SVN-ünket az \texttt{Sklearn} csomag segítségével építjük fel.
 
 
 
+%\subsubsection{Hiperparaméterek}
+
+\subsubsection{Kernelek}
+
+%http://scikit-learn.org/stable/modules/svm.html#svm-kernels
+
+Mint azt a bevezetésben írtuk, a kernelek feladata, hogy megnöveljék a probléma
+dimenzióját annak reményében, hogy így az lineárisan szeparálhatóvá válik, mindezt 
+úgy, hogy meglévő jellemzőpárokból újakat generálnak egy előre megadott képletek,
+bázisok segítségével. Nézzük \texttt{sklearn}-ben milyen lehetőségeink vannak a 
+kernel függvény megadására.
 
 
-négyzetes tanítási idő, nem működik 100k példára
-TODO valahova beleirni hogy kevés mintán is tud üzemelni
+\paragraph{Lineáris} (\texttt{linear})
 
-TODO az svm többi paraméterét leírni
- ? és az az általánosba kell vagy ide? 
+$ k(x, x') = \underline{x}^T \cdot \underline{x}' $
 
 
+\paragraph{Polinomiális} (\texttt{poly})
 
-voltak random adatok
-nincs szükség arra hogy tudjuk mit jelentenek a mért adatok
-általános
-minden projekt ilyen elveken mukodott, bármelyikre lehet alkalmazni
-verdict
-hasonlóan működött az eredeti algo cska kézzel volt minden megcsinálva
+$ k(x, x') = (\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)^d $
+
+\texttt{SVC.degree} $ \rightarrow d $
+
+\texttt{SVC.coeff0} $ \rightarrow r $
+
+\paragraph{Radiális Bázis Függvények} (\texttt{rbf})
+
+
+$ k(x, x') = exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2) $
+
+\texttt{SVC.gamma} $ \rightarrow \gamma $
+
+
+
+
+\paragraph{Szigmoid} (\texttt{sigmoid})
+
+$ k(x, x') = tanh(\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r) $
+
+\texttt{SVC.coeff0} $ \rightarrow r $
+
+
+\noindent
+Mi a dolgozatban végül \texttt{RBF} kernelt használtunk.
+
+\subsubsection{Egyéb paraméterek}
+
+\paragraph{class\_weight}
+Amennyiben az adatunk kiegyensúlyozatlan (márpedig nekünk az), ezzel adhatjuk meg
+az egy-egy osztály súlyát, amely általános esetben fordítottan arányos az elemszámmal.
+
+Ehhez használtuk a csomag \texttt{compute\_class\_weight} függvényét, ami éppen ezt csinálja.
+Paramétere  kívánt osztályok, és \textit{ground truth}-ok.
+
+
+\paragraph{tol}
+Hibatolerancia, amelyet elfogadunk és ha ezt elértük, megállhatunk.
+
+
+
+
+
+% TODO jobb cím?
+\subsubsection{Tulajdonságok}
+
+\noindent
+A tanítás $ \mathcal{O}(n^2) $ futási idejű, így nem igazán jól skálázható. Bár a mi 
+esetünkben kiválóan működött, a csomag dokumentációjában azt olvashatjuk, hogy néhány tízezernél
+több mintára már nem alkalmazható hatékonyan.
+
+
+Magát a tanítást a modellünk \texttt{fit(x, y)} függvényével tudjuk elvégezni, ezután 
+a \texttt{predict} metódussal tudunk egy-egy mintát osztályozni.
+
+
+TODO hyperopt?
+
+
+
+
+
+
+%
+%négyzetes tanítási idő, nem működik 100k példára
+%az svm kvázi determinisztikus
+%
+%*TODO valahova beleirni hogy kevés mintán is tud üzemelni
+%
+%TODO az svm többi paraméterét leírni
+% ? és az az általánosba kell vagy ide? 
+%
+%
+%
+%voltak random adatok
+%nincs szükség arra hogy tudjuk mit jelentenek a mért adatok
+%általános
+%minden projekt ilyen elveken mukodott, bármelyikre lehet alkalmazni
+%verdict
+%hasonlóan működött az eredeti algo cska kézzel volt minden megcsinálva
 
 
 
@@ -1170,37 +1270,37 @@ ez esetben új kép készítésével, vagy esetleg egy másik módszer ajánlás
 
 
 
-
-\noindent\rule{15cm}{0.4pt}
-roc görbe, vágás, dunno,
-
-
-*memória warning
-*float vs int
-batchek száma, early stopping, checkpoint
-
-*tensorflow gpu 
-*on the fly loading - nem fér be 1000 kép
-*adatB méret
-*honnan vannak, különböző telefonok
-hiányosságok
-a rossz képek előszűrve vannak a pontkeresés miatt de ez még kutatásra szorul
-
-*augmentálás fail, dropout
-
-megszopatta az offset nyomat
-*mekkorát vágtunk ki mert elfogyott a memória
-*egyentranszformáció
-*mennyi képünk volt
-súly vs teljes modell
-
-3stage - külön értékelhető / javitható stb
-statisztikai mérés / külön modul
-
-talán megmutatni hogy hogy meg a konv net tanítás?
-betöltés vagy ujragenerálás
-logolásról lehetne pár szó
-
+%
+%\noindent\rule{15cm}{0.4pt}
+%roc görbe, vágás, dunno,
+%
+%
+%*memória warning
+%*float vs int
+%batchek száma, early stopping, checkpoint
+%
+%*tensorflow gpu 
+%*on the fly loading - nem fér be 1000 kép
+%*adatB méret
+%*honnan vannak, különböző telefonok
+%hiányosságok
+%a rossz képek előszűrve vannak a pontkeresés miatt de ez még kutatásra szorul
+%
+%*augmentálás fail, dropout
+%
+%megszopatta az offset nyomat
+%*mekkorát vágtunk ki mert elfogyott a memória
+%*egyentranszformáció
+%*mennyi képünk volt
+%súly vs teljes modell
+%
+%3stage - külön értékelhető / javitható stb
+%statisztikai mérés / külön modul
+%
+%talán megmutatni hogy hogy meg a konv net tanítás?
+%betöltés vagy ujragenerálás
+%logolásról lehetne pár szó
+%
 
 
 
@@ -1310,9 +1410,29 @@ ha ez alatt van a hiba, akkor az eredetiség mellett döntünk, különben ellen
 
 \newpage
 \section{Eredmények}
-TODO
 
+\subsection{SVM}
+
+Az SVM 
+
+
+\subsection{Konvolúciós háló}
+
+
+
+
+az autoencoder segített ráönni, hogy hol lett elbaszva
+
+további kutatás: további mintákkal-
+az eredményt a helyén kell kezelni - de azért bíztató
+limitáció - az offsetet nem fogta meg
+
+2 image merge vs sima - mi is 2 képet használtunk
 összehasonlítani a jurás eredménnyel
+
+megnézni mennyire függ a mázlitól a tanítás
+validációs hiba vs rendes hiba
+
 
 \newpage
 \section{Konklúzió}
