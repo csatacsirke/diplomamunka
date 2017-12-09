@@ -886,6 +886,7 @@ a \texttt{predict} metódussal tudunk egy-egy mintát osztályozni.
 
 
 \subsubsection{Hiperparaméter optimalizálás}
+\label{sec:svm.hiperparameter.optimalizalas}
 
 Ahogy láthattuk, még az egyes kernelekhez is többféle hiperparaméter választható. Ezek kiválasztása
 feladatfüggő, és nem triviális. Egy hiperparaméter jóságát a validációs hibával mérjük. Ennek 
@@ -945,12 +946,27 @@ beépített paraméterei ($ C=1 , \gamma =\dfrac{1}{len(samples)} $) ehhez nagys
 
 
 \subsubsection{Dupla képes eljárás}
+\label{sec:dupla.kepes.eljaras}
 
 A dolgozat alapjául szolgáló alkalmazás úgy működött, hogy a nagyobb biztonságért két képet készített
-egymás után, hogy ha az egyik valami miatt rossz minőségű lett akkor is tudjunk dönteni. Ezt 
-mi is megpróbáltuk kihasználni. A \texttt{csv} fájlban az egymás után készült képek adatait
+egymás után, hogy ha az egyik valami miatt rossz minőségű lett, akkor ki tudjunk választani a jobbat, 
+és azt elemezni. Ezt mi is megpróbáltuk kihasználni. A \texttt{csv} fájlban az egymás után készült képek adatait
 összefűztük. Két ilyen fájlt onnan ismerünk meg, hogy csak egy \texttt{\_0.png} és \texttt{\_1.png}
 posztfixben térnek el.
+
+Ezek alapján három tanító módszert tudunk készíteni. 
+\begin{enumerate}
+	\item
+	Minden egyes képhez rendelünk egy döntést.
+	
+	\item 
+	Minden, már eleve egybeolvasztott adatot úgy kezelni, mintha csak 
+	egy kép lenne. (\texttt{bpas-merged.csv})
+	
+	\item 
+	A képek jellemzőit a fentiek szerint a (\texttt{bpas-verdict.csv}) fájlból egymás mögé 
+	fűzni, és az alapján dolgozni.
+\end{enumerate}
 
 
 %
@@ -1492,13 +1508,74 @@ ha ez alatt van a hiba, akkor az eredetiség mellett döntünk, különben ellen
 
 \subsection{SVM}
 
-Az SVM 
+Emlékezzünk vissza, hogy az SVM modellt azért kutattuk, mert egy kvázi kézzel írt elágazásokból 
+álló, manuálisan felparaméterezett döntési folyamat elkészítését szerettünk volna első sorban
+hatékonyabbá tenni, valamint automatizálni, hogy a modell illeszkedjen az adatokra, akkor is ha az 
+adatbázis esetleg frissül, valamint hasonló új projekteknél ne kelljen el elölről kezdeni a programozási
+folyamatot, hanem legyen egy modulunk, amit csak fel kell paramétereznünk és be kell tanítanunk.
+
+
+Az \ref{sec:svm.hiperparameter.optimalizalas} pontban leírtak miatt nem alkalmaztuk a szokásos 
+\texttt{train-test-validation} hármast, mert statisztikai szempontból nem lett volna megbízható
+az eredmény: túl sok múlott a szerencsén. Ez több adat beszerzésével működőkép módszer lesz,
+addig is az átlagos hibarátát tekintettük mérvadó mérőszámnak.
+
+Ahogy a \ref{sec:dupla.kepes.eljaras} pontban írtuk, több módszer volt a tanításra.
+
+\noindent
+Az eredeti, gépi tanulás \textbf{nélküli} algoritmus eredményei, minták \underline{darabszámában} 
+kifejezve:
+
+\begin{tabular}{ l l l l l }
+	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
+	\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
+	\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
+\end{tabular}
+
+
+\noindent
+Az algoritmusok eredményei hiba rátával kifejezve
+
+
+\begin{tabular}{ l l l l l }
+	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
+	\texttt{bpas-verdict.csv} 	& 959 			& 21.48\%		& 1.981\% 	& 0.729\% 	\\
+	\texttt{bpas-merged.csv} 	& 496			& 10.88\%		& 3.225\% 	& 0.201\%   \\
+	\hline
+	1. megoldás					& 959			& 0\%			& 0.528\%	& 0.087\%	\\
+	2. megoldás					& 496			& 0\%			& 0.753\%	& 0.269\%	\\
+	3. megoldás					& 428			& 0\%			& 0.663\%	& 0.291\%   \\
+	
+\end{tabular}
 
 elsőfajú: 0.1\%
 másod 0.5\%
 
+
+%merged:
+%average+deviation type 1 error rate:
+%0.00753 0.007968
+%average+deviation type 2 error rate:
+%0.00269 0.005439
+
+%sima
+%average+deviation type 1 error rate:
+%0.00528 0.005003
+%average+deviation type 2 error rate:
+%0.00087 0.002799
+
+%duplaimages
+%total samples:  428
+%average+deviation type 1 error rate:
+%0.00663 0.007758
+%average+deviation type 2 error rate:
+%0.00291 0.006014
+
+
 egy teszt cuccban kevés a rossz-> ezt is átlagoltuk
 
+
+\newpage
 \subsection{Konvolúciós háló}
 
 
@@ -1523,7 +1600,8 @@ validációs hiba vs rendes hiba
 további feladatok:
 
 például mobilra átültetni
-
+dunno bevezetése
+emberi programozási nyelv - ez csak prototípus annak minden bajával
 
 \paragraph{TODO:}
 
