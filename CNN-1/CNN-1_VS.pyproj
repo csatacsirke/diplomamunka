@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{bc717c7f-59b5-464b-940a-c1f4179d8e8b}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>statistics.py</StartupFile>
+    <StartupFile>verdict_nn.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>working_dir</WorkingDirectory>
     <OutputPath>.</OutputPath>

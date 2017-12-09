@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.utils.class_weight import compute_class_weight
 import sklearn
-
+import argparse
 
 # saját
 from log import log
@@ -48,6 +48,12 @@ rontás kevesebb példával -> megnézni hogy függ a számuktól
 use_two_images = False
 randomly_swap_images = True
 visualize = False
+use_random_seed = True
+train_ratio = 0.80
+
+
+def zip_list(x):
+	return list(zip(*x))
 
 def readGroundTruth(row):
 	line = row[0]
@@ -56,14 +62,16 @@ def readGroundTruth(row):
 	else:
 		return 1
 
-def readSvmParams(row):
+def read_valuable_params(row, valuable_param_indices):
 	params = []
-	for index in valueableParamIndices:
+	for index in valuable_param_indices:
 		params.append(float(row[index]))
 	return params
 
 
-def readParams(inputFile):
+def read_input_data(inputFile):
+
+	valuable_param_indices = [18, 20, 22, 24, 26, 27, 29, 30, 32, 33, 35, 36, 38, 39, 41, 42]
 	# f = StringIO.StringIO(scsv)
 	
 	# for row in reader:
@@ -82,12 +90,12 @@ def readParams(inputFile):
 		if row[3] == "nofit":
 			continue
 
-		if(len(row) < max(valueableParamIndices)):
-			log("fail - ", len(row), "/",  max(valueableParamIndices), row[0])
+		if(len(row) < max(valuable_param_indices)):
+			log("fail - ", len(row), "/",  max(valuable_param_indices), row[0])
 			continue
 
 		
-		x_row = readSvmParams(row)
+		x_row = read_valuable_params(row, valuable_param_indices)
 
 		x.append(x_row)
 		y.append(readGroundTruth(row))
@@ -166,37 +174,7 @@ def merge_twin_images(params):
 
 	return list(zip(*merged_params))
 
-def createModel(X, Y):
 
-	assert(len(x) == len(y))
-
-
-
-	#http://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html#sklearn.utils.class_weight.compute_class_weight
-	# class weight: ha több az egyik osztáyl akk bekapcsolni "unbalanced"
-	
-	class_weight = {k: v for (k, v) in zip([0, 1], compute_class_weight(class_weight='balanced', classes=np.array([0, 1]), y=Y))}
-	
-	clf = SVC(
-		C=1., 
-		cache_size=200, 
-		class_weight=class_weight, 
-		coef0=0.0,
-		decision_function_shape=None, 
-		degree=2, 
-		gamma='auto', 
-		kernel='rbf',
-		max_iter=-1,
-		probability=True, 
-		random_state=None, 
-		shrinking=True,
-		tol=0.001, 
-		verbose=False)
-
-
-	clf.fit(X, Y) 
-
-	return clf
 
 def add_evaluation_coulumn(results):
 	for index, row in enumerate(results):
@@ -220,7 +198,74 @@ def convert_to_single_param(Y):
 	return list(map(fnc, Y))
 
 
-def test(model, X, Y):
+def calc_errors(y, pred):
+	""" returns (fp, fn)"""
+	entries = zip(y, pred)
+	tp = tn = fp = fn = 0
+
+	for entry in entries:
+		y, pred = entry
+
+		if y == 0 and pred == 0 : tn += 1	
+		if y == 0 and pred == 1 : fp += 1	
+		if y == 1 and pred == 0 : fn += 1	
+		if y == 1 and pred == 1 : tp += 1	
+
+	return (fp, fn)
+
+
+#def list_problematic_entries():
+
+#	entries = zip(y, pred)
+#	tp = tn = fp = fn = 0
+
+#	for entry in entries:
+#		y, pred = entry
+
+
+#		#TODO
+#		if y == 0 and pred > 0.5 : fp += 1	
+#		if y == 1 and pred < 0.5 : fn += 1	
+
+#	return (fp, fn)
+
+#def random_split_data(X, Y, file_names):
+def random_split_data(data):
+	
+	if not use_random_seed:
+		np.random.seed(seed = 1337)
+	#permutation = np.random.permutation(len(X))
+	permutation = np.random.permutation(len(data))
+
+
+	#data = list(zip(X, Y, file_names))
+	data = list(map(lambda i: data[i], permutation))
+
+	#X = list(map(lambda i: X[i], permutation))
+	#Y = list(map(lambda i: Y[i], permutation))
+	#file_names = list(map(lambda i: file_names[i], permutation))
+
+	
+	#test_offset = round( len(X) * train_ratio )
+	test_offset = round( len(data) * train_ratio )
+
+
+	train = data[0:test_offset]
+	test = data[test_offset:]
+
+	#X_train = np.array(x[0:test_offset])
+	#Y_train = np.array(y[0:test_offset])
+
+	#X_test = np.array(x[test_offset:])
+	#Y_test = np.array(y[test_offset:])
+
+	
+
+	
+
+	return (train, test)
+
+def test(model, X, Y, file_names):
 
 	Y_pred = model.predict(X)
 	
@@ -239,63 +284,245 @@ def test(model, X, Y):
 
 
 	f1_score = sklearn.metrics.f1_score(Y, Y_pred)
+	#f1_score = sklearn.metrics.f1_score(Y, Y_pred_proba)
 	log("f1_score", f1_score)
 
 	roc_auc_score = sklearn.metrics.roc_auc_score(Y, Y_pred_proba)
 	log("roc_auc_score", roc_auc_score)
+	
+	fp, fn = calc_errors(Y, Y_pred)
+
+	# false positive rate
+	fpr = fp/len(Y)*100
+	# false negative rate
+	fnr = fn/len(Y)*100
+
+	log("total samples: ", len(Y))
+
+	log("false positive: ", fp, "(" + str(round(fpr,3)) + "%)" )
+	log("false negative: ", fn, "(" + str(round(fnr,3)) + "%)" )
+
+	params = model.get_params()
+	#list_problematic_entries(Y, Y_pred_proba)
 	
 	if visualize:
 		# fpr, tpr, thresholds 
 		roc_curve = sklearn.metrics.roc_curve(Y, Y_pred_proba)
 
 		create_roc_curve_plot(roc_curve, roc_auc_score)
+
+
+
+
+def compute_class_weight_map(Y):
+	class_weight = {k: v for (k, v) in zip([0, 1], compute_class_weight(class_weight='balanced', classes=np.array([0, 1]), y=Y))}
+	return class_weight
+
+
+def create_and_fit_model(X, Y, kernel='rbf', C=1.0, gamma="auto", coef0=0.0):
+
+	assert(len(X) == len(Y))
+
+
+
+	#http://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html#sklearn.utils.class_weight.compute_class_weight
+	#class_weight = {k: v for (k, v) in zip([0, 1], compute_class_weight(class_weight='balanced', classes=np.array([0, 1]), y=Y))}
+	class_weight = compute_class_weight_map(Y)
 	
+	model = SVC(
+		C=C, 
+		cache_size=200, 
+		class_weight=class_weight, 
+		coef0=coef0,
+		decision_function_shape=None, 
+		degree=2, 
+		gamma=gamma, 
+		kernel=kernel,
+		max_iter=-1,
+		probability=True, 
+		random_state=None, 
+		shrinking=True,
+		tol=0.0001, 
+		verbose=False)
+
+	model.fit(X, Y) 
+
+	return model
 
 
-if __name__ == "__main__":
-
-	inputFile = "jura\\2017.10.25\\Bpas-Verdict.csv"
-
-	valueableParamIndices = [18, 20, 22, 24, 26, 27, 29, 30, 32, 33, 35, 36, 38, 39, 41, 42]
+def print_percentage(i, N):
+	print( "\r" + str((i+1)*100//N) + "%", end=""if i is not N-1 else "\n" )
 
 
-	log("start")
-
-	log("reading params")
-	x, y, file_names = readParams(inputFile)
-
-	np.random.seed(seed = 1337)
-	permutation = np.random.permutation(len(x))
+def batch_fit_and_test(x, y, file_names, N = 200, kernel='rbf', C=1.0, gamma="auto", coef0=0.0):
+	"""return (avg_fpr, avg_fnr)"""
+	
+	
+	log("N={0}, C={1}, gamma={2}".format( N, C, gamma) )
 
 
-	x = list(map(lambda i: x[i], permutation))
-	y = list(map(lambda i: y[i], permutation))
-	file_names = list(map(lambda i: file_names[i], permutation))
+	fpr_list = []
+	fnr_list = []
+	
+	for i in range(N):
+		print_percentage(i, N)
 
-	train_ratio = 0.8
-	test_offset = round( len(x) * train_ratio )
+		train_data, test_data = random_split_data(zip_list((x, y, file_names)))
+
+		X_train = np.array(list(map(lambda a: a[0], train_data)))
+		Y_train = np.array(list(map(lambda a: a[1], train_data)))
+
+		model = create_and_fit_model(X_train, Y_train, kernel=kernel, C=C, gamma=gamma, coef0=coef0)
+
+	
+		X_test = np.array(list(map(lambda a: a[0], test_data)))
+		Y_test = np.array(list(map(lambda a: a[1], test_data)))
+		file_names_test = list(map(lambda a: a[2], test_data))
+
+		Y_pred = model.predict(X_test)
+
+		fp, fn = calc_errors(Y_test, Y_pred)
+
+		fpr_list.append(fp/(len(Y_test)))
+		fnr_list.append(fn/(len(Y_test)))
+	
+		pass
+
+	log("average+deviation type 1 error rate:")
+	avg_fpr = np.mean(fpr_list)
+	var_fpr = np.std(fpr_list)
+	log( round(avg_fpr, 5), round(var_fpr, 6) )
+
+	log("average+deviation type 2 error rate:")
+	avg_fnr = np.mean(fnr_list)
+	var_fnr = np.std(fnr_list)
+	log( round(avg_fnr, 5), round(var_fnr, 6) )
+	
+	
+	return (avg_fpr, avg_fnr)
+
+
+def train_and_test(x, y, file_names):
+	
+	
+	#if not use_random_seed:
+	#	np.random.seed(seed = 1337)
+	#permutation = np.random.permutation(len(x))
+
+
+	#x = list(map(lambda i: x[i], permutation))
+	#y = list(map(lambda i: y[i], permutation))
+	#file_names = list(map(lambda i: file_names[i], permutation))
+
+	
+	#test_offset = round( len(x) * train_ratio )
 
 
 
-	X_train = np.array(x[0:test_offset])
-	Y_train = np.array(y[0:test_offset])
+	#X_train = np.array(x[0:test_offset])
+	#Y_train = np.array(y[0:test_offset])
 
-	X_test = np.array(x[test_offset:])
-	Y_test = np.array(y[test_offset:])
+	#X_test = np.array(x[test_offset:])
+	#Y_test = np.array(y[test_offset:])
 
 	# todo ahol hibázik megnézni miért rossz
+	train_data, test_data = random_split_data(zip_list((x, y, file_names)))
 
+	X_train = np.array(list(map(lambda a: a[0], train_data)))
+	Y_train = np.array(list(map(lambda a: a[1], train_data)))
 
 	log("creating model")
-	model = createModel(X_train, Y_train)
+	# lowest loss: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
+	C = 6.250906239883302
+	gamma = 0.03357455814119452
+	model = create_and_fit_model(X_train, Y_train, C = C, gamma=gamma)
 
 	
+	X_test = np.array(list(map(lambda a: a[0], test_data)))
+	Y_test = np.array(list(map(lambda a: a[1], test_data)))
+	file_names_test = list(map(lambda a: a[2], test_data))
+
 
 	log("testing")
-	#test(model, X_test, Y_test)
-	test(model, x, y)
+	test(model, X_test, Y_test, file_names_test)
+	#test(model, x, y)
 
 
 	# log(clf.predict([[-0.8, -1]]))
+	
+
+
+# http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html
+def finetune_with_hyperopt(x, y, file_names):
+	from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+	
+	low = np.log(1e-3)
+	high = np.log(1e+3)
+
+	fspace = {	
+		'C': hp.loguniform('C', low, high),
+		'gamma': hp.loguniform('gamma', low, high)
+	}
+
+	def f(params):
+		C = params['C']
+		gamma = params['gamma']
+		fpr, fnr = batch_fit_and_test(x, y, file_names, N=200, gamma=gamma, C=C)
+		val = fpr + fnr
+		return {'loss': val, 'status': STATUS_OK}
+
+	trials = Trials()
+	best = fmin(fn=f, space=fspace, algo=tpe.suggest, max_evals=100, trials=trials)
+
+	log('lowest loss:', best)
+
+	log( 'trials:')
+	for trial in trials.trials[:2]:
+		log(trial)
+
+
+#def finetune_hyperparams(x, y, file_names):
+
+#	return
+
+def main():
+	parser = argparse.ArgumentParser(description='Verdict SVM')
+	parser.add_argument('csv_in', metavar='csv_in', type=str, nargs='?')
+	
+
+
+	args = parser.parse_args()
+	inputFile = args.csv_in
+
+	if inputFile is None:
+		inputFile = "jura\\2017.10.25\\Bpas-Verdict.csv"
+		
+	
+	log("reading params")
+	x, y, file_names = read_input_data(inputFile)
+
+	C = 6.250906239883302
+	gamma = 0.03357455814119452
+	
+	batch_fit_and_test(x, y, file_names,C=C, gamma=gamma)
+	#train_and_test(x, y, file_names)
+	return
+	
+	#inputFile = "jura\\2017.10.25\\Bpas-Merged.csv"
+
+
+	
+
+	#batch_fit_and_test(x, y, file_names)
+
+	# lowest loss: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
+	finetune_with_hyperopt(x, y, file_names)
+
+
+
+
+if __name__ == "__main__":
+	main()
+
 
 

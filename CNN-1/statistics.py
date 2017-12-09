@@ -50,7 +50,12 @@ def create_roc_curve_plot(roc_curve, roc_auc):
 	plt.ylabel('True Positive Rate')
 	plt.title('Receiver operating characteristic')
 	plt.legend(loc="lower right")
+	#plt.savefig("roc_example.svg")
 	plt.show()	
+
+	#plt.savefig("roc_example.svg")
+	#import code
+	#code.interact(local=locals())
 
 
 def normalize(array):
@@ -261,7 +266,9 @@ def eval_predictor(stage_2_results):
 	if visualize_data:
 		roc_auc_score = metrics.roc_auc_score(y_values, predicted_values)
 		roc_curve = metrics.roc_curve(y_values, predicted_values)
+		
 		create_roc_curve_plot(roc_curve, roc_auc_score)
+
 
 	return
 
@@ -288,6 +295,7 @@ def main():
 
 	eval_fnc(rows)
 
+	
 	return
 
 if __name__ == "__main__":
