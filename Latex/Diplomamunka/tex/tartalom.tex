@@ -5,9 +5,9 @@
 
 
 \newcommand{\sumn}[1]{\sum\limits_{{#1}=1}^{n}}
-
-
 \newcommand{\derivative}[2]{\dfrac{\partial {#1}}{\partial {#2}}}
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
+
 
 % Ajánlott minden fő fejezetet külön fájlba írni, pl.:
 
@@ -161,7 +161,7 @@ $ \min\limits_{w, b} \norm{\underline{w}} $
 Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
 vezessünk be egy olyan költségfüggvényt, ami azt bünteti ami rossz oldalon van.
 
-$ C(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline{w}} $
 
 
@@ -690,8 +690,8 @@ a nyers adatból, a képből meghozni.
 \subsection{Eszközök}
 
 A megvalósítás nyelvének python-t választottunk.
-A gépi tanuláshoz a \texttt{Keras} \ref{keras} és \texttt{Sklearn} \ref{sklearn} könyvtárakat 
-használtuk. Ezek a \texttt{Tensorflow} \ref{tensorflow} csomag segítségével képesek a
+A gépi tanuláshoz a \texttt{Keras} \cite{keras} és \texttt{Sklearn} \cite{sklearn} könyvtárakat 
+használtuk. Ezek a \texttt{Tensorflow} \cite{tensorflow} csomag segítségével képesek a
 GPU-n futni, ezáltal gyorsítva a tanítás folyamatát, ami különösképpen a 
 képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
 százszoros sebességnövekedést mértünk.
@@ -839,7 +839,7 @@ Mi a dolgozatban végül \texttt{RBF} kernelt használtunk.
 
 \subsubsection{Egyéb paraméterek}
 
-\paragraph{class\_weight}
+\subsubsubsection{class\_weight}
 Amennyiben az adatunk kiegyensúlyozatlan (márpedig nekünk az), ezzel adhatjuk meg
 az egy-egy osztály súlyát, amely általános esetben fordítottan arányos az elemszámmal.
 
@@ -847,9 +847,26 @@ Ehhez használtuk a csomag \texttt{compute\_class\_weight} függvényét, ami é
 Paramétere  kívánt osztályok, és \textit{ground truth}-ok.
 
 
-\paragraph{tol}
+\subsubsubsection{tol}
 Hibatolerancia, amelyet elfogadunk és ha ezt elértük, megállhatunk.
 
+
+
+%The C parameter trades off misclassification of training examples against simplicity of the decision
+%surface. A low C makes the decision surface smooth, while a high C aims at classifying all training
+%examples correctly by giving the model freedom to select more samples as support vectors
+
+\subsubsubsection{C \cite{svm.c}}  
+Regularizációt\cite{sklearn.regularization} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára:
+
+$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+f(x_i, y_i) + \lambda \norm{\underline{w}} $
+
+\noindent
+Ekkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
+Ha $ C $ kicsi, akkor simább a döntési felület és egyszerűbb modell, ha nagyobb, akkor 
+jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
+miatt lehet problémás.
 
 
 
@@ -867,11 +884,73 @@ Magát a tanítást a modellünk \texttt{fit(x, y)} függvényével tudjuk elvé
 a \texttt{predict} metódussal tudunk egy-egy mintát osztályozni.
 
 
-TODO hyperopt?
+
+\subsubsection{Hiperparaméter optimalizálás}
+
+Ahogy láthattuk, még az egyes kernelekhez is többféle hiperparaméter választható. Ezek kiválasztása
+feladatfüggő, és nem triviális. Egy hiperparaméter jóságát a validációs hibával mérjük. Ennek 
+bevett módja a \textit{validation loss} mérése, aminek egy változata ugyan előállítható lett volna 
+az osztály valószínűségekből, mégis kézenfekvőnek tűnt egy másikat bevezetni: az átlagos hibarátát.
+
+Az alapvető probléma az volt, hogy ha 1000 mintánk van, akkor a validációs halmaz ennél mindenképp
+kisebb. Az hibás klasszifikációk kb 1\% volt az alapértelmezett paraméterek mellett, ami azt
+jelenti, hogy kb. 10 darab egy validációs halmazban. Ennek a számnak a szórását mérve véletlenszerű
+tanító-tesztelő halmaz szeparációk mellett azt találtuk, hogy nem megbízható statisztika a 
+hiba ilyen módon történő mérése.
+
+Ezért valahányszor egy hiperparaméter kombinációt próbáltunk, újra és újra lefuttattuk a
+tanítást különböző felosztásokra, és ennek az átlagával számoltunk. Így kielégítően nagy 
+konfidencia mellett mondhatjuk, hogy ha egy hiperparaméter halmaz ilyen módon is jó eredményt
+produkál, akkor nem fogja jelentősen befolyásolni a tanító halmaz megválasztása a validációs 
+eredmény eloszlását.
+
+A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt} \cite{hyperopt} csomagot használtuk
+segítségül. Használatához megadjuk, hogy milyen változókat milyen valószínűségi eloszlás szerint
+mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdni véletlenszerűen
+kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 
+
+Az általunk használt konfiguráció a következő volt:
+\begin{lstlisting}
 
 
+	from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+	
+	low = np.log(1e-3)
+	high = np.log(1e+3)
+	
+	fspace = {	
+		'C': hp.loguniform('C', low, high),
+		'gamma': hp.loguniform('gamma', low, high)
+	}
+	
+	def f(params):
+		C = params['C']
+		gamma = params['gamma']
+		fpr, fnr = batch_fit_and_test(x, y, file_names, N=200, gamma=gamma, C=C)
+		val = fpr + fnr
+		return {'loss': val, 'status': STATUS_OK}
+	
+	trials = Trials()
+	best = fmin(fn=f, space=fspace, algo=tpe.suggest, max_evals=100, trials=trials)
+	
+	# futtatas vegen:
+	# best: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
+\end{lstlisting}
 
 
+A legjobb eredményt a $ C=6.25 $ és $ \gamma = 3.3 \cdot 10^{-2} $ paraméterekkel érte el $ 100 $
+mintavételezésből. Ez természetesen hosszabb futtatással javítható. Látható viszont, hogy a csomag
+beépített paraméterei ($ C=1 , \gamma =\dfrac{1}{len(samples)} $) ehhez nagyságrendileg elég közel vannak,
+és alkalmasak a tanításra.
+
+
+\subsubsection{Dupla képes eljárás}
+
+A dolgozat alapjául szolgáló alkalmazás úgy működött, hogy a nagyobb biztonságért két képet készített
+egymás után, hogy ha az egyik valami miatt rossz minőségű lett akkor is tudjunk dönteni. Ezt 
+mi is megpróbáltuk kihasználni. A \texttt{csv} fájlban az egymás után készült képek adatait
+összefűztük. Két ilyen fájlt onnan ismerünk meg, hogy csak egy \texttt{\_0.png} és \texttt{\_1.png}
+posztfixben térnek el.
 
 
 %
@@ -880,7 +959,7 @@ TODO hyperopt?
 %
 %*TODO valahova beleirni hogy kevés mintán is tud üzemelni
 %
-%TODO az svm többi paraméterét leírni
+% az svm többi paraméterét leírni
 % ? és az az általánosba kell vagy ide? 
 %
 %
@@ -893,7 +972,7 @@ TODO hyperopt?
 %hasonlóan működött az eredeti algo cska kézzel volt minden megcsinálva
 
 
-
+\newpage
 \subsection{Képelemzés Konvolúciós Hálóval}
 
 Ennél a megközelítésnél maguk a képek voltak a tanító adatok.
@@ -1415,6 +1494,10 @@ ha ez alatt van a hiba, akkor az eredetiség mellett döntünk, különben ellen
 
 Az SVM 
 
+elsőfajú: 0.1\%
+másod 0.5\%
+
+egy teszt cuccban kevés a rossz-> ezt is átlagoltuk
 
 \subsection{Konvolúciós háló}
 
@@ -1464,6 +1547,21 @@ MERGED images??? dunno?
 	Diederik P. Kingma, Jimmy Ba:
 	Adam: A Method for Stochastic Optimization
 	arXiv:1412.6980v9 [cs.LG]
+
+	\bibitem{sklearn} 
+	\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}
+	
+	\bibitem{svm.c} 
+	\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}
+	
+	\bibitem{sklearn.regularization} 
+	\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}
+	
+	\bibitem{hyperopt} 
+	\url{https://github.com/hyperopt/hyperopt}
+	
+
+
 	
 \end{thebibliography}
 
