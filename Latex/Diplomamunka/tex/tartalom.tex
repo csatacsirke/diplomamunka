@@ -117,6 +117,7 @@ amely ezután magában alkalmas eredetiség-ellenőrzésre.
 
 
 \subsection{Mikor biztonságos egy nyomat?}
+\label{sec:nyomatbiztonsag}
 
 Alapvetően akkor, hogy ha megpróbáljuk valahogy reprodukálni, akkor
 mérhető lesz a különbség az eredeti és a hamis között.
@@ -124,10 +125,10 @@ mérhető lesz a különbség az eredeti és a hamis között.
 Ha védeni szeretnénk egy dokumentumot vagy bankjegyet általában 
 többféle módszert használunk egyszerre, amelyek optimális esetben 
 ortogonálisak, tehát hamisításnál mindegyikre valahogy máshogyan kell 
-felkészülni. Ezek a \textit{feature-öket} alapvetően két kategóriába tudjuk sorolni. 
-Az első amit az utca embere is könnyen ellenőrizhet, például a Magyar Forintokon 
-a fémszalag, vagy a színváltó tinta, de akár a papír taktilitása is.
-A második amihez már valamilyen speciális eszköz is kell. Erre a legismertebb 
+felkészülni. Ezeket alapvetően két kategóriába tudjuk sorolni. 
+Az első kategóriához tartozik például, amit az utca embere is könnyen ellenőrizhet, 
+a Magyar Forintokon a fémszalag, vagy a színváltó tinta, de akár a papír taktilitása is.
+A második kategóriás védelmek ellenőrzéséhez már valamilyen speciális eszköz is kell. Erre a legismertebb 
 példa az UV lámpa, ami mindenhol megtalálható ahol pénz forog.
 A valóságban létezik egy harmadik kategória is, ami a titkos, csak 
 laborban kimutatható tulajdonságokat tartalmazza, de ezekkel érthető
@@ -136,34 +137,45 @@ módon nem foglalkozunk.
 
 \subsection{Előző megoldások}
 
-Ha egy nyomdász vagy szakértő ránéz egy biztonsági nyomatra, 
+Amikor egy nyomdász vagy szakértő ránéz egy biztonsági nyomatra, 
 általában már a hagyományos, tintával készült részekből meg tudja
-állapítani az eredetiséget. Ennek oka, hogy a hamisításhoz jó esetben nem áll 
+állapítani az eredetiséget. Ezt az indokolja, hogy a hamisításhoz jó esetben nem áll 
 rendelkezésre sem ugyanolyan papír, sem ugyanolyan nyomtató vagy olyan fénymásoló,
 amely pont olyan eredményt produkál mint az eredeti.
-Ennek feltétele, hogy mikor tervezzük a nyomatot tudjuk azt, hogy
+Ez akkor lehetséges, ha már a nyomat tervezésekor, hogy
 milyen géppel fog készülni, és úgy tervezzük meg a nyomtatandó struktúrákat,
 hogy azok éppen csak nyomtathatóak legyenek.
 
+%Kézenfekvő, hogy ezt a tudást szerették volna algoritmizálni. Így születtek olyan  programok, amelyek nyomatról készült képek alapján próbálják megállapítani az eredetiséget. A programok készítésekor hamisítvány és eredeti képek közötti kulonbségeket elemeztek és csiszolták az algoritmusokat addig, amíg azok elfogadhato eredményeket nem produkáltak.
 
 Kézenfekvő, hogy ezt a tudást szerették volna algoritmizálni. Így születtek olyan
-programok amik ilyen képek alapján próbálják megállapítani az eredetiséget. 
-Ilyenkor készítettek különböző hamisítványokat, és összehasonlították őket az eredetiekkel,
-és addig csiszolták az algoritmusokat, amíg azok elfogadható eredményeket nem adtak.
+programok, amelyek nyomatról készült képek alapján próbálják meg megállapítani
+az eredetiséget. Ezek készítésekor hamisítványokról és eredetikről készült
+képekbeli különbségeket elemezve addig csiszolták az elemző algoritmusokat,
+amíg azok elfogadható eredményeket nem produkáltak.
+
+%
+%Kézenfekvő, hogy ezt a tudást szerették volna algoritmizálni. Így születtek olyan
+%programok, amelyek ilyen képek alapján próbálják megállapítani az eredetiséget. 
+%Ilyenkor készítettek különböző hamisítványokat, és összehasonlították őket az eredetiekkel,
+%és addig csiszolták az algoritmusokat, amíg azok elfogadható eredményeket nem adtak.
 
 
-Így születtek olyan megoldások, amik az első és a második fent említett kategória 
-közé esnek, azaz az utca emberének lettek tervezve, de mégis céleszközt használva
-ellenőrzik a nyomatot, ám ezeket egy okostelefon birtokában bárki elérheti.
-Az ötlet, hogy lefényképezzük a dokumentumot, és ezt helyben, egy \textit{appal} elemezzük.
+Így születtek olyan megoldások, amik a \ref{sec:nyomatbiztonsag}. 
+pontban említett, első és a második kategóriák közé esnek, tehát az utca emberének lettek tervezve, 
+de mégis céleszközt használva, hétköznapi okostelefon segítségével ellenőrzik a nyomatot.
+Ezek alapján a tervünk egy olyan alkalmazás készítése, amely a kérdéses dokumentum
+lefényképezését követően egy \textit{app} segítségével, helyben ellenőrzi annak eredetiségét.
+%Az ötlet, hogy lefényképezzük a dokumentumot, és ezt helyben, egy \textit{appal} elemezzük.
 
 
 Speciálisan, az általunk részben felhasznált megoldás különböző szempontok alapján méréseket
-végez a képen, és néhány (nagyságrendileg 10-12) mérőszámot ad eredményül, melyeket aztán
-aggregál, és egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}.
+végez a képen, és nagyságrendileg 10-12 mérőszámot ad eredményül, amelyeket
+aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}.
 
-A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például nagyon jó hamisítvány is,
-de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
+A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például egy nagyon jó hamisítvány,
+de akár egy remegő kézzel készített kép is.
+%de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
 
 \subsection{Gépi tanulás}
 
@@ -194,10 +206,10 @@ Egy csoport és sík távolsága alatt a sík és az ahhoz legközelebbi, az ado
 
 A két távolság összegét hívjuk \textit{margónak}: $ d = d_1 + d_2 $.
 
-A bemenő adatok vektorait $ \underline{x_i} $-vel, a hozzájuk tartozó kimenetet
-$ y_i $-vel, ahol $ y_i=-1 $, ha az első csoportba tartozik, és $ y_i=1 $, ha a másodikba.
+A bemenő adatok vektorait jelöljük $ \underline{x_i} $-vel, a hozzájuk tartozó kimenetet
+pedig $ y_i $-vel, ahol $ y_i=-1 $, ha az első csoportba tartozik, és $ y_i=1 $, ha a másodikba.
 
-A hipersíkot a normálvektorával(súlyával, weight): $ \underline{w} $, és \textit{bias}-szal 
+A hipersíkot a normálvektorával (súlyával, weight): $ \underline{w} $, és \textit{bias}-szal 
 (részlehajlás): $ b $ ábrázoljuk.
 
 
@@ -209,7 +221,7 @@ $ \underline{x}: \underline{x}^T \cdot \underline{w} - b = +1 $
 
 $ \underline{x}: \underline{x}^T \cdot \underline{w} - b = -1 $
 \\
-Ekkor a feladat $ \underline{w} $ és $ b $ meghatározása úgy, hogy 
+Ekkor a feladat $ \underline{w} $ és $ b $ meghatározása úgy, hogy:
 
 $ \underline{x}^T \cdot \underline{w} - b \geq +1 $ ha $  y=1 $
 
@@ -224,7 +236,7 @@ $ y_i \cdot (\underline{x}^T \cdot \underline{w} + b) \geq 1 $
 $ \min\limits_{w, b} \norm{\underline{w}} $
 
 Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
-vezessünk be egy olyan költségfüggvényt, ami azt bünteti ami rossz oldalon van.
+vezessünk be egy olyan költségfüggvényt, ami a rossz oldalon lévő elemeket bünteti.
 
 $ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline{w}} $
@@ -261,8 +273,8 @@ Egy minta osztályozása:
 
 $ \overline{y} = sgn(\underline{w} \cdot \underline{x} - b) $
 
-\noindent
-TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
+%\noindent
+%TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
 
 
 
@@ -271,11 +283,11 @@ TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
 \subsubsubsection{Nem lineáris feladatok} 
 
 
-Sok esetben a feladat nem lineárisan szeparálható, viszont ha a problémateret
-transzformáljuk, lehet hogy már igen. 
+Sok esetben a feladat nem lineárisan szeparálható, viszont a problématér 
+transzformációjával azzá alakítható.
 
 Vezessük be a bázisfüggvényeket, amelyek az eredeti adatot egy másik térbe,
-a jellemző(\textit{feature}) térbe képezik:
+a jellemző (\textit{feature}) térbe képezik:
 
 
 $ \varphi : \mathbb{R}^n \rightarrow \mathbb{R}^m $
@@ -286,18 +298,21 @@ $ \varphi : \mathbb{R}^n \rightarrow \mathbb{R}^m $
 \noindent
 Ekkor a feladat a következőképpen módosul:
 
+\noindent
+Keressük $ c_1 \cdots c_n $ paramétereket, amelyekre teljesül:
+
 $ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
 $ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\varphi(x_i) \cdot \varphi(x_j)) y_i c_j $
 
 \noindent
-ahol $ \forall i: $
+,ahol $ \forall i: $
 
 $  \sumn{i} c_i y_i = 0 $
 
 $ 0 \leq c_i \leq \frac{1}{2n\lambda} $
 
 \noindent
-és ekkor
+Ekkor a súlyok:
 
 $ \underline{w} = \sumn{i} c_i y_i \varphi(x_i) $
 
@@ -312,8 +327,12 @@ Egy minta osztályozása ekkor:
 
 $ \overline{y} = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) $
 
+\mbox{}
 
-\paragraph{Kernel trükk} 
+
+%\paragraph{Kernel trükk} 
+\subsubsubsection{Kernel trükk}
+
 
 A jellemzőtér nagy, vagy akár végtelen dimenziós is lehet. Bizonyos esetekben a fenti képletben lévő
 $ \varphi(x_i) \cdot \varphi(x_j) $ skaláris szorzatot ki tudjuk számolni anélkül, hogy a transzformációt 
@@ -334,7 +353,7 @@ $ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
 $ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(x_i, x_j) y_i c_j $
 
 \noindent
-ahol $ \forall i: $
+,ahol $ \forall i: $
 
 $  \sumn{i} c_i y_i = 0 $
 
@@ -355,7 +374,7 @@ $ sgn(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}') - b) $
 
 \subsubsection{Mély hálók}
 
-Általánosságban egy mély háló egy nagy bemenetet (ez esetben képet) úgy képez
+Általánosságban egy mély háló egy nagy bemenetet (a mi esetünkben képet) úgy képez
 a kimenetre, hogy több kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
 amíg a dimenziója el nem éri a várt kimenetét. 
 (Nálunk ez egy 0 és 1 közti szám, ahol 1 az eredeti, 0 a hamis.)
@@ -368,11 +387,11 @@ Ezután minden iterációban néhány inputra lefuttatjuk a hálót,
 kapva ezzel egy kimenetet ($ \underline{y}' $).
 
 \noindent
-Nézzük ekkor a négyzetes hibát($ J $) a belső súlyok függvényében($ \underline{w} $):
+Nézzük ekkor a négyzetes hibát ($ J $) a belső súlyok függvényében ($ \underline{w} $):
 
 $ J(\underline{w}) = \sumn{i} \norm{y_i-y_i'}_2^2 $
 
-\noindent
+
 Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
 a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
 A különbség a konvergencia sebessége és a lokális szélsőértékkel szembeni 
@@ -385,11 +404,15 @@ Ehhez visszafelé haladva (\textit{backpropagation}) rétegenként visszaterjesz
 $ \underline{w}' = \underline{w} - \gamma \cdot \triangledown J(\underline{w})$
 
 \noindent
-Ahol $ \gamma < 1 $ a tanulási együttható.
+,ahol $ \gamma < 1 $ a tanulási együttható.
 
 
-\noindent
-\paragraph{Példa}
+%\noindent
+%\paragraph{Példa}
+\mbox{}
+
+\subsubsubsection{Példa}
+
 Tekintsünk egy sűrű perceptron réteget, ahol $ (x_i, y_i) $ a 
 bemenet és a hozzá tartozó kimenet:
 
@@ -408,7 +431,7 @@ $ Relu'(W \cdot \underline{x}_i + b) \cdot  diag(\underline{x}_i) $
 
 
 \noindent
-ahol Relu - \textit{Rectified Linear Unit}:
+,ahol Relu - \textit{Rectified Linear Unit}:
 
 
 $ Relu(x) =  $
