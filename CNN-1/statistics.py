@@ -5,6 +5,8 @@ import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 from enum import Enum
 import win32api
+import argparse
+
 
 #import tkMessageBox
 
@@ -39,18 +41,19 @@ def write_results_to_csv(results, header=None, postfix="", file_name=None):
 def create_roc_curve_plot(roc_curve, roc_auc):
 	fpr, tpr, thresholds = roc_curve
 
+
 	plt.figure()
-	lw = 2
+	line_width = 1
 	plt.plot(fpr, tpr, color='darkorange',
-			 lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
-	plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+			 lw=line_width, label='ROC curve (area = %0.2f)' % roc_auc)
+	plt.plot([0, 1], [0, 1], color='navy', lw=line_width, linestyle='--')
 	plt.xlim([0.0, 1.0])
 	plt.ylim([0.0, 1.05])
 	plt.xlabel('False Positive Rate')
 	plt.ylabel('True Positive Rate')
 	plt.title('Receiver operating characteristic')
 	plt.legend(loc="lower right")
-	#plt.savefig("roc_example.svg")
+	plt.savefig(util.get_current_time_as_string() + "roc_curve.svg")
 	plt.show()	
 
 	#plt.savefig("roc_example.svg")
@@ -255,6 +258,41 @@ def eval_autoencoder(stage_2_results):
 
 	return
 
+def error_fn(entry):
+	fpr, tpr, threshold = entry
+	fnr = 1 - tpr
+	return fpr + fnr
+
+def find_min_error_rate(roc_curve):
+	#fpr, tpr, thresholds = roc_curve
+
+	zipped_curve = list(zip(*roc_curve))
+	
+	roc_min = min(zipped_curve, key=error_fn)
+
+	fpr, tpr, threshold = roc_min
+	fnr = 1 - tpr
+
+
+	return (fpr, fnr, threshold)
+
+def separate_predictions_by_true_classes(y_list, pred_list):
+
+	pos = []
+	neg = []
+	for entry in zip(y_list, pred_list):
+		y, pred = entry
+		if y == 0:
+			pos.append(pred)
+		elif y == 1:
+			neg.append(pred)
+		else:
+			log(y)
+			assert(False)
+
+
+	return (pos, neg)
+
 def eval_predictor(stage_2_results):
 
 	
@@ -262,18 +300,70 @@ def eval_predictor(stage_2_results):
 	y_values = list(map(lambda entry: (lambda pred, y, file_name: int(y))(*entry), stage_2_results))
 
 
+	roc_auc_score = metrics.roc_auc_score(y_values, predicted_values)
+	roc_curve = metrics.roc_curve(y_values, predicted_values, drop_intermediate=False)
+
+	roc_min = find_min_error_rate(roc_curve)
+
+	log(roc_min)
+
 	visualize_data = True
 	if visualize_data:
-		roc_auc_score = metrics.roc_auc_score(y_values, predicted_values)
-		roc_curve = metrics.roc_curve(y_values, predicted_values)
-		
+		pos, neg = separate_predictions_by_true_classes(y_values, predicted_values)
+		show_histograms([pos, neg], ["Hamis", "Eredeti"])
 		create_roc_curve_plot(roc_curve, roc_auc_score)
+		
+
+	return
+
+def show_histograms(functions, labels=None):
+
+	bins = 40
+
+	data_max = data_min = None
+	for f in functions:
+		f_max = max(f)
+		data_max = max(f_max, data_max) if data_max is not None else f_max
+		f_min = min(f)
+		data_min = min(f_min, data_min) if data_min is not None else f_min
+	
+	
+	#np.histogram(a, bins=10, range=None, normed=False, weights=None, density=None)[source]
+	label_iterator = iter(labels) if labels is not None else None
+
+	plt.figure()
+	line_width = 1
+	for f in functions:
+		#hist, bin_edges = np.histogram(f, bins=bins, range=(data_min, data_max), normed=False, weights=None, density=None)
+		#color='darkorange',
+		#plt.plot(bin_edges[1:], hist, lw=line_width, label='h1' )
+		label = None
+		if label_iterator is not None:
+			label = next(label_iterator)
+		plt.hist(f, 100, normed=1, alpha=0.5, label=label, range=(data_min, data_max), log=True)
+	#plt.xlim([0.0, 1.0])
+	plt.xlim([data_min, data_max])
+	plt.ylim([0.0, 1000.0])
+	#plt.title('')
+	#plt.legend(loc="lower right")
+	#plt.legend(loc="center")
+	plt.legend(loc="upper center")
+	plt.savefig(util.get_current_time_as_string() + "histogram.svg")
+	plt.show()	
 
 
 	return
 
 def main():
-	csv_file_name = util.get_last_file_with_ending("stage2.csv")
+	parser = argparse.ArgumentParser(description='Verdict SVM')
+	parser.add_argument('csv_in', metavar='csv_in', type=str, nargs='?')
+	
+	args = parser.parse_args()
+	csv_file_name = args.csv_in
+
+	if csv_file_name is None:
+		csv_file_name = util.get_last_file_with_ending("stage2.csv")
+		csv_file_name = "results_2017_12_11__11_21_27.predictor.stage2.csv"
 	f = open(csv_file_name, "r")
 	
 	reader = csv.reader(f, delimiter=',')

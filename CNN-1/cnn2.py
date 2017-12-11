@@ -47,8 +47,8 @@ TODO kéne egy olyan futtatási opció amivel csak predikálni lehet
 #default_input_file_name = base_dir + 'Bpas-Verdict.csv'
 
 
-default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
-
+#default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
+default_input_file_name = "jura\\2017.10.25\\Bpas-Verdict.csv"
 
 g_img_height, g_img_width = 256, 256
 
@@ -513,7 +513,7 @@ def build_predictor_model():
 
 
 class Scheme:
-	def __init__(self, postfix=""):
+	def __init__(self, postfix="generic"):
 		self.postfix = postfix
 	
 
@@ -550,7 +550,7 @@ class Scheme:
 		return model
 
 
-	def save_model(model):
+	def save_model(self, model):
 		postfix = self.postfix;
 		postfix = "" if postfix=="" else "." + postfix
 
@@ -633,8 +633,16 @@ class PredictorScheme(Scheme):
 
 	def eval(self, model):
 		
-		entries = list(zip(training_file_names, training_ground_truths))
-		np.random.shuffle(entries) # in-place
+	
+		file_namas = training_file_names + validation_file_names + test_file_names
+		ground_truths = training_ground_truths + validation_ground_truths + test_ground_truths
+	
+		#entries = list(zip(file_namas, ground_truths))
+
+		entries = list(zip(test_file_names, test_ground_truths))
+
+		#entries = list(zip(training_file_names, training_ground_truths))
+		#np.random.shuffle(entries) # in-place
 
 		#entries = entries[0:50]
 
@@ -700,34 +708,6 @@ def load_or_build_model():
 
 
 
-#if False:	
-	
-#	#fnCopy = "d:\\diplomamunka\\spaceticket\\htc\\copy_sok_fit_hiba\\SPACTICK_2017_10_09_16_02_27_938_Marci.fenymasolt.copy_0.png"
-#	#fnOrig = "d:\\diplomamunka\\spaceticket\\htc\\Eredeti\\SPACTICK_2017_09_18_15_43_35_942_Marci.eredeti_1.png"
-
-#	training_file_names2 = [fnCopy, fnOrig]
-#	training_ground_truths2 = [0, 1]
-
-#	training_file_names2 = [fnOrig]
-#	training_ground_truths2 = [1]
-
-
-#	training_generator = create_generator(training_file_names2, training_ground_truths2)
-
-
-
-#debug = next(create_generator(training_file_names, training_ground_truths))
-#debug2 = next(create_generator(validation_file_names, validation_ground_truths))
-
-
-
-#d1 = create_generator(training_file_names, training_ground_truths) 
-#d2 = __deprecated_create_generator(training_file_names, training_ground_truths) 
-
-#print(np.shape( next(d1)[0] ))
-#print(np.shape( next(d2)[0] ))
-
-#sys.exit()
 
 # https://stackoverflow.com/questions/37293642/how-to-tell-keras-stop-training-based-on-loss-value
 class EarlyStoppingByLossVal(Callback):
@@ -767,7 +747,7 @@ class SaveRegularly(Callback):
 	def __init__(self, monitor='val_loss'):
 		super(Callback, self).__init__()
 
-		self.save_interval = 5
+		self.save_interval = 2
 		self.counter = 0
 			
 	def on_epoch_end(self, epoch, logs={}):

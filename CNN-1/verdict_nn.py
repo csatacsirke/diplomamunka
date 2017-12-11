@@ -45,7 +45,7 @@ rontás kevesebb példával -> megnézni hogy függ a számuktól
 """
 
 
-use_two_images = False
+use_two_images = True
 randomly_swap_images = True
 visualize = False
 use_random_seed = True
@@ -58,9 +58,9 @@ def zip_list(x):
 def readGroundTruth(row):
 	line = row[0]
 	if "copy" in line:
-		return 0
-	else:
 		return 1
+	else:
+		return 0
 
 def read_valuable_params(row, valuable_param_indices):
 	params = []
@@ -199,19 +199,21 @@ def convert_to_single_param(Y):
 
 
 def calc_errors(y, pred):
-	""" returns (fp, fn)"""
+	""" returns (fp, fn, tp, tn)"""
+	# 0 -> eredeti
+	# 1 -> hamis
 	entries = zip(y, pred)
 	tp = tn = fp = fn = 0
 
 	for entry in entries:
 		y, pred = entry
 
-		if y == 0 and pred == 0 : tn += 1	
-		if y == 0 and pred == 1 : fp += 1	
-		if y == 1 and pred == 0 : fn += 1	
-		if y == 1 and pred == 1 : tp += 1	
+		if y == 0 and pred == 0 : tp += 1	
+		if y == 0 and pred == 1 : fn += 1	
+		if y == 1 and pred == 0 : fp += 1	
+		if y == 1 and pred == 1 : tn += 1	
 
-	return (fp, fn)
+	return (fp, fn, tp, tn)
 
 
 #def list_problematic_entries():
@@ -290,7 +292,7 @@ def test(model, X, Y, file_names):
 	roc_auc_score = sklearn.metrics.roc_auc_score(Y, Y_pred_proba)
 	log("roc_auc_score", roc_auc_score)
 	
-	fp, fn = calc_errors(Y, Y_pred)
+	fp, fn, tp, tn = calc_errors(Y, Y_pred)
 
 	# false positive rate
 	fpr = fp/len(Y)*100
@@ -381,13 +383,29 @@ def batch_fit_and_test(x, y, file_names, N = 200, kernel='rbf', C=1.0, gamma="au
 
 		Y_pred = model.predict(X_test)
 
-		fp, fn = calc_errors(Y_test, Y_pred)
+		fp, fn, tp, tn = calc_errors(Y_test, Y_pred)
 
-		fpr_list.append(fp/(len(Y_test)))
-		fnr_list.append(fn/(len(Y_test)))
+
+		#n_pos = 0
+		#n_neg = 0
+		#for _y in Y_test:
+		#	if _y == 0:
+		#		n_pos += 1
+		#	elif _y == 1:
+		#		n_neg += 1
+		#	else:
+		#		log(_y)
+		#		assert(False)
+		
+		fpr_list.append(fp/(fp+tn))
+		fnr_list.append(fn/(fn+tp))
+
+		#fpr_list.append(fp/(len(Y_test)))
+		#fnr_list.append(fn/(len(Y_test)))
 	
 		pass
 
+	log("total samples: ", len(x))
 	log("average+deviation type 1 error rate:")
 	avg_fpr = np.mean(fpr_list)
 	var_fpr = np.std(fpr_list)
@@ -496,15 +514,18 @@ def main():
 
 	if inputFile is None:
 		inputFile = "jura\\2017.10.25\\Bpas-Verdict.csv"
+		#inputFile = "jura\\2017.10.25\\Bpas-Merged.csv"
 		
 	
-	log("reading params")
+
+	log("reading params from: " + inputFile)
+	log("use_two_images: ", use_two_images)
 	x, y, file_names = read_input_data(inputFile)
 
 	C = 6.250906239883302
 	gamma = 0.03357455814119452
 	
-	batch_fit_and_test(x, y, file_names,C=C, gamma=gamma)
+	batch_fit_and_test(x, y, file_names,C=C, gamma=gamma, N=2000)
 	#train_and_test(x, y, file_names)
 	return
 	
