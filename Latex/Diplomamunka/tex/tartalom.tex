@@ -6,7 +6,11 @@
 
 \newcommand{\sumn}[1]{\sum\limits_{{#1}=1}^{n}}
 \newcommand{\derivative}[2]{\dfrac{\partial {#1}}{\partial {#2}}}
-\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
+%\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
+
+\newcommand{\subsubsubsection}[1]{ \noindent \textbf{#1} }
+
+
 
 
 % Ajánlott minden fő fejezetet külön fájlba írni, pl.:
@@ -42,28 +46,74 @@
 
 \section{Bevezetés}
 
-lorem ipsum
+Amióta csak az ember fizetőeszközöket használ jelen volt párhuzamosan a hamisítás is.
+Ezért mindig is igény volt arra, hogy mikor a javak gazdát cseréltek a felek meg tudjanak 
+bizonyosodni a valuta érvényességéről. Amíg aranypénzt használtak gondoljuk csak arra, hogy
+annak puhaságát kihasználva az emberek ráharaptak, hogy ezzel is ellenőrizzék. Hasonló példa 
+mikor Arkhimédész egy aranykorona sűrűségét mérte meg, ezzel megállapítva, hogy az részben ezüst
+volt. Látható, hogy az aranyat nem volt egyszerű hamisítani, de a hordozása nagyobb 
+mennyiségben bajos volt, könnyen eshetett az ember rablók áldozatául.
 
-ide majd szöveg kerül
+Mikor ennek kivédésére a bankok papírpénzt kezdtek kibocsátani, ez a probléma némileg orvosolódott,
+de újakat vetett fel: megjelentek a hamisítók, akik ezzel akartak könnyen vagyonhoz jutni.
+Ezért onnantól kezdve, egészen a mai napig a bankjegynyomdák feladata, hogy olyan
+technológiát használjanak, ami egy egyszerű ember számára drága vagy egyáltalán nem elérhető,
+ezáltal nem reprodukálható.
 
+Eleinte elég volt, hogy mikor a bank aranyra váltotta a készpénzt, akkor az ottani szakképzett
+alkalmazott fel tudja ismerni a hamisítványt, de idővel felmerült az igény, hogy az utca embere
+is képes legyen erre.
+
+Ezért a nyomdák elkezdtek olyan elemeket tenni a bankjegyekre, amelyek könnyen felismerhetőek,
+például vízjel, vagy színváltó tinta. Ezek jellemzője, hogy bármennyire hatásosak, drágák.
+Bár a pénznyomtatásban általában rendelkezésre áll az anyagi háttér, nem ők az egyetlen
+célközönség, léteznek kisebb védelmet igénylő nyomatok is, gondoljuk például egy 
+zárjegyre vagy egy BKV jegyre.
+
+Szeretnénk tehát egy olyan védelmet, amit bárki ellenőrizni tud, mégis olcsó. Erre egy megoldás,
+hogy a nyomatban elhelyezett mintát egy okostelefonra készült alkalmazással lefényképezzük,
+elemezzük, és ez alapján eldöntjük, hogy az eredeti-e.
+
+
+Egy ilyen megoldást készített a Jura Trade kft. is. Ezen dolgozat célja ennek az alkalmazásnak
+a továbbfejlesztése gépi tanulással: \textit{Támasztóvektor Gépekkel} és \textit{Konvolúciós Hálókkal},
+melyek napjainkban egyre nagyobb szerepet kapnak az informatika számos területén, ebben a 
+témakörben mégsem alkalmazta őket egyelőre senki.
+
+A dolgozat első felében bemutatunk egy módszert, amivel automatizálni lehet egy döntési folyamatot, már 
+meglévő, determinisztikusan előállított adatok alapján. A második részben megkísérlünk építeni egy 
+önálló alkalmazást, amely semmilyen korábban megírt programra vagy algoritmusra 
+nem támaszkodik, hanem a nyers képekből próbál meg egy mély neuronhálót betanítani, 
+amely ezután magában alkalmas eredetiség-ellenőrzésre.
+
+
+%
+%ókor : arany
+%-> fel tudta bárki ismerni -> ld ráharapás, sűrűség mérés.
+%modern technológia -> arany nem viable
+%papírpénz -> elérhető a technológia földi halandóknak
+%-> egyre jobb hamisitványok -> fejlődnia kell a felismerésnek is
+%aktív+passzív védelem
+%minden féle cuccot ráraknak, nehéz egyszerre mindent 
+%csináltak olyat is ami lerí, és olyan ami uv lámpa
+%olcsó is legyen -> pénznél van pénz -> nem csak pénz
 
 \newpage
 \section{Háttér}
 
+%
+%
+%TODO
+%nyomdász
+%vonalvastagság
+%legkisebb nyomtatható elem
+%különböző nyomda és fénymásoló technika
+%akár azt is meg lehet mondani mivel készült
+%aktív track and trace + biztonsági elemek
+%-> másfeles kategóriás cuccot szeretnénk
+%OVD
 
 
-TODO
-nyomdász
-vonalvastagság
-legkisebb nyomtatható elem
-különböző nyomda és fénymásoló technika
-akár azt is meg lehet mondani mivel készült
-aktív track and trace + biztonsági elemek
--> másfeles kategóriás cuccot szeretnénk
-OVD
-
-
-roc
 
 
 \subsection{Mikor biztonságos egy nyomat?}
@@ -117,7 +167,22 @@ de akár egy rossz kép is, például ha remegett az ember keze fényképezésko
 
 \subsection{Gépi tanulás}
 
-TODO valamit általánosan a gép tanulásról?
+%TODO valamit általánosan a gép tanulásról?
+
+Gépi tanulásról beszélünk, mikor egy modellt nem programozással alakítunk, hanem példákat 
+mutatunk neki, és azokat egy tanulóalgoritmus beépíti a rendszerbe, ideális esetben úgy,
+hogy a rendszer teljes hatékonysága javuljon. 
+
+Manapság egyre több területen használják, például mintafelismerésre: gyógyászat, önvezető autók, nyomtatott szöveg felismerése, klaszterezésre: adatbányászat, szociális hálók vagy 
+például mesterséges intelligenciák készítésére: ajánló rendszerek, csevegő robotok, játékok (például Go vagy Sakk).
+
+Alapvetően két nagy csoportja létezik: felügyeletlen és felügyelt tanulás.
+Előbbihez nem áll rendelkezésünkre általános igazság (\textit{ground truth}), nem
+tudjuk mit szeretnénk megtanítani, az cél hogy a modell magától találjon új összefüggéseket.
+Mi a második témakörrel foglalkozunk: rendelkezésre állnak a tanító példák és a hozzájuk
+tartozó elvárt kimenetek. Ezen belül is a Támasztóvektor Gépeket és a Mély Konvolúciós hálókat
+fogjuk alkalmazni.
+
 
 \subsubsection{Támasztóvektor Gép}
 
@@ -202,7 +267,8 @@ TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
 
 
 
-\paragraph{Nem lineáris feladatok} 
+%\paragraph{Nem lineáris feladatok} 
+\subsubsubsection{Nem lineáris feladatok} 
 
 
 Sok esetben a feladat nem lineárisan szeparálható, viszont ha a problémateret
@@ -516,7 +582,9 @@ hasonlítottak egymásra, miközben a valóságban változatosabbak.
 Ennek kiküszöbölésére lássunk  néhány módszert!
 
 
-\paragraph{Hiperparaméterek}
+%\paragraph{Hiperparaméterek}
+
+\subsubsubsection{Hiperparaméterek}
 
 Gépi tanulásnál megkülönböztetjük a modell belső változóit, amit 
 a tanítás során az algoritmus maga állít, és a modell minden más tulajdonságát
@@ -658,16 +726,23 @@ példa azonos valószínűséggel szerepeljen.
 
 \paragraph{Megállás}
 
-A megállási feltétel lehet explicit, például ami alatt a validációs hibának
-lennie kell. Értelemszerűen megállunk, ha a tanulási hiba már nem csökken tovább.
+A megállási feltétel lehet explicit, például ha a validációs hiba egy előre
+megadott érték alá csökken. Értelemszerűen megállunk, ha a tanulási hiba már nem csökken tovább.
 Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba
 viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett
 túltanulni, és ilyenkor megállunk (\textit{early-stopping}).
 
 
+\paragraph{Regularizáció}
 
-TODO bele lehetne írni a regularizációt
+Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
+költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
 
+$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline{w}} $ ,
+
+\noindent
+ahol $  \lambda \norm{\underline{w}} $ a regularizációs tag.
 
 
 
@@ -699,7 +774,7 @@ százszoros sebességnövekedést mértünk.
 Az említett csomagok az előző fejezetben leírt módszereket használva egy
 keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíteni,
 és azonnal kipróbálni, valamint jól illeszkednek a python többi könyvtárához,
-például a \texttt{numpy} (általános aritmetikai könyvtár) és \texttt{opencv} \ref{opencv}
+például a \texttt{numpy}\cite{numpy} (általános aritmetikai könyvtár) és \texttt{opencv} \cite{opencv}
 (computer vision, képfeldolgozás).
 
 
@@ -743,11 +818,22 @@ Mindezek mellett kevesebb a hiperparamétere.
 
 
 \subsubsection{Adatok}
+\label{sec:adatok}
 
 Az adatainkat egy \texttt{csv} fájlból olvassuk ki, amit ez előzőekben említett program 
 generált. Egy-egy sor tartalmazza az adott fájl elérési útját, a \textit{ground truth}-t,
 a Jurás program predikcióját, néhány metaadatot, és végül a számunkra érdekes jellemzőket.
 Körülbelül 1000 mintánk állt rendelkezésre.
+
+\noindent
+A következő két adatfájlt használtuk:
+
+\begin{enumerate}
+\item
+	\texttt{bpas-verdict.csv}: Minden egyes kép adatai egyszer szerepelnek
+\item
+	\texttt{bpas-merged.csv}: Az egymáshoz tartozó képek közül csak a jobbik szerepel benne
+\end{enumerate}
 
 Esetlegesen tartalmazhat egy sor egy hibaüzenetet, ha a képet nem sikerült elemezni, például 
 ha annyira homályos, hogy célzóköröket nem sikerült megtalálni. Az ilyen sorokat figyelmen kívül hagyjuk.
@@ -958,17 +1044,18 @@ Ezek alapján három tanító módszert tudunk készíteni.
 \begin{enumerate}
 	\item
 	Minden egyes képhez rendelünk egy döntést.
-	
+	Adat: \texttt{bpas-verdict.csv}*
 	\item 
 	Minden, már eleve egybeolvasztott adatot úgy kezelni, mintha csak 
-	egy kép lenne. (\texttt{bpas-merged.csv})
+	egy kép lenne. Adat: \texttt{bpas-merged.csv}*
 	
 	\item 
-	A képek jellemzőit a fentiek szerint a (\texttt{bpas-verdict.csv}) fájlból egymás mögé 
+	A képek jellemzőit a fentiek szerint az input fájlból egymás mögé 
 	fűzni, és az alapján dolgozni.
+	Adat: \texttt{bpas-verdict.csv}*
 \end{enumerate}
 
-
+\textit{*Lásd a \ref{sec:adatok} pontot.}
 %
 %négyzetes tanítási idő, nem működik 100k példára
 %az svm kvázi determinisztikus
@@ -1402,7 +1489,7 @@ ez esetben új kép készítésével, vagy esetleg egy másik módszer ajánlás
 
 
 \subsection{Képelemzés Autoencoderrel}
-
+\label{sec:autoencoder}
 
 Egy másik megközelítés volt a konvolúciós hálók alkalmazására, hogy autoencoder modellt 
 építünk, majd a rekonstrukciós hiba alapján döntünk.
@@ -1520,7 +1607,7 @@ Az \ref{sec:svm.hiperparameter.optimalizalas} pontban leírtak miatt nem alkalma
 az eredmény: túl sok múlott a szerencsén. Ez több adat beszerzésével működőkép módszer lesz,
 addig is az átlagos hibarátát tekintettük mérvadó mérőszámnak.
 
-Ahogy a \ref{sec:dupla.kepes.eljaras} pontban írtuk, több módszer volt a tanításra.
+
 
 \noindent
 Az eredeti, gépi tanulás \textbf{nélküli} algoritmus eredményei, minták \underline{darabszámában} 
@@ -1528,96 +1615,343 @@ kifejezve:
 
 \begin{tabular}{ l l l l l }
 	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
-	\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
-	\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
+	*\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
+	*\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
 \end{tabular}
 
+\mbox{}
 
 \noindent
-Az algoritmusok eredményei hiba rátával kifejezve
+Ahogy a \ref{sec:dupla.kepes.eljaras} pontban írtuk, három módszer volt a tanításra.
+Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel összehasonlítva:
 
 
 \begin{tabular}{ l l l l l }
 	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
-	\texttt{bpas-verdict.csv} 	& 959 			& 21.48\%		& 1.981\% 	& 0.729\% 	\\
-	\texttt{bpas-merged.csv} 	& 496			& 10.88\%		& 3.225\% 	& 0.201\%   \\
+	*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
+	*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
+	
 	\hline
-	1. megoldás					& 959			& 0\%			& 0.528\%	& 0.087\%	\\
-	2. megoldás					& 496			& 0\%			& 0.753\%	& 0.269\%	\\
-	3. megoldás					& 428			& 0\%			& 0.663\%	& 0.291\%   \\
+	(1) verdict+SVM					& 894			& 0				& 0.00297	& 0.00566	\\
+	(2) merged+SVM					& 453			& 0				& 0.01493	& 0.00771	\\
+	(3) verdict+SVM 2 képpel		& 423			& 0				& 0.01420	& 0.01059   \\
 	
 \end{tabular}
 
-elsőfajú: 0.1\%
-másod 0.5\%
+\mbox{}
 
 
-%merged:
+\textit{*Lásd a \ref{sec:adatok} pontot.}
+
+\mbox{}
+
+
+
+Láthatjuk, hogy az első modell érte el a legjobb eredményt, elsőfajú hibába minden mást megelőz, 
+másodfajúban viszont nem tűnik jobbnak a \texttt{bpas-merged}-nél. Ez több mindennel magyarázható.
+Láthatóan ez arra van optimalizálva, hogy csökkenjen a másodfajú hiba, hiszen a 
+\texttt{bpas-verdict}-hez képest nőtt az elsőfajú hibája, és ez a több információt használó adat.
+Emlékezzünk vissza, hogy nyomatoknál szívesebben engedünk át egy hamisat, mint utasítunk
+el egy eredetit. Másodszor az adathalmaz fals-negatív elemszáma elég kicsi (1)- volt, ami 
+statisztikailag nem elfogadható, ezért további vizsgálat szükséges ennek tényleges megállapítására.
+Harmadszor az eredmény javítható lehet egy \textit{"bizonytalan"} halmaz bevezetésével, vagy 
+a vágási pont eltolásával a másodfajú hiba javára.
+
+
+Bár a második és a harmadik modell sem ért el rossz eredményt, de gyengébbek, mint az első. Az ott leírtak ezekre is vonatkoznak. Az eredmények átlagolásánál szórást is mértünk, és azt tapasztaltuk, 
+hogy az kétszerese az átlagnak, tehát relatív nagy. Ez azt jelenti, hogy szerencsével és több 
+újrafuttatással jobb modell is elérhető, de ez bizonytalan. Ha egy-egy tanítás nézünk, könnyen
+találhatunk hibátlanul működő modellt. Ennek vizsgálata nagyobb és változatosabb adathalmazt igényel.
+
+Általánosságban mindre elmondható, hogy több mintával pontosabb méréseket fogunk tudni végezni.
+
+
+
+%
+%TODO a dunno még csak benne sincs!
+%
+%TODO eredményeket fenntartással kezelni, minél több mintha annál jobb lesz,
+%de a kölönbözőség a fontos, nem a mennyiség
+%
+%TODO ajnározni hogy ez mennyivel jobb mint az előző és tekintve hogy ez egy 
+%próba projekt ígyéretes az eredmény
+%
+%TODO meg kéne magyarázni mik azok a csv-k, valszeg még a megoldás részben
+%ha uj feature kerül be arról is jó eséllyel jó lehet
+
+
+%
+%total samples:  419
 %average+deviation type 1 error rate:
-%0.00753 0.007968
+%0.0142 0.029636
 %average+deviation type 2 error rate:
-%0.00269 0.005439
-
-%sima
-%average+deviation type 1 error rate:
-%0.00528 0.005003
-%average+deviation type 2 error rate:
-%0.00087 0.002799
-
-%duplaimages
-%total samples:  428
-%average+deviation type 1 error rate:
-%0.00663 0.007758
-%average+deviation type 2 error rate:
-%0.00291 0.006014
-
-
-egy teszt cuccban kevés a rossz-> ezt is átlagoltuk
-
+%0.01059 0.011837
 
 \newpage
 \subsection{Konvolúciós háló}
+%2017_11_24__11_40_01.full_model.predictor.h5
+
+A módszer sok szempontból kiválóan működött, de egy esetnél már a tanításnál elbukott. 
+A tapasztalt jelenség az volt, hogy a háló, melynek szerkezete nagyon hasonló volt 
+a véglegeshez, egyáltalán nem akart tanulni: minden mintát hamisnak klasszifikált.
+Eleinte azt hittük, hogy hibás a modell, ezért próbálkoztunk meg a \ref{sec:autoencoder}
+fejezetben leírtak szerint egy autoencoderrel, amely a rekonstrukciós hibát mér.
+Ennek eredményeit vizsgálva szembe tűnt, hogy a hamis minták egy halmaza egyáltalán nem 
+tér el az eredetiktől. Ezek olyan nyomatok voltak, amelyek az eredetiek alapján 
+lettek nyomtatva, hasonló technológiával. Ezeket a Jurás algoritmus jó arányban meg tudta 
+különböztetni az eredetiektől.
+
+
+Az autoencoder bár önmagában is használható, de közel sem annyira megbízható, mint a többi 
+módszer, így számszerű adatot nem is közlünk. Mégis, a projekt szempontjából egy jelentős lépcső volt, ezért fontosnak tartottuk írni róla.
+
+
+Amikor ezeket a mintákat kivettük az tanító halmazból, a predikciós elkezdett konvergálni,
+ennek eredményeit is láthatjuk a \ref{fig:redukalt.feladat}. ábrán. A teszt halmaz szerencsésen
+lett megválasztva, ami így 100\% os hatékonyságúnak bizonyult, de mivel a tanító halmazon 
+futtatva a modell mégsem tökéletes, fontosnak tartottuk azt is közölni. 
+
+
+
+\begin{figure}[ht]
+	
+
+	\begin{minipage}[c]{0.5\linewidth}
+		\includesvg[scale=0.5]{img/ruc-curve-test.svg}
+%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+		\caption{Teszt halmaz}\label{fig:roc-test}
+
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.5\linewidth}
+		\includesvg[scale=0.5]{img/roc-curve-full-dataset.svg}
+%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+		\caption{Tanító+Teszt adathalmaz}\label{fig:roc-full}
+		
+	\end{minipage}
+	\caption{\textbf{Redukált feladat}}
+	\label{fig:redukalt.feladat}
+\end{figure}
+
+
+Ezután ebből a hálóból kiindulva megpróbáltuk továbbtanítani, újra a teljes adathalmazon,
+amelyben a kritikus minták is szerepeltek. Jól látszott a véletlen szerepe a neurális 
+hálók tanításában, ugyanis csak körülbelül tizedik próbálkozásra konvergált a modell a
+jó irányba, az első néhány próbálkozás a fentebb említett jelenséget produkálta: mindent 
+hamisnak gondolt. Mindenesetre, végül sikerült a modellt ez alapján is betanítani, az 
+eredmények pedig a \ref{fig:ujratanitott.feladat}. ábrán láthatók.
+
+
+Az eredményhalmaz szeparálhatóságát, és annak korlátait a \ref{fig:histogram-ujratanitott}.
+ábrán szemléltetjük, ahol egy hisztogramot láthatunk a \textit{Hamis} és az \textit{Eredeti}
+halmazbeli értékek elhelyezkedéséről. Jól látható, hogy hol kell vágnunk, ha az 
+első- vagy a másodfajú hibát szeretnénk csökkenteni. Ügyeljünk arra, hogy a hisztogram
+logaritmikus skálát használ a jobb láthatóság kedvéért!
+
+
+\begin{figure}[ht]
+	
+	
+	\begin{minipage}[c]{0.5\linewidth}
+		\includesvg[scale=0.5]{img/ruc-curve-test-ujratanitva.svg}
+		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+		\caption{Teszt halmaz}\label{fig:roc-test}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.5\linewidth}
+		\includesvg[scale=0.5]{img/roc-curve-full-dataset-ujratanitva.svg}
+		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+		\caption{Tanító+Teszt adathalmaz}\label{fig:roc-full}
+		
+	\end{minipage}
+	\caption{\textbf{Újratanított háló}}
+	\label{fig:ujratanitott.feladat}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+	
+	
+	\begin{minipage}[c]{0.5\linewidth}
+		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-test.svg}
+		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+		\caption{Teszt halmaz}\label{fig:hist-test}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.5\linewidth}
+		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-full.svg}
+		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+		\caption{Tanító+Teszt adathalmaz}\label{fig:hist-full}
+		
+	\end{minipage}
+	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
+	\label{fig:histogram-ujratanitott}
+\end{figure}
+
+
+Végül nézzük az összehasonlítást az eredeti, gépi tanulást nélkülöző algoritmusokkal:
+
+
+\begin{tabular}{ l l l l l }
+	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
+	*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
+	*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
+	
+	\hline
+	Konvolúviós háló redukálva**& 894			& 0				& 0.02798	& 0.00972	\\
+	Konvolúviós háló újratanítva& 894			& 0				& 0.05555	& 0.00900	\\
+	
+\end{tabular} \mbox{}
+
+
+\textit{*Lásd a \ref{sec:adatok} pontot.}
+
+\textit{**A fentiek szerint szűrt mintákon.}
+
+
+Összességében azt mondhatjuk, hogy a konvolúciós háló jól teljesített, megállja a helyét 
+a többi algoritmus között, az átlagos hamisítványokat nem engedi át, eredetit csak ritkán 
+osztályoz félre. Ne felejtsük el, hogy több tanító példával jobb eredmény várható,
+valamint elképzelhető, hogy a hiperparaméterek további optimalizálásával és háló 
+szerkezetének alakításával megbízhatóbb osztályozó képességet lehet elérni. 
+Továbbá ez a megoldás nem használja ki, hogy két képet készítünk, tehát ezzel még 
+teljesítménynövekedést lehet elérni. További munkát igényel, hogy kidolgozzunk valamilyen
+módszert arra, hogy konvolúciós hálókkal a fent említett kritikus hamisítványokat megfogjuk.
+Nem elképzelhetetlen, hogy az eredeti algoritmusokkal, vagy azok SVM-el módosított változataival
+párhuzamosan használjuk.
 
 
 
 
-az autoencoder segített ráönni, hogy hol lett elbaszva
+%(0.027985074626865673, 0.0097205346294045869, 0.50870099999999996)
+%0.055555555555555552, 0.009009009009009028
+%
+%100\% lett a teszt halmazon - 120 mintából
+%
+%az autoencoder segített ráönni, hogy hol lett elbaszva
+%nem használtuk ki hogy két képünk van
+%
+%
+%további kutatás: további mintákkal-
+%az eredményt a helyén kell kezelni - de azért bíztató
+%limitáció - az offsetet nem fogta meg
+%
+%
+%2 image merge vs sima - mi is 2 képet használtunk
+%összehasonlítani a jurás eredménnyel
+%
+%megnézni mennyire függ a mázlitól a tanítás
+%validációs hiba vs rendes hiba
+%
+%párhuzamosan használni a kézi elemzéssel
 
-további kutatás: további mintákkal-
-az eredményt a helyén kell kezelni - de azért bíztató
-limitáció - az offsetet nem fogta meg
 
-2 image merge vs sima - mi is 2 képet használtunk
-összehasonlítani a jurás eredménnyel
 
-megnézni mennyire függ a mázlitól a tanítás
-validációs hiba vs rendes hiba
+
+
+
+
+
 
 
 \newpage
 \section{Konklúzió}
 
-további feladatok:
 
-például mobilra átültetni
-dunno bevezetése
-emberi programozási nyelv - ez csak prototípus annak minden bajával
-
-\paragraph{TODO:}
-
-lehetne majd pozicionálásra is megpróbálni
+Bátran állíthatjuk, hogy a Gépi Tanulásnak van helye az eredetiség vizsgálat témakörében.
+Igaz, a módszer még nem elég kifinomult ahhoz, hogy azonnal ipari környezetben használjuk,
+azt mindenképpen bizonyítottunk, hogy ígéretes kutatási terület, és lehet jövője éles 
+helyzetekben is.
 
 
-kis kikockázás
-
-batch, eposz
-dropout, normalizálás, balancing, augmentation
-loss/accuracy - roc görbe "siker mérése"
-test/val/train
-early stopping
-MERGED images??? dunno?
+Az SVM, vagy akár egyéb gépi tanulásra alapuló algoritmus tökéletesen illeszkedik
+a döntéshozás munkamenetébe, és kétség sem fér a hasznosságához. A kockázata sem 
+túl nagy, hiszen a működési mechanizmusa hasonlít ahhoz amit egy programozó kézzel írna.
+Az SVM jó tulajdonsága a magyarázó képesség. Egy neuronhálóval ellentétben ha rátekintünk
+a paraméterekre meg tudjuk mondani, hogy egy adott döntést hozott, és ha ezzel nem vagyunk 
+elégedettek tudjuk hova kell nyúlni.
 
 
+Egy konvolúciós háló sokkal erőforrás-igényesebb, és egy teljesen más megközelítés,
+amely még csak nem is hasonlít az eddig használt algoritmusokhoz, ezért óvatosan kell 
+kezelni. Hátránya, hogy ha valami nem működik nehéz kinyomozni, ahogy fentebb említettük
+kifejezetten rossz a magyarázóképessége. Problémát okozhat a használata kis erőforrással 
+rendelkező rendszerekben: GPU nélkül neki sem érdemes látni. A rejtett rétegek súlyai is 
+meglehetősen sok helyet foglalnak, jelen pillanatban 120 megabájt körül van, de ha tegyük
+fel egy telefon makrolencsével készült teljes képét ki szeretnénk elemezni, 
+amelyek csúcskategóriás készülékeknél bőven 10 megapixel felett van, akkor hatalmasra 
+nőhet a belső reprezentáció. Véleményem szerint még több évnyi munka kell ahhoz, hogy 
+ebből egy megbízható alkalmazás legyen, ami minden körülmények között meg tud 
+különböztetni egy hamis pénzt egy eredetitől.
+
+
+\subsection{További feladatok}
+
+Amennyiben ebből használható alkalmazást szeretnénk készíteni át kell ültetnünk mobil 
+platformra. Nem kétséges, hogy a mai mobil GPU-k már hatékonyan fognak megbirkózni a
+feladattal. Ne felejtsük el, hogy bár egy neuronhálót betanítani idő- és erőforrás-igényes,
+használni már jóval egyszerűbb, feltéve, hogy a modellt egy az egyben beleépítjük a használó
+alkalmazásba.
+
+
+A dolgozathoz a projekt \texttt{pythonban} készült. Ez egy roppant flexibilis nyelv, és
+kiváló prototípus készítéshez, de tekintve, hogy egy szkriptnyelv, a hibakezelés a 
+típusosság hiányában sokkal nehezebb. Ezért célszerűnek látom az éles környezetben 
+való használathoz egy fordítóval rendelkező, biztonságos, de mégis hatékony nyelven 
+való megvalósítást, erre \texttt{C++}-t javaslok. Ehhez létezik kiegészítő könyvtár,
+amivel a \texttt{Keras}\cite{keras} által készített modellt használni tudjuk. Az ehhez szükséges
+\texttt{Tensorflow}\cite{tensorflow} csomag szintén elérhető.
+
+
+Preferenciáktól függő feladat egy \textit{Bizonytalan} intervallum bevezetése minden
+projekthez, amelyhez szükségünk van egy maximálisan eltűrt első- és másodfajú hibarátára.
+
+\subsection{Kutatási területek}
+
+A képek normalizálása során felmerült, hogy bár a pozicionáló koordináták rendelkezésünkre 
+álltak, a konvolúciós hálók alkalmasak lehetne ezek hatékony megtalálására.
+
+
+Ahogy az eredményeknél elemeztük, kutatást igényel bizonyos trükkös képek elemzése,
+ez még a jövő feladata.
+
+%
+%további feladatok:
+%
+%például mobilra átültetni
+%dunno bevezetése
+%emberi programozási nyelv - ez csak prototípus annak minden bajával
+%
+%
+%lehetne majd pozicionálásra is megpróbálni
+%
+%
+%kis kikockázás
+%
+%batch, eposz
+%dropout, normalizálás, balancing, augmentation
+%loss/accuracy - roc görbe "siker mérése"
+%test/val/train
+%early stopping
+%MERGED images??? dunno?
+
+
+\newpage
+\section{Útmutató a kódhoz}
+
+akár az argparse is mehet
+numpy
+keras
+sklearn
+tensorflow
+cuda
+cuda nn
+winpython 3.6
+hyperopt
+matplotlib
+opencv
+visual studio - working dir
+csomagokhoz->pip
 
 \newpage
 \begin{thebibliography}{9}
@@ -1625,6 +1959,11 @@ MERGED images??? dunno?
 	Diederik P. Kingma, Jimmy Ba:
 	Adam: A Method for Stochastic Optimization
 	arXiv:1412.6980v9 [cs.LG]
+	
+	
+	\bibitem{numpy} 
+	\url{http://www.numpy.org}
+	
 
 	\bibitem{sklearn} 
 	\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}
@@ -1638,15 +1977,21 @@ MERGED images??? dunno?
 	\bibitem{hyperopt} 
 	\url{https://github.com/hyperopt/hyperopt}
 	
+	\bibitem{keras} 
+	\url{https://keras.io/}
+	
+	\bibitem{tensorflow} 
+	\url{https://www.tensorflow.org/}
 
-
+	\bibitem{opencv} 
+	\url{https://opencv.org/}
 	
 \end{thebibliography}
 
 
 
 
-We did a pretty good\textsuperscript{\textit{job}}so far
+%I think we did a pretty good\textsuperscript{\textit{job}}so far
 
 
 
