@@ -60,20 +60,21 @@ g_batch_size = 16
 # g_batch_size = 16
 
 use_autoencoder = False
-#evaluate_only = False
-weights_only = False
-
-
 recalculate = False
 stage = 2
+
+#evaluate_only = False
+weights_only = False
+# Ezt töltsd ki ha szeretnéd betölteni a munkamenetet
+weight_file = None
+
 
 
 evaluate_show_pictures = True
 warn_for_no_corner_info = False
 use_normalized_images = True
 
-# Ezt töltsd ki ha szeretnéd betölteni a munkamenetet
-weight_file = None
+
 #if not recalculate:
 #	weight_file = get_last_weight_file()
 
