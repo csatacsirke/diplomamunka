@@ -807,8 +807,6 @@ max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline
 
 
 
-% TODO lehet hogy egészségesebb lenne külön fájlba a fejezeteket
-
 \newpage
 \section{Megvalósítás}
 
@@ -827,18 +825,24 @@ GPU-n futni, ezáltal gyorsítva a tanítás folyamatát. Ez különösképpen a
 képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
 százszoros sebességnövekedést mértünk.
 
+Ahhoz, hogy a \texttt{Kerast} GPU-n tudjuk futtatni, szükségünk van az \texttt{Nvidia}
+\texttt{Cuda}\cite{cuda} csomagjára, amely a videókártya általános célú programozását 
+segíti, valamint a \texttt{cuDNN}\cite{cudnn} könyvtárra, amely mély neuronhálók tanításához 
+szükséges komponensek hatékony implementációját tartalmazza. Fontos, hogy egyeztessük
+össze a \texttt{Tensorflow} követelményeit az általunk letöltött \texttt{Nvidia} csomagokkal,
+ugyanis azok nem visszafelé kompatibilisek.
+
 Az említett csomagok az előző fejezetben leírt módszereket használva egy
 keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíteni,
-és azonnal kipróbálni, valamint jól illeszkednek a python többi könyvtárához,
+és azokat azonnal kipróbálni. Ezen kívül jól illeszkednek a python többi könyvtárához,
 például a \texttt{numpy}\cite{numpy} (általános aritmetikai könyvtár) és \texttt{opencv} \cite{opencv}
 (computer vision, képfeldolgozás) csomagokhoz.
 
 
-
-TODO néhány szó hogy mi kell még a gpu futtatáshoz : cuda, nvidia neuronos izé
-
-
-TODO jurás cucc
+A továbbfejlesztendő program, a Jura Trade Kft. BPAS alkalmazása volt. Kezdetben ezzel legeneráltuk
+a jellemzőinket az összes bemenetre, majd az eredményeket a \texttt{Bpas-Verdict.csv} és
+a \texttt{Bpas-Merged.csv} fájlokba mentettük. Erről részletesen a \ref{sec:adatok}.
+fejezetben írunk. Erre a programra a továbbiakban nem támaszkodtunk.
 
 
 
@@ -1137,6 +1141,7 @@ Ezek alapján három tanító módszert tudunk készíteni.:
 
 \newpage
 \subsection{Képelemzés Konvolúciós Hálóval}
+\label{sec:cnn}
 
 Ennél a megközelítésnél maguk a képek voltak a tanító adatok.
 Mivel a képek érkezhetnek különböző felbontású forrásokból, célszerű volt
@@ -1173,7 +1178,7 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 
 A végső szerkezet Keras segítségével megvalósítva:
 
-TODO WTF az bal oldali szaggatott cucc?
+%TODO WTF az bal oldali szaggatott cucc?
 
 \lstset{language=Python}
 \begin{lstlisting}  
@@ -1261,7 +1266,7 @@ egyesével tápláljuk be.
 
 
 
-
+\label{gpu.memory}
 \textit{Megjegyzés}: Talán hiba, de mindenesetre létező jelenség a Tensorflow csomagban, ha GPU implementációt használunk a program betöltéskor megpróbálja a lehető legtöbb 
 munkamemóriát lefoglalni magának, ami nem mindig sikerül, 
 ezért előfordulhat hogy hibával elszáll a program. Erre jó megkerülő megoldásnak bizonyult, hogy
@@ -1529,8 +1534,6 @@ pozitív rátát, ahol $ tp = 1 - fn $. (\ref{fig:roc.pelda}. ábra)
 %\end{figure}
 
 
-%TODO lehetne egy dupla hisztogramot iderakni
-
 Ha az adathalmaz nem tökéletesen szeparálható ( a görbe alatti terület nem 1), akkor
 nem tudunk univerzálisan jó vágópontot mondani, az viszont megállapítható, hogy egy adott ponthoz 
 mekkora fals és tényleges ráta tartozik. Ezek alapján el kell döntenünk, hogy az 
@@ -1699,6 +1702,7 @@ ha ez alatt van a hiba, akkor az eredetiség mellett döntünk, különben ellen
 \section{Eredmények}
 
 \subsection{SVM}
+\label{sec:svm.eredmenyek}
 
 Emlékezzünk vissza, hogy az SVM modellt azért kutattuk, mert egy kvázi kézzel írt elágazásokból 
 álló, manuálisan felparaméterezett döntési folyamat elkészítését szerettük volna elsősorban
@@ -1812,7 +1816,7 @@ különböztetni az eredetiektől.
 Az autoencoder bár önmagában is használható, de közel sem annyira megbízható, mint a többi 
 módszer, így számszerű adatot nem is közlünk. A projekt szempontjából egy jelentős lépcső volt, ezért fontosnak tartottuk írni róla.
 
-
+\label{sec:eredmenyek.100}
 Amikor a fent említett hamis mintákat kivettük az tanító halmazból, a predikciós elkezdett konvergálni,
 ennek eredményeit láthatjuk a \ref{fig:redukalt.feladat}. ábrán. A teszthalmaz szerencsésen
 lett megválasztva, ami így 100\% os hatékonyságúnak bizonyult, ám mivel a tanító halmazon 
@@ -2046,24 +2050,309 @@ ez még a jövő feladata.
 
 
 \newpage
-\section{Útmutató a kódhoz}
+\section{Fejlesztői dokumentáció}
 
-akár az argparse is mehet
-numpy
-keras
-sklearn
-tensorflow
-cuda
-cuda nn
-winpython 3.6
-hyperopt
-matplotlib
-opencv
-visual studio - working dir
-csomagokhoz->pip
+%TODO nincs felhasználói dokumentáció, mert ez nem egy alkalmazás, hanem egy prototípus!
+%nem végfelhasználónak készült
+
+\textit{Megjegyzés}: Tekintve, hogy a projekt nem egy végfelhasználói alkalmazás, hanem 
+csak egy prototípus, a kódhoz nem mellékelünk felhasználói dokumentációt.
+
+
+A projektet \texttt{python} nyelven készítettük. Ez kiválóan alkalmas prototípusok készítésére,
+melyeket újrafordítás nélkül, akár egy-egy sort futtatva azonnal kipróbálhatunk. Hála  a 
+háttérkönyvtáraknak, amelyek natív kóddá fordítják a kritikus, számításigényes részeket,
+a teljesítmény sem romlik jelentősen. Ezek alapján nem meglepő, hogy a legtöbb 
+gépi tanulással foglalkozó programcsomagnak létezik \texttt{python} interfésze.
+
+
+Mi \texttt{WinPython 3.5.4}\cite{winpython} disztribúciót használtunk, de bármelyik másik 
+\texttt{python 3.x} jó lett volna. A szerző személyes tapasztalati miatt Visual Studio IDE-ben
+fejlesztettünk. Emiatt a projekt könyvtárában találunk egy \texttt{.sln} és egy \texttt{.pyproj}
+fájlt. Ez tartalmazza a szükséges konfigurációkat a fejlesztőkörnyezet számára.	Ezeket használva
+a program alapértelmezés szerint a \texttt{./working\_dir/} könyvtárban fut, ott keres
+minden szükséges bemenetet, valamint az a relatív elérési útvonalak alapja.
+
+
+A szkriptek platformfüggetlenek, futtatásukhoz a \texttt{pythonon} és annak megfelelő csomagjain 
+kívül nem szükséges egyéb keretrendszer, azok parancssorból futtatva is működnek.
+
+
+\subsection{Felhasznált csomagok}
+
+\texttt{Python} csomagokat a \texttt{pip}\cite{pip} segítségével tudunk telepíteni, mely a 
+disztribúciónkban \texttt{/Scripts/pip.exe} néven található meg. Ehhez a következő parancsot
+használjuk:
+
+\begin{lstlisting}  
+	>pip install <csomag neve>
+\end{lstlisting}
+
+Ekkor a rendszer letölti a csomagot annak minden függőségével együtt, gondoskodva a megfelelő
+verziókról is. 
+
+\subsubsection{NumPy\cite{numpy}}
+
+Általános matematikai csomag, széles körű függvénykínálattal.
+Szinte minden más, általunk használt csomag erre épül.
+
+
+\subsubsection{SciPy\cite{scipy}}
+
+Tudományos csomag, általános funkciókkal. Sok más magasabb szintű csomag épül rá. Mi például
+a \texttt{matplotlib} könyvtárát használtuk diagramjaink készítéséhez.
+
+
+\subsubsection{TensorFlow\cite{tensorflow}}
+
+Elosztott matematika könyvtár, amely lehetővé teszik bonyolult számítások párhuzamosított
+elvégzését heterogén platformokon. Mi ezt csak közvetve használjuk a magasabb szintű 
+könyvtárak által, kivéve mikor a maximális memóriaméretet állítjuk be, ahogyan arról a 
+\ref{gpu.memory}. fejezetben írtuk. Létezik külön CPU és GPU változata, erről később a 
+\ref{sec:gpu.kovetelmenyek}. pontban írunk részletesebben.
+
+
+
+\subsubsection{Sklearn\cite{sklearn}} 
+
+Egy nyílt forráskódú, \texttt{python} alapú gépi tanulási algoritmusokat nyújtó csomag. 
+Az SVM osztályozáshoz ezt használtuk.
+
+
+\subsubsection{Keras\cite{keras}}
+
+Magas szintű könyvtár neuronhálók építéséhez. Válaszható, hogy milyen alacsony szintű
+aritmetikai könyvtárat használjon, mi a fent említett \texttt{TensorFlow}-t választottuk.
+A konvolúciós hálónkat ezzel készítettük.
+
+\subsubsection{OpenCV\cite{opencv}}
+
+Számítógépes látáshoz írt képkezelő könyvtár. Lényegében minden meg van benne ami egy
+átlagos képszerkesztő programban. Ennek segítségével töltjük be a képeket, valamint 
+ezzel számoljuk ki és végezzük el a normalizáláshoz szükséges perspektív transzformációt.
+
+
+\subsubsection{Hyperopt}
+
+\subsection{Futtatás a videókártyán}
+\label{sec:gpu.kovetelmenyek}
+
+Ahogy a fejezet elején írtuk, a projekt használatához csak \texttt{pythonra} van szükség,
+de ez csak akkor igaz, ha megelégszünk azzal, hogy a program a CPU-n fut. A GPU 
+használatba vételéhez további komponensek szükségesek.
+
+
+Először is szükségünk van egy \texttt{CUDA}-t\cite{cuda} támogató videókártyára. Erre jelenleg csak
+az Nvidia kártyák képesek. Ezután fel kell telepítenünk a CUDA fejlesztő csomagját (SDK), ami a
+GPU általános célú programozását teszi lehetővé. 
+
+
+Ekkor már feltelepíthetjük a \texttt{Tensorflow} GPU-s változatát:
+\begin{lstlisting}
+	>pip3 install --upgrade tensorflow-gpu
+\end{lstlisting}
+
+
+
+Ezután fel kell telepítenünk a cuDNN könyvtárat (CUDA Deep Neural Network library), 
+mely hatékony neurális hálóval kapcsolatos algoritmusokat válósít meg. Ezeket a 
+\texttt{Keras} használja.
+
+
+Előfordulhat, hogy az \texttt{Nvidia} szoftverek telepítésekor nem adódnak hozzá a 
+Windows \texttt{PATH} környezeti változójához. Ekkor ezt nekünk kézzel kell megtennünk,
+különben a \texttt{python} nem fogja ezeket megtalálni.
+
+
+\subsection{Szerkezet}
+
+A projekt \texttt{python} forrásfájlokból áll. Ebből az alábbi négy futtatható:
+
+
+\begin{itemize}
+	\item \texttt{cnn.py}
+	\item \texttt{statistics.py}
+	\item \texttt{verdict\_nn.py}
+	\item \texttt{batch\_normalize.py}
+
+\end{itemize}
+
+A többi fájl csak segédfüggvényeket tartalmaz.
+
+\subsection{cnn.py}
+
+Ez a konvolúciós háló belépési pontja. Ezzel tudunk tanítani és kiértékelni. Tekintve, hogy 
+ez nem egy végfelhasználói alkalmazás, és hogy egy szkriptnyelvvel dolgozunk nincs 
+felhasználói felület. A szkript első néhány sorában, a függőségek után találjuk a bemeneti 
+paramétereket. Ezek közül a fontosak a következők:
+
+\subsubsubsection{use\_autoencoder : bool}
+
+Meghatározza, hogy a modell autoencoder vagy predikciós legyen.
+
+
+
+\subsubsubsection{recalculate : bool}
+
+Ha ez be van kapcsolva, akkor a program új modellt épít akkor is, ha talált volna 
+már meglévőt amit betölthet és használhat.
+
+
+\subsubsubsection{stage : int $ \in \{1, 2\} $}
+
+A program két fázisból áll, egy tanítási és egy kiértékelési. Ha ez a paraméter
+$ 2 $, akkor átugorjuk a tanítási fázist. Ekkor a \texttt{recalculate} paraméternek
+hamisnak kell lennie, és léteznie kell egy korábban elmentett modellnek, amit be
+tudunk tölteni.
+
+
+
+\subsubsubsection{weights\_only : bool}
+
+Ha ez be van kapcsolva, akkor mentéskor csak a modell súlyai maradnak meg. Ellenkező esetben
+a modell struktúrája, a tanítás teljes munkamenete, valamint az optimalizáló állapota is.
+Csak akkor érdemes használni, ha egy végleges alkalmazást készítünk, aminek tárhely-hatékonynak 
+kell lennie.
+
+
+\subsubsubsection{weight\_file : String?}
+
+A program, amikor egy előző modellt próbál betölteni megkeresi a dátum szerint utolsó
+fájlt, és azzal próbál dolgozni. Lehetőségünk van ezt felülbírálni, és a modell elérési
+útvonalát explicit megadni. Ha nem szeretnénk használni, állítsuk az értékét \texttt{None}-ra.
+
+
+\subsubsubsection{default\_input\_file\_name: String}
+
+Egy olyan \texttt{.csv} fájlra kell mutatnia, amelynek első oszlopa képek elérési útvonala,
+a második pedig egy azonosító, hogy az adott kép eredeti~(0) vagy hamis~(1) nyomatról készült.
+Ezt csak az első futtatáskor használjuk, amikor a tanító-, validációs- és teszthalmazokat 
+generáljuk. Amint ezek elkészültek elmentjük őket egy külön fájlba, amit minden futtatás elején
+betöltünk. Ezt a \texttt{dataset\_handler.py} modul \texttt{load\_dataset\_or\_create\_new} 
+automatikusan elvégzi nekünk.
+
+
+\subsubsubsection{use\_full\_dataset\_for\_test : bool}
+
+Ha igazra van állítva, akkor nem csak a teszthalmazra futtatja le a kiértékelést, hanem 
+a teljes adatmennyiségre. 
+
+
+\subsubsection{Működés}
+
+Ha a fenti paramétereket beállítottuk, akkor rendelkezésünkre állnak a képek elérési
+útvonalai, és a hozzájuk tartozó igazságértékek. Ezután betöltjük vagy elkészítjük a 
+modellünket. A fenti paraméterek alapján kiválasztjuk milyen sémát használunk: 
+\texttt{Autoencoder}-t vagy \texttt{Predictor}-t. Ez a \texttt{Scheme} osztály végzi a háló
+modelljének építését. Ha a modell elkészült, akkor készen állunk a munkára.
+
+
+Ha az első fázisban vagyunk, akkor a \texttt{model.fit\_generator} függvényét hívjuk meg
+a tanítás elkezdéséhez. A tanulás és a megállás a \ref{sec:cnn}. fejezetben ismertetettek 
+szerint történik.
+
+
+A második fázisban a modellt a \texttt{Scheme.eval} függvény értékeli ki. A teszthalmaz 
+minden elemére elvégzi az osztályozást, majd az eredményt egy \texttt{.csv} fájlba írja.
+Ezután ez a háló további használata nélkül is vizsgálható statisztikai szempontok alapján.
+
+
+\subsection{statistics.py}
+
+A \texttt{cnn.py} szkript kimenetét elemezi és vizualizálja. A bemenete egy \texttt{.csv} 
+fájl, amit vagy parancssori paraméterként kap, vagy amennyiben ez hiányzik, az időben utolsó,
+\texttt{.stage2.csv}-re végződő fájl a futtatási könyvtárban.
+
+
+Futtatás során bemenethez kiszámolja a hozzá tartozó ROC-görbét, legkisebb hibarátát,
+és ehhez megadja az első- és másodfajú hibarátát. Ezen felül hisztogramot készít a 
+két osztály eloszlásáról, majd mindezeket diagramokon megjeleníti. Ezt a modult használtuk
+a dolgozatban szereplő ábrák elkészítéséhez.
+
+
+\subsection{verdict\_nn.py}
+
+Az SVM tanításáért és kiértékeléséért felelős modul. A konvolúciós hálóval ellentétben
+ez nem lett ketté bontva. Ennek első oka, hogy sokkal gyorsabb a tanítás: a tesztgépen 
+a másodperc törtrésze. Másodszor, a statisztikák készítésekor tömegesen újratanítottuk a 
+modellt különböző adatokon, hogy mérjük a véletlen szerepét. Erről részletesen 
+az \ref{sec:svm.eredmenyek}. fejezetben olvashatunk.
+
+\subsubsection{Paraméterek}
+
+A konvolúciós hálóhoz hasonlóan néhány paraméter a szkript elején található. Ezek közül
+lássuk a lényegeseket:
+
+\subsubsubsection{mode : int $ \in \{1, 2, 3\} $}
+
+Értékétől függ mit fogunk számolni.
+\begin{enumerate}
+\item 
+	\texttt{mode\_fit\_and\_test}: Az input alapján betanít egy SVM-et és értékeli azt.
+\item
+	 mode\_batch\_fit\_and\_test: Az input alapján több SVM-et tanít és eredményeiket átlagolja.
+	 Ennek szükségességét az eredmények fejezetben tárgyaltuk.
+\item 
+	\texttt{mode\_hyperopt}: Az input alapján megkeresi a legjobb hiperparamétereket. 
+	Erről részletesen a \ref{sec:svm.hiperparameter.optimalizalas}. fejezetben írtunk.
+\end{enumerate}
+
+
+\subsubsubsection{use\_two\_images : bool}
+
+Ha ez a paraméter be van kapcsolva, akkor megkíséreljük a szomszédos képek összefűzését, ahogy azt
+a \ref{sec:dupla.kepes.eljaras}. pontban részleteztük.
+
+
+\subsection{batch\_normalize.py}
+
+Ahogy azt korábban írtuk, a képeket a célzókörök alapján normalizáltuk, de ez rendkívül 
+erőforrás-igényes lett volna futási időben, ezért ezt már tanítás előtt lefuttattuk minden
+mintára. Ennek megvalósítására szolgál ez a szkript. A bemenetként kapott \texttt{.csv} 
+fájl által hivatkozott minden képhez elkészíti annak normalizált változatát, majd elmenti
+az eredetik mellé, egy \texttt{"normalized\_"} előtaggal.
+
+Amennyiben a célzókörök koordinátái nem álltak rendelkezésre egy-egy képhez, úgy azok nem
+lettek figyelembe véve.
+
+
+\subsection{Egyéb forrásfájlok}
+
+A következő szkriptek önmagukban nem futtathatóak, csak segédfüggvényeket tartalmaznak.
+
+\begin{itemize}
+\item 
+	\texttt{dataset\_handler.py}: A tanító-, validációs- és teszthalmazok kezeléséért felelős.
+\item 
+	\texttt{image\_processing.py}: Képmanipuláló algoritmusok.
+	
+\item 
+	\texttt{log.py}: Azért felelős, hogy a program üzenetei mind a képernyőn, mind 
+	az aktuális logfájlban megjelenjenek.
+\item 
+	\texttt{util.py}: Általános használatú, más modulba nem illő függvényeket tartalmaz.
+\end{itemize}
+
+
+%
+%\subsection{TODO}
+%
+%akár az argparse is mehet
+%numpy
+%keras
+%sklearn
+%tensorflow
+%cuda
+%cuda nn
+%winpython 3.6
+%hyperopt
+%matplotlib
+%opencv
+%visual studio - working dir
+%csomagokhoz->pip
 
 \newpage
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 	\bibitem{adam} 
 	Diederik P. Kingma, Jimmy Ba:
 	Adam: A Method for Stochastic Optimization
@@ -2073,7 +2362,14 @@ csomagokhoz->pip
 	\bibitem{numpy} 
 	\url{http://www.numpy.org}
 	
-
+	
+	\bibitem{scipy} 
+	\url{https://www.scipy.org/}
+	
+	
+	\bibitem{tensorflow} 
+	\url{https://www.tensorflow.org/}
+	
 	\bibitem{sklearn} 
 	\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}
 	
@@ -2089,11 +2385,26 @@ csomagokhoz->pip
 	\bibitem{keras} 
 	\url{https://keras.io/}
 	
-	\bibitem{tensorflow} 
-	\url{https://www.tensorflow.org/}
 
 	\bibitem{opencv} 
 	\url{https://opencv.org/}
+
+	\bibitem{cuda} 
+	\url{https://developer.nvidia.com/cuda-downloads}
+
+
+
+	\bibitem{cudnn} 
+	\url{https://developer.nvidia.com/cudnn}
+
+	\bibitem{winpython} 
+	\url{https://winpython.github.io/}
+	
+	
+	\bibitem{pip} 
+	\url{https://pypi.python.org/pypi/pip}
+	
+
 	
 \end{thebibliography}
 
