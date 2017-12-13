@@ -44,7 +44,11 @@ hiperparaméterbeállítás:
 rontás kevesebb példával -> megnézni hogy függ a számuktól	
 """
 
+mode_fit_and_test = 1
+mode_batch_fit_and_test = 2
+mode_hyperopt = 3
 
+mode = mode_fit_and_test
 use_two_images = True
 randomly_swap_images = True
 visualize = False
@@ -420,7 +424,7 @@ def batch_fit_and_test(x, y, file_names, N = 200, kernel='rbf', C=1.0, gamma="au
 	return (avg_fpr, avg_fnr)
 
 
-def train_and_test(x, y, file_names):
+def train_and_test(x, y, file_names, C = 1, gamma = 0.001):
 	
 	
 	#if not use_random_seed:
@@ -451,8 +455,7 @@ def train_and_test(x, y, file_names):
 
 	log("creating model")
 	# lowest loss: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
-	C = 6.250906239883302
-	gamma = 0.03357455814119452
+	
 	model = create_and_fit_model(X_train, Y_train, C = C, gamma=gamma)
 
 	
@@ -525,20 +528,13 @@ def main():
 	C = 6.250906239883302
 	gamma = 0.03357455814119452
 	
-	batch_fit_and_test(x, y, file_names,C=C, gamma=gamma, N=2000)
-	#train_and_test(x, y, file_names)
-	return
+	if mode == mode_fit_and_test:
+		train_and_test(x, y, file_names, C=C, gamma=gamma)
+	elif mode == mode_batch_fit_and_test:
+		batch_fit_and_test(x, y, file_names,C=C, gamma=gamma, N=2000)
+	elif mode == mode_hyperopt:
+		finetune_with_hyperopt(x, y, file_names)
 	
-	#inputFile = "jura\\2017.10.25\\Bpas-Merged.csv"
-
-
-	
-
-	#batch_fit_and_test(x, y, file_names)
-
-	# lowest loss: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
-	finetune_with_hyperopt(x, y, file_names)
-
 
 
 

@@ -59,9 +59,9 @@ epochs = 50
 g_batch_size = 16
 # g_batch_size = 16
 
-use_autoencoder = False
-recalculate = False
-stage = 2
+use_autoencoder = True
+recalculate = True
+stage = 1
 
 #evaluate_only = False
 weights_only = False
@@ -73,7 +73,7 @@ weight_file = None
 evaluate_show_pictures = True
 warn_for_no_corner_info = False
 use_normalized_images = True
-
+use_full_dataset_for_test = False
 
 #if not recalculate:
 #	weight_file = get_last_weight_file()
@@ -376,141 +376,8 @@ def evaluate_autoencoder():
 	return
 
 
-"""
-float16 ot meg lehet próbálni
-conv2 + dense:
-	kernel_regularizer
-	keras.regularizers.l2(0.001) % a hiperparamétert is be kell még  löni
-	
-	autoencoder:
-		conv2dtranspose
-		loss: squared error
-		tanitás csak az eredetiken
-		érdemes kézzel megnézni hogy a predict milyen képet generál
-	
-"""
 
 
-def build_autoencoder_model():
-	model = Sequential()
-	"""
-	model.add(Conv2D(64, (11, 11), input_shape=input_shape, padding="same", data_format="channels_last"))
-	model.add(Conv2DTranspose(3, (11, 11), padding="same", data_format="channels_last"))
-	"""
-	
-	log("input shape: ", input_shape)
-
-	#kernel_sizes = [13, 13, 13]
-	kernel_sizes = [5, 5, 5]
-	kernel_sizes = [7, 7, 7]
-	kernel_dims = list(map(lambda x: (x,x), kernel_sizes))
-	iterator = iter(kernel_dims)
-	reverse_iterator = reversed(kernel_dims)
-
-	padding = "same"
-	#padding = "valid"
-
-	#model.add(Conv2D(64, (5, 5), input_shape=input_shape))
-
-	padding_size = sum(kernel_sizes)*2
-	
-	model.add(ZeroPadding2D(padding=(padding_size, padding_size), input_shape=(None, None, 3)))
-	model.add(Conv2D(64, next(iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-
-	model.add(Conv2D(128, next(iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-
-
-	model.add(Conv2D(256, next(iterator), padding=padding))
-	model.add(Activation('relu'))
-
-	#model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	# dense layer lehet dense is
-	
-	#####
-	
-
-	model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(UpSampling2D(size=(2, 2)))
-	
-
-	model.add(Conv2DTranspose(64, next(reverse_iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(UpSampling2D(size=(2, 2)))
-	
-	model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
-
-	model.add(Cropping2D(cropping=(padding_size, padding_size)))
-
-	#model.add(ZeroPadding2D())
-	#model.add(Activation('relu'))
-	#model.add(UpSampling2D(size=(2, 2), data_format="channels_last"))
-	
-	#####
-
-	model.compile(loss='mean_squared_error',
-				  optimizer='adam', # ADAM
-				  metrics=['accuracy']) 
-
-
-	shape = model.get_output_shape_at(0)
-	log(shape)
-	#log(K.int_shape(last_index - 1))
-	log("")
-	log("")
-	log("")
-	return model
-
-
-def build_predictor_model():
-	model = Sequential()
-	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-
-	model.add(Conv2D(64, (5, 5)))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-
-
-	model.add(Conv2D(256, (5, 5)))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-
-	model.add(Conv2D(256, (5, 5)))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-
-
-
-
-	# 64 kicsi + lehet több dense egymás után
-	model.add(Flatten())
-	model.add(Dense(256))
-	model.add(Activation('relu'))
-
-	model.add(Dense(256))
-	model.add(Activation('relu'))
-
-	model.add(Dense(256))
-	model.add(Activation('relu'))
-
-
-	# lehet dropout a convok előtt is ( mindegyik előtt)
-	model.add(Dropout(0.5))
-	model.add(Dense(2))#1))
-	model.add(Activation('softmax'))#'sigmoid'))
-
-	model.compile(loss='sparse_categorical_crossentropy', #'binary_crossentropy',
-				  optimizer='adam', #'rmsprop', # ADAM
-				  metrics=['accuracy']) 
-
-	return model
 
 
 class Scheme:
@@ -572,8 +439,96 @@ class AutoencoderScheme(Scheme):
 	def __init__(self):
 		super().__init__(postfix="autoencoder")
 
+
+	"""
+	float16 ot meg lehet próbálni
+	conv2 + dense:
+		kernel_regularizer
+		keras.regularizers.l2(0.001) % a hiperparamétert is be kell még  löni
+	
+		autoencoder:
+			conv2dtranspose
+			loss: squared error
+			tanitás csak az eredetiken
+			érdemes kézzel megnézni hogy a predict milyen képet generál
+	
+	"""
+
 	def build_model(self):
-		return build_autoencoder_model()
+	
+		model = Sequential()
+		"""
+		model.add(Conv2D(64, (11, 11), input_shape=input_shape, padding="same", data_format="channels_last"))
+		model.add(Conv2DTranspose(3, (11, 11), padding="same", data_format="channels_last"))
+		"""
+	
+		log("input shape: ", input_shape)
+
+		#kernel_sizes = [13, 13, 13]
+		kernel_sizes = [5, 5, 5]
+		kernel_sizes = [7, 7, 7]
+		kernel_dims = list(map(lambda x: (x,x), kernel_sizes))
+		iterator = iter(kernel_dims)
+		reverse_iterator = reversed(kernel_dims)
+
+		padding = "same"
+		#padding = "valid"
+
+		#model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+
+		padding_size = sum(kernel_sizes)*2
+	
+		model.add(ZeroPadding2D(padding=(padding_size, padding_size), input_shape=(None, None, 3)))
+		model.add(Conv2D(64, next(iterator), padding=padding))
+		model.add(Activation('relu'))
+		model.add(MaxPooling2D(pool_size=(2, 2)))
+
+		model.add(Conv2D(128, next(iterator), padding=padding))
+		model.add(Activation('relu'))
+		model.add(MaxPooling2D(pool_size=(2, 2)))
+
+
+		model.add(Conv2D(256, next(iterator), padding=padding))
+		model.add(Activation('relu'))
+
+		#model.add(MaxPooling2D(pool_size=(2, 2)))
+	
+		# dense layer lehet dense is
+	
+		#####
+	
+
+		model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
+		model.add(Activation('relu'))
+		model.add(UpSampling2D(size=(2, 2)))
+	
+
+		model.add(Conv2DTranspose(64, next(reverse_iterator), padding=padding))
+		model.add(Activation('relu'))
+		model.add(UpSampling2D(size=(2, 2)))
+	
+		model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
+
+		model.add(Cropping2D(cropping=(padding_size, padding_size)))
+
+		#model.add(ZeroPadding2D())
+		#model.add(Activation('relu'))
+		#model.add(UpSampling2D(size=(2, 2), data_format="channels_last"))
+	
+		#####
+
+		model.compile(loss='mean_squared_error',
+					  optimizer='adam', # ADAM
+					  metrics=['accuracy']) 
+
+
+		shape = model.get_output_shape_at(0)
+		log(shape)
+		#log(K.int_shape(last_index - 1))
+		log("")
+		log("")
+		log("")
+		return model
 	
 	def eval(self, model):
 		
@@ -630,17 +585,60 @@ class PredictorScheme(Scheme):
 		super().__init__(postfix="predictor")
 
 	def build_model(self):
-		return build_predictor_model()
+		
+		model = Sequential()
+		model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+		model.add(Activation('relu'))
+		model.add(MaxPooling2D(pool_size=(2, 2)))
+
+		model.add(Conv2D(64, (5, 5)))
+		model.add(Activation('relu'))
+		model.add(MaxPooling2D(pool_size=(2, 2)))
+
+
+		model.add(Conv2D(256, (5, 5)))
+		model.add(Activation('relu'))
+		model.add(MaxPooling2D(pool_size=(2, 2)))
+
+		model.add(Conv2D(256, (5, 5)))
+		model.add(Activation('relu'))
+		model.add(MaxPooling2D(pool_size=(2, 2)))
+
+
+
+
+		# 64 kicsi + lehet több dense egymás után
+		model.add(Flatten())
+		model.add(Dense(256))
+		model.add(Activation('relu'))
+
+		model.add(Dense(256))
+		model.add(Activation('relu'))
+
+		model.add(Dense(256))
+		model.add(Activation('relu'))
+
+
+		# lehet dropout a convok előtt is ( mindegyik előtt)
+		model.add(Dropout(0.5))
+		model.add(Dense(2))#1))
+		model.add(Activation('softmax'))#'sigmoid'))
+
+		model.compile(loss='sparse_categorical_crossentropy', #'binary_crossentropy',
+					  optimizer='adam', #'rmsprop', # ADAM
+					  metrics=['accuracy']) 
+
+		return model
 
 	def eval(self, model):
 		
+		if use_full_dataset_for_test:
+			file_namas = training_file_names + validation_file_names + test_file_names
+			ground_truths = training_ground_truths + validation_ground_truths + test_ground_truths
 	
-		file_namas = training_file_names + validation_file_names + test_file_names
-		ground_truths = training_ground_truths + validation_ground_truths + test_ground_truths
-	
-		#entries = list(zip(file_namas, ground_truths))
-
-		entries = list(zip(test_file_names, test_ground_truths))
+			entries = list(zip(file_namas, ground_truths))
+		else:
+			entries = list(zip(test_file_names, test_ground_truths))
 
 		#entries = list(zip(training_file_names, training_ground_truths))
 		#np.random.shuffle(entries) # in-place
@@ -682,30 +680,30 @@ class PredictorScheme(Scheme):
 
 
 
-def load_or_build_model():
-	model = None
-	if weight_file is not None:
-		try:
-			model = load_model(weight_file)
-			log("Successfully loaded full model: ", weight_file, "\r\n")
-		except ValueError:
-			log("Invalid model file (probably only saved weights)", weight_file, "\r\n")
-			model = None
+#def load_or_build_model():
+#	model = None
+#	if weight_file is not None:
+#		try:
+#			model = load_model(weight_file)
+#			log("Successfully loaded full model: ", weight_file, "\r\n")
+#		except ValueError:
+#			log("Invalid model file (probably only saved weights)", weight_file, "\r\n")
+#			model = None
 
-	if model is None:
-		if use_autoencoder:
-			model = build_autoencoder_model()
-		else:
-			model = build_predictor_model()
+#	if model is None:
+#		if use_autoencoder:
+#			model = build_autoencoder_model()
+#		else:
+#			model = build_predictor_model()
 
 
-		if weight_file is not None:
-			log("Loading weights from: " + weight_file)
-			try:
-				model.load_weights(weight_file)
-			except:
-				log("Failed to load weights!!!! probably different architecture")
-	return model
+#		if weight_file is not None:
+#			log("Loading weights from: " + weight_file)
+#			try:
+#				model.load_weights(weight_file)
+#			except:
+#				log("Failed to load weights!!!! probably different architecture")
+#	return model
 
 
 

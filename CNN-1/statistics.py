@@ -13,6 +13,8 @@ import argparse
 from log import log
 import util
 
+
+
 def get_default_file_name(postfix=""):
 	return "results_" + util.get_current_time_as_string() + postfix + ".csv"
 
@@ -363,7 +365,11 @@ def main():
 
 	if csv_file_name is None:
 		csv_file_name = util.get_last_file_with_ending("stage2.csv")
-		csv_file_name = "results_2017_12_11__11_21_27.predictor.stage2.csv"
+		
+	
+	if csv_file_name_override is not None:
+		csv_file_name = csv_file_name_override
+
 	f = open(csv_file_name, "r")
 	
 	reader = csv.reader(f, delimiter=',')
@@ -379,14 +385,16 @@ def main():
 		eval_fnc = eval_predictor
 		#eval_predictor(rows)
 	else:
-		log("missing metadatada in filename - trying autoencoder config")
-		eval_fnc = eval_autoencoder
+		log("missing metadatada in filename - trying predictor config")
+		eval_fnc = eval_predictor
 		pass
 
 	eval_fnc(rows)
 
 	
 	return
+
+csv_file_name_override = "results_2017_12_11__11_21_27.predictor.stage2.csv"
 
 if __name__ == "__main__":
 	main()

@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{bc717c7f-59b5-464b-940a-c1f4179d8e8b}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>statistics.py</StartupFile>
+    <StartupFile>cnn.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>working_dir</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -24,9 +24,7 @@
     <Compile Include="batch_normalize.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="cnn2.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="cnn.py" />
     <Compile Include="dataset_handler.py">
       <SubType>Code</SubType>
     </Compile>
