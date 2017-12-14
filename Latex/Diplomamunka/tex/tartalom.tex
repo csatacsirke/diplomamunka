@@ -140,11 +140,11 @@ módon nem foglalkozunk.
 Amikor egy nyomdász vagy szakértő ránéz egy biztonsági nyomatra, 
 általában már a hagyományos, tintával készült részekből meg tudja
 állapítani az eredetiséget. Ezt az indokolja, hogy a hamisításhoz jó esetben nem áll 
-rendelkezésre sem ugyanolyan papír, sem ugyanolyan nyomtató vagy olyan fénymásoló,
+rendelkezésre sem ugyanolyan papír, sem ugyanolyan festék,
 amely pont olyan eredményt produkál mint az eredeti.
-Ez akkor lehetséges, ha már a nyomat tervezésekor, hogy
+Ez akkor lehetséges, ha már a nyomat tervezésekor tudjuk, hogy
 milyen géppel fog készülni, és úgy tervezzük meg a nyomtatandó struktúrákat,
-hogy azok éppen csak nyomtathatóak legyenek.
+hogy azok éppen csak biztonságosak nyomtathatóak legyenek.
 
 %Kézenfekvő, hogy ezt a tudást szerették volna algoritmizálni. Így születtek olyan  programok, amelyek nyomatról készült képek alapján próbálják megállapítani az eredetiséget. A programok készítésekor hamisítvány és eredeti képek közötti kulonbségeket elemeztek és csiszolták az algoritmusokat addig, amíg azok elfogadhato eredményeket nem produkáltak.
 
@@ -996,7 +996,7 @@ Paramétere  kívánt osztályok, és \textit{ground truth}-ok.
 
 \subsubsubsection{tol}
 
-Hibatolerancia. Ha ezt elértük, akkor nem abbahagyhatja a modell a tanulást.
+Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 
 
 
@@ -1663,8 +1663,8 @@ kimenetekben. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelento
 
 
 Az előző fejezet konvolúciós hálójához hasonlóan Konvolúció-Relu-MaxPooling hármasokat
-fűztünk egymás után. Úgy találtuk hogy az általánosítás $ 7 \time 7 $-es kernelméret 
-mellett volt. Ha ennél kisebb volt, akkor túltanult, ha jelentősen nagyobb 
+fűztünk egymás után. Úgy találtuk hogy az általánosítás $ 7 \times 7 $-es kernelméret 
+mellett volt optimális. Ha ennél kisebb volt, akkor túltanult, ha jelentősen nagyobb 
 ($ 11  $és felette) már nem volt képes értékelhető eredményt adni.
 
 A háló második fele az első fél tükrözve, figyelve arra, hogy a végső dimenzió pont akkora 
@@ -1994,7 +1994,7 @@ fel egy telefon makrolencsével készült teljes képét ki szeretnénk elemezni
 amelyek csúcskategóriás készülékeknél bőven 10 megapixel felett van, akkor hatalmasra 
 nőhet a belső reprezentáció. Véleményem szerint még több évnyi munka kell ahhoz, hogy 
 ebből egy megbízható alkalmazás legyen, ami minden körülmények között meg tud 
-különböztetni egy hamis pénzt egy eredetitől.
+különböztetni egy hamis nyomatot egy eredetitől.
 
 
 \subsection{További feladatok}
