@@ -47,14 +47,14 @@
 \section{Bevezetés}
 
 Amióta csak az ember fizetőeszközöket használ, jelen volt párhuzamosan annak hamisítása is.
-Ezért mindig is igény volt arra, hogy mikor a javak gazdát cseréltek a felek meg tudjanak 
-bizonyosodni a valuta érvényességéről. Amíg az aranypénz használatban volt, annak puhaságát 
+Ezért mindig is igény volt arra, hogy mikor a javak gazdát cseréltek, a felek meg tudjanak 
+bizonyosodni az ellenérték eredetiségéről. Amíg az aranypénz használatban volt, annak puhaságát 
 kihasználva, ráharapva ellenőrizték az emberek annak eredetiségét. Hasonló példa, 
 mikor Arkhimédész egy aranykorona sűrűségét mérte meg, ezzel megállapítva, hogy az részben ezüst
 volt. Látható, hogy az aranyat nem volt egyszerű hamisítani, de a hordozása nagyobb 
 mennyiségben bajos volt, könnyen eshetett az ember rablók áldozatául.
 
-Mikor ennek kivédésére a bankok papírpénzt kezdtek kibocsátani, ez a probléma némileg orvosolódott,
+Mikor ennek kivédésére eleinte pénzváltók, később bankok papírpénzt kezdtek kibocsátani, ez a probléma némileg orvosolódott,
 azonban újakat is felvetett: megjelentek a hamisítók, akik ezzel akartak könnyen vagyonhoz jutni.
 Ezért akkortól kezdve, egészen a mai napig a bankjegynyomdák feladata, hogy olyan
 technológiát használjanak, ami egy egyszerű ember számára drága vagy egyáltalán nem elérhető,
@@ -127,7 +127,7 @@ többféle módszert használunk egyszerre, amelyek optimális esetben
 ortogonálisak, tehát hamisításnál mindegyikre valahogy máshogyan kell 
 felkészülni. Ezeket alapvetően két kategóriába tudjuk sorolni. 
 Az első kategóriához tartozik például, amit az utca embere is könnyen ellenőrizhet, 
-a Magyar Forintokon a fémszalag, vagy a színváltó tinta, de akár a papír taktilitása is.
+a magyar forintokon a fémszalag, vagy a színváltó tinta, de akár az intaglió nyomat taktilitása is.
 A második kategóriás védelmek ellenőrzéséhez már valamilyen speciális eszköz is kell. Erre a legismertebb 
 példa az UV lámpa, ami mindenhol megtalálható ahol pénz forog.
 A valóságban létezik egy harmadik kategória is, ami a titkos, csak 
@@ -705,7 +705,10 @@ osztályozunk, a másodfajú ennek fordítottja.
 Azért fontos ezek kettéválasztása, mert ez a két hiba egymás rovására 
 javítható. Egy adott feladatnál preferálhatjuk, hogy melyik az elfogadhatóbb.
 Egészségügyben például kisebb kárt okozhat a fals pozitív, mint egy fals negatív;
-mi viszont szívesebben engedünk át egy hamisítványt, mint mondjuk  azt egy eredetire, hogy hamis.
+mi viszont szívesebben engedünk át egy hamisítványt, mint mondjuk  azt egy eredetire, hogy hamis,
+különben megrendülne a bankjegybe vetett bizalom.
+
+% vagy emékezzünk a meghurcolt emberre, akinek a bkv bérletéről azt hitték hamis, pedig nem is
 
 
 
@@ -1043,9 +1046,11 @@ bevett módja a \textit{validation loss} mérése, aminek egy változata ugyan e
 az osztály valószínűségekből, mégis kézenfekvőnek tűnt egy másik mértéket bevezetni: az átlagos hibarátát.
 
 Az alapvető probléma az volt, hogy ha 1000 elemű a teljes mintahalmaz , akkor a validációs 
-halmaz ennél mindenképp kisebb. Az hibás klasszifikációk rátája kb. $ 0.01 $ volt az alapértelmezett 
-paraméterek mellett, ami azt
-jelenti, hogy kb. 10 darab egy validációs halmazban. Ennek a számnak a szórását mérve véletlenszerű
+halmaz ennél mindenképp kisebb. 
+
+Az alapvető probléma az volt, nem volt elég nagy a teljes mintahalmaz, és ezáltal a validációs halmaz.
+Az hibás klasszifikációk rátája kb. $ 0.01 $ volt az alapértelmezett paraméterek mellett, ami azt
+jelenti, hogy kb. 10 darab hiba volt egy validációs halmazban. Ennek a számnak a szórását mérve véletlenszerű
 tanító-tesztelő halmaz szeparációk mellett azt találtuk, hogy nem megbízható statisztika a 
 hiba ilyen módon történő mérése.
 
@@ -1143,12 +1148,57 @@ Ezek alapján három tanító módszert tudunk készíteni.:
 \subsection{Képelemzés Konvolúciós Hálóval}
 \label{sec:cnn}
 
-Ennél a megközelítésnél maguk a képek voltak a tanító adatok.
+
+\subsubsection{Adatok}
+
+
+\begin{figure}[h]
+	
+	
+	\begin{minipage}[c]{0.5\linewidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/eredeti-pelda.png}
+		\caption{Eredeti nyomat}
+		\label{fig:eredeti.pelda}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.5\linewidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/copy-pelda.png}
+		\caption{Színes fénymásolat}
+		\label{fig:copy.pelda}
+		
+	\end{minipage}
+	
+\end{figure}
+
+Ennél a megközelítésnél maguk a képek voltak a tanító adatok. Ezekre láthatunk példát a  \ref{fig:eredeti.pelda}. és a \ref{fig:copy.pelda}. ábrán.
 Mivel a képek érkezhetnek különböző felbontású forrásokból, célszerű volt
 egyformára méreteznünk őket. Ennél tovább mentünk, és a célzó körök koordinátáival,
 és az \texttt{opencv} könyvtár inverz perspektivikus transzformációja segítségével 
 normalizáltuk a képeket. Végeredménynek egységesen $ 1000 \times 1000 $ pixeles képeket
-választottunk.
+választottunk. Az \ref{fig:normalized-eredeti.pelda}. és a \ref{fig:normalized-copy.pelda}. 
+ábrán láthatjuk a normalizálás eredményét.
+
+
+\begin{figure}[h]{}
+	
+	\begin{minipage}[r]{0.5\linewidth}
+		\centering
+		\includegraphics[width=0.8\textwidth]{img/normalized-eredeti-pelda.png}
+		\caption{Normalizált eredeti nyomat}
+		\label{fig:normalized-eredeti.pelda}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[l]{0.5\linewidth}
+		\centering
+		\includegraphics[width=0.8\textwidth]{img/normalized-copy-pelda.png}
+		\caption{Normalizált színes fénymásolat}
+		\label{fig:normalized-copy.pelda}
+		
+	\end{minipage}
+	
+\end{figure}
 
 A célzó koordináták már rendelkezésünkre álltak, de jó kutatási terület lehet ezek 
 megtalálása egy erre készített neurális hálóval.
@@ -1723,7 +1773,7 @@ Az eredeti, gépi tanulás \textbf{nélküli} algoritmus eredményei, a minták 
 kifejezve:
 
 \begin{tabular}{ l l l l l }
-	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
+	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
 	*\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
 	*\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
 \end{tabular}
@@ -1736,7 +1786,7 @@ Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel öss
 
 
 \begin{tabular}{ l l l l l }
-	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Elsőfajú	& Másodfajú \\
+	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
 	*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
 	*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
 	
@@ -1760,7 +1810,7 @@ Láthatjuk, hogy az első modell érte el a legjobb eredményt, elsőfajú hibá
 másodfajút mérve viszont nem tűnik jobbnak a \texttt{bpas-merged}-nél. Ez több mindennel magyarázható.
 Láthatóan az algoritmus arra lett optimalizálva, hogy csökkenjen a másodfajú hiba, hiszen a 
 \texttt{bpas-verdict}-hez képest nőtt az elsőfajú hiba rátája, pedig ez a több információt használó adat.
-Emlékezzünk vissza, hogy nyomatoknál szívesebben engedünk át egy hamisa példányt, mint utasítunk
+Emlékezzünk vissza, hogy nyomatoknál szívesebben engedünk át egy hamis példányt, mint utasítunk
 el egy eredetit. Másodszor az adathalmaz fals-negatív elemszáma elég kicsi (1)- volt, ami 
 statisztikailag nem elfogadható, ezért további vizsgálat szükséges ennek tényleges megállapítására.
 Harmadszor az eredmény javítható lehet egy \textit{"bizonytalan"} halmaz bevezetésével, vagy 
@@ -1808,17 +1858,18 @@ a véglegeshez, egyáltalán nem akart tanulni: minden mintát hamisnak klasszif
 Eleinte azt hittük, hogy hibás a modell, ezért próbálkoztunk meg a \ref{sec:autoencoder}
 fejezetben leírtak szerint egy autoencoderrel, amely a rekonstrukciós hibát méri.
 Ennek eredményeit vizsgálva szembe tűnt, hogy a hamis minták egy halmaza egyáltalán nem 
-tér el az eredetiektől. Ezek a hamis nyomatok az eredetiek alapján lettek nyomtatva, 
-hasonló technológiával. Ezeket a Jurás algoritmus jó arányban meg tudta 
+tér el az eredetiektől. Ezek a hamis nyomatok az eredeti fájlokból lettek nyomtatva, 
+tintasugaras nyomtatóval. Ezeket a Jurás algoritmus jó arányban meg tudta 
 különböztetni az eredetiektől.
 
 
 Az autoencoder bár önmagában is használható, de közel sem annyira megbízható, mint a többi 
-módszer, így számszerű adatot nem is közlünk. A projekt szempontjából egy jelentős lépcső volt, ezért fontosnak tartottuk írni róla.
+módszer, így számszerű adatot nem is közlünk. A projekt szempontjából egy jelentős lépcső volt,
+ ezért fontosnak tartottuk írni róla.
 
 \label{sec:eredmenyek.100}
 Amikor a fent említett hamis mintákat kivettük az tanító halmazból, a predikciós elkezdett konvergálni,
-ennek eredményeit láthatjuk a \ref{fig:redukalt.feladat}. ábrán. A teszthalmaz szerencsésen
+ennek eredményeit láthatjuk a \ref{fig:roc-test}. és a \ref{fig:roc-full}. ábrán. A teszthalmaz szerencsésen
 lett megválasztva, ami így 100\% os hatékonyságúnak bizonyult, ám mivel a tanító halmazon 
 futtatva a modell mégsem tökéletes, fontosnak tartottuk azt is közölni. 
 
@@ -1830,17 +1881,19 @@ futtatva a modell mégsem tökéletes, fontosnak tartottuk azt is közölni.
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/ruc-curve-test.svg}
 %		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Teszt halmaz}\label{fig:roc-test}
+		\caption{Teszt halmaz}
+		\label{fig:roc-test}
 
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/roc-curve-full-dataset.svg}
 %		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Tanító+Teszt adathalmaz}\label{fig:roc-full}
+		\caption{Tanító+Teszt adathalmaz}
+		\label{fig:roc-full}
 		
 	\end{minipage}
-	\caption{\textbf{Redukált feladat}}
-	\label{fig:redukalt.feladat}
+%	\caption{\textbf{Redukált feladat}}
+%	\label{fig:redukalt.feladat}
 \end{figure}
 
 
@@ -1849,10 +1902,10 @@ amelyben a kritikus minták is szerepeltek. Jól látszott a véletlen szerepe a
 hálók tanításában, ugyanis csak körülbelül tizedik próbálkozásra konvergált a modell a
 jó irányba. Az első néhány próbálkozás a fentebb említett jelenséget produkálta: mindent 
 hamisnak gondolt. Mindenesetre, végül sikerült a modellt ez alapján is betanítani, az 
-eredmények pedig a \ref{fig:ujratanitott.feladat}. ábrán láthatók.
+eredmények pedig a \ref{fig:roc-test-re}. és a \ref{fig:roc-full-re}. ábrán láthatók.
 
 
-Az eredményhalmaz szeparálhatóságát, és annak korlátait a \ref{fig:histogram-ujratanitott}.
+Az eredményhalmaz szeparálhatóságát, és annak korlátait a \ref{fig:hist-test}. és a \ref{fig:hist-full}.
 ábrán szemléltetjük, ahol egy hisztogramot láthatunk a \textit{Hamis} és az \textit{Eredeti}
 halmazbeli értékek elhelyezkedéséről. Jól látható, hogy hol kell vágnunk, ha az 
 első- vagy a másodfajú hibát szeretnénk csökkenteni. Ügyeljünk arra, hogy a hisztogram
@@ -1865,16 +1918,18 @@ logaritmikus skálát használ a jobb láthatóság kedvéért!
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/ruc-curve-test-ujratanitva.svg}
 		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Teszt halmaz}\label{fig:roc-test-re}
+		\caption{Teszt halmaz}
+		\label{fig:roc-test-re}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/roc-curve-full-dataset-ujratanitva.svg}
 		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Tanító+Teszt adathalmaz}\label{fig:roc-full-re}
+		\caption{Tanító+Teszt adathalmaz}
+		\label{fig:roc-full-re}
 		
 	\end{minipage}
-	\caption{\textbf{Újratanított háló}}
+%	\caption{\textbf{Újratanított háló}}
 	\label{fig:ujratanitott.feladat}
 \end{figure}
 
@@ -1895,7 +1950,7 @@ logaritmikus skálát használ a jobb láthatóság kedvéért!
 		\caption{Tanító+Teszt adathalmaz}\label{fig:hist-full}
 		
 	\end{minipage}
-	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
+%	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
 	\label{fig:histogram-ujratanitott}
 \end{figure}
 
@@ -1904,7 +1959,7 @@ Végül nézzük az összehasonlítást az eredeti, gépi tanulást nélkülöz�
 
 
 \begin{tabular}{ l l l l l }
-	\underline{fájl} 			& összes minta 	& bizonytalan	& elsőfajú	& másodfajú \\
+	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
 	*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
 	*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
 	
@@ -2025,7 +2080,7 @@ A képek normalizálása során felmerült, hogy bár a pozicionáló koordinát
 álltak, a konvolúciós hálók alkalmasak lehetne ezek hatékony megtalálására.
 
 
-Ahogy az eredményeknél elemeztük, kutatást igényel bizonyos trükkös képek elemzése,
+Ahogy az eredményeknél elemeztük, kutatást igényel bizonyos képek elemzése,
 ez még a jövő feladata.
 
 %
@@ -2412,6 +2467,4 @@ A következő szkriptek önmagukban nem futtathatóak, csak segédfüggvényeket
 
 
 %I think we did a pretty good\textsuperscript{\textit{job}}so far
-
-
 
