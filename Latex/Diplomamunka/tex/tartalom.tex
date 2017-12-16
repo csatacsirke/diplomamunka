@@ -170,12 +170,10 @@ lefényképezését követően egy \textit{applikáció} segítségével, helybe
 
 Speciálisan, az általunk részben felhasznált megoldás különböző szempontok alapján méréseket
 végez a képen, és nagyságrendileg 10-12 mérőszámot ad eredményül, amelyeket
-aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}. A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például egy nagyon jó hamisítvány,
-de akár egy remegő kézzel készített kép is.
+aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}. A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például egy nagyon jó hamisítvány, de akár egy remegő kézzel készített kép is.
 %de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
 
 \subsection{Gépi tanulás}
-
 
 Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bemenet-kimenet tanító példapárokon valamilyen célfüggvényt minimalizálásával hangolunk be. A célfüggvény általában valamilyen predikciós hiba: a bemeneteket leképezve a kimenetet szeretnénk megbecsülni, lehetőleg úgy, hogy a becslés új, még nem látott példapárokon is pontos legyen.
 
@@ -191,61 +189,40 @@ fogunk alkalmazni.
 
 \subsubsection{Támasztóvektor Gép}
 
-A Támasztóvektor Gép (Support Vector Machine, SVM) egy klaszterező eljárás, amivel egy adathalmaz két csoportra bontható. 
-
-Alapja, hogy teret egy hipersíkkal ketté osztjuk úgy, hogy a két csoport előjeles távolsága ($ d_1, d_2 $) a hipersíktól maximális legyen. 
-Egy csoport és sík távolsága alatt a sík és az ahhoz legközelebbi, az adott csoportba tartozó elem távolságát értjük. 
-
-
+A Támasztóvektor Gép (Support Vector Machine, SVM) egy bináris osztályozási feladat. 
+A teret egy hipersíkkal két részre osztjuk úgy, hogy a két osztály előjeles távolsága ($ d_1, d_2 $) az elválasztó hipersíktól maximális legyen. 
+Egy osztály és sík távolsága alatt a sík és az ahhoz legközelebbi, az adott osztályba tartozó bemenet távolságát értjük. 
 A két távolság összegét hívjuk \textit{margónak}: 
 \[d = d_1 + d_2.\]
-
 A bemenő adatok vektorait jelöljük $ \underline{x}_i $-vel, a hozzájuk tartozó kimenetet
 pedig $ y_i $-vel, ahol $ y_i=-1 $, ha az első csoportba tartozik, és $ y_i=1 $, ha a másodikba; $i=1,\dots,n$.
-
-A hipersíkot a normálvektorával (súlyával, weight): $ \underline{w} $, és \textit{bias}-szal 
-(részlehajlás): $ b $ ábrázoljuk.
-
-
-Ekkor a sík pontjai 
+A hipersíkot a $ \underline{w} $ normálvektorával (súlyával, weight) és $ b $ eltolásával (\textit{bias}) adjuk meg.
+Ekkor a hipersík pontjai 
 \[\underline{x}: \underline{x}^T \underline{w} - b = 0.\]
-
-A csoportok margójához tartozó hipersíkok pedig:
-
+Az osztályokat támasztó hipersíkok pedig:
 \begin{align*}
 \underline{x}&\colon \underline{x}^T \underline{w} - b = +1, \\
 \underline{x}&\colon \underline{x}^T \underline{w} - b = -1.
 \end{align*}
 Ekkor a feladat $ \underline{w} $ és $ b $ meghatározása úgy, hogy:
-
 \[
 \begin{cases}
 \underline{x}^T \underline{w} - b \geq +1, & \text{ ha }  y=1, \\
 \underline{x}^T \underline{w} - b \leq -1, & \text{ ha }  y=-1.
 \end{cases}
 \]
-
 Ekkor $ d_1 = d_2 = \frac{2}{\norm{\underline{w}}_2} $.  
-\\
-Mivel $ d $-t szeretnénk maximalizálni, a feladat felírható:
-
+$ d $-t szeretnénk maximalizálni, ami ekvivalens reciprokának minimalizálásával, így a probléma felírható a következő feltételes optimalizálási feladatként:
 \[
 \min\limits_{\underline{w}, b} \norm{\underline{w}}_2 \quad\text{ s.t. }\quad y_i \cdot (\underline{x}_i^T \underline{w} + b) \geq 1, \quad i=1,\dots,n.
 \]
-
 Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
-vezessünk be egy olyan költségfüggvényt, ami a rossz oldalon lévő elemeket bünteti.
-
+vezessünk be egy puha-margón alapuló költségfüggvényt, ami megenged rossz oldalon lévő elemeket is, de bünteti is azokat:
 \[
 J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 \max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 \]
-
-
-
-\noindent
-Megmutatható, hogy a feladat megegyezik a következővel (duális probléma): 
-
+Ezt nevezzük az SVM primál feladatának. A duális feladat Lagrange-multiplikátorokkal felírva a következő kvadratikus programozási (Quadratic Programming, QP) alakra hozható:
 \begin{multline*}
 \max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i -  
 \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\underline{x}_i^T \underline{x}_j) y_i c_j \\
@@ -254,26 +231,16 @@ Megmutatható, hogy a feladat megegyezik a következővel (duális probléma):
 0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
 i=1,\dots,n.
 \end{multline*}
-
-\noindent
-Ennek megoldására létezik hatékony numerikus módszer.
-
-\noindent
-Ekkor a súlyok:
-
+Ennek megoldására léteznek hatékony numerikus módszerek.
+Ekkor a súlyok a következő alakot öltik:
 \[
 \underline{w} = \sumn{i} c_i y_i \underline{x}_i.
 \]
-
-\noindent
-Keressünk egy margón lévő $ (x_i, y_i) $ párt:
+Keressünk egy margón lévő $ (\underline{x}_i, y_i) $ párt:
 \[
 b = \underline{w}^T \underline{x}_i  - y_i.
 \]
-
-\noindent
 Egy minta osztályozása:
-
 \[
 \hat{y} = \sign(\underline{w}^T \underline{x} - b).
 \]
@@ -285,28 +252,16 @@ Egy minta osztályozása:
 
 
 %\paragraph{Nem lineáris feladatok} 
-\subsubsubsection{Nem lineáris feladatok} 
+\subsubsubsection{Nemlineáris feladatok} 
 
-
-Sok esetben a feladat nem lineárisan szeparálható, viszont a problématér 
-transzformációjával azzá alakítható.
-
-Vezessük be a bázisfüggvényeket, amelyek az eredeti adatot egy másik térbe,
-a jellemző (\textit{feature}) térbe képezik:
-
-
+Regressziós feladatoknál klasszikus trükk a modell nemlineárissá tétele, mely során bővebb függvényosztályokat tudunk közelíteni. Ez az SVM esetén is bevezethető a problématér 
+transzformációjával.
+Ehhez definiáljuk az úgynevezett nemlineáris feature-leképezést, melyek a bemeneteket egy másik (általában magasabb dimenziós) térbe,
+a \textit{feature}-térbe képezik:
 \[
 \varphi\colon \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m \gg n.
 \]
-
-
-
-\noindent
 Ekkor a feladat a következőképpen módosul:
-
-\noindent
-Keressük $ c_1 \cdots c_n $ paramétereket, amelyekre teljesül:
-
 \begin{multline*}
 \max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i - 
 \frac{1}{2}\sumn{i}\sumn{j} y_i c_i \big(\varphi(\underline{x}_i)^T \varphi(\underline{x}_j)\big) y_i c_j \\
@@ -315,25 +270,15 @@ Keressük $ c_1 \cdots c_n $ paramétereket, amelyekre teljesül:
 0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
 i=1,\dots,n.
 \end{multline*}
-
-\noindent
 Ekkor a súlyok:
-
 \[
 \underline{w} = \sumn{i} c_i y_i \varphi(\underline{x}_i).
 \]
-
-\noindent
 Keressünk egy margón lévő $ (\underline{x}_i, y_i) $ párt:
-
 \[
 b = \underline{w}^T \varphi(\underline{x}_i)  - y_i.
 \]
-
-
-\noindent
 Egy minta osztályozása ekkor:
-
 \[
 \hat{y} = \sign(\underline{w}^T \varphi(\underline{x}) - b).
 \]
@@ -342,24 +287,14 @@ Egy minta osztályozása ekkor:
 %\paragraph{Kernel trükk} 
 \subsubsubsection{Kernel trükk}
 
-
-A jellemzőtér nagy, vagy akár végtelen dimenziós is lehet. Bizonyos esetekben a fenti képletben lévő
-$ \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatot ki tudjuk számolni anélkül, hogy a transzformációt 
+A feature-tér nagy, akár végtelen dimenziós is lehet. Mercer tételének teljesülése esetén a fenti képletben lévő
+$ \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatokat ki tudjuk számolni anélkül, hogy a transzformációt 
 elvégeznénk.
-
-
-
-\noindent
-Ehhez vezessük be a \textit{kernel függvényeket}:
-
+Ehhez vezessük be a \textit{kernel függvényeket}, melyek szimmetrikus, pozitív szemidefinit függvények, és éppen a skalárszorzatot adják meg explicit képlettel:
 \[
 k(\underline{x}_i, \underline{x}_j) = \varphi(\underline{x}_i)^T \varphi(\underline{x}_j).
 \]
-
-\noindent
 Látható, hogy a maximalizálás ekkor is elvégezhető:
-
-
 \begin{multline*}
 \max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i - 
 \frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(\underline{x}_i, \underline{x}_j) y_i c_j \\
@@ -368,11 +303,7 @@ Látható, hogy a maximalizálás ekkor is elvégezhető:
 0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
 i=1,\dots,n.
 \end{multline*}
-
-\noindent
-És a predikció is csak kicsit módosul
-egy $ \underline{x} $ mintára:
-
+A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 \[
 \hat{y} = \sign\big(\underline{w}^T \varphi(\underline{x}) - b\big) = \sign\big(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}) - b\big).
 \]
