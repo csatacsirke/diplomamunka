@@ -3,7 +3,6 @@
 \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
 
 
-
 \newcommand{\sumn}[1]{\sum\limits_{{#1}=1}^{n}}
 \newcommand{\derivative}[2]{\dfrac{\partial {#1}}{\partial {#2}}}
 %\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
@@ -75,15 +74,15 @@ hogy a nyomatban elhelyezett mintát egy okostelefonra készült alkalmazással 
 elemezzük, és ez alapján eldöntjük, hogy az eredeti-e.
 
 
-Egy ilyen megoldást készített a Jura Trade kft. is. Ezen dolgozat célja ennek az alkalmazásnak
+Egy ilyen megoldást készített a Jura Trade kft.\footnote{\url{url}} is. Ezen dolgozat célja ennek az alkalmazásnak
 a továbbfejlesztése gépi tanulással: \textit{Támasztóvektor Gépekkel} és \textit{Konvolúciós Hálókkal},
-amelyek napjainkban egyre nagyobb szerepet kapnak az informatika számos területén, ebben a 
-témakörben mégsem alkalmazta őket egyelőre senki.
+amelyek napjainkban egyre nagyobb szerepet kapnak az informatika számos területén, elsősorban kép- és hangfeldolgozásban. 
+%ebben a témakörben mégsem alkalmazta őket egyelőre senki.
 
 A dolgozat első felében bemutatunk egy módszert, amivel automatizálni lehet egy döntési folyamatot, már 
 meglévő, determinisztikusan előállított adatok alapján. A második részben megkísérlünk építeni egy 
 önálló alkalmazást, amely semmilyen korábban megírt programra vagy algoritmusra 
-nem támaszkodik, hanem a nyers képekből próbál meg egy mély neuronhálót betanítani, 
+nem támaszkodik, hanem a nyers képekből próbál meg egy mesterséges mély neurális hálózatot betanítani, 
 amely ezután magában alkalmas eredetiség-ellenőrzésre.
 
 
@@ -122,20 +121,20 @@ amely ezután magában alkalmas eredetiség-ellenőrzésre.
 Alapvetően akkor, hogy ha megpróbáljuk valahogy reprodukálni, akkor
 mérhető lesz a különbség az eredeti és a hamis között.
 
-Ha védeni szeretnénk egy dokumentumot vagy bankjegyet általában 
+Ha védeni szeretnénk egy dokumentumot vagy bankjegyet, általában 
 többféle módszert használunk egyszerre, amelyek optimális esetben 
 ortogonálisak, tehát hamisításnál mindegyikre valahogy máshogyan kell 
 felkészülni. Ezeket alapvetően két kategóriába tudjuk sorolni. 
 Az első kategóriához tartozik például, amit az utca embere is könnyen ellenőrizhet, 
 a magyar forintokon a fémszalag, vagy a színváltó tinta, de akár az intaglió nyomat taktilitása is.
 A második kategóriás védelmek ellenőrzéséhez már valamilyen speciális eszköz is kell. Erre a legismertebb 
-példa az UV lámpa, ami mindenhol megtalálható ahol pénz forog.
+példa az UV lámpa, ami mindenhol megtalálható, ahol pénz forog.
 A valóságban létezik egy harmadik kategória is, ami a titkos, csak 
 laborban kimutatható tulajdonságokat tartalmazza, de ezekkel érthető
 módon nem foglalkozunk.
 
 
-\subsection{Előző megoldások}
+\subsection{Klasszikus megoldások}
 
 Amikor egy nyomdász vagy szakértő ránéz egy biztonsági nyomatra, 
 általában már a hagyományos, tintával készült részekből meg tudja
@@ -144,7 +143,7 @@ rendelkezésre sem ugyanolyan papír, sem ugyanolyan festék,
 amely pont olyan eredményt produkál mint az eredeti.
 Ez akkor lehetséges, ha már a nyomat tervezésekor tudjuk, hogy
 milyen géppel fog készülni, és úgy tervezzük meg a nyomtatandó struktúrákat,
-hogy azok éppen csak biztonságosak nyomtathatóak legyenek.
+hogy azok éppen csak biztonságosan nyomtathatóak legyenek.
 
 %Kézenfekvő, hogy ezt a tudást szerették volna algoritmizálni. Így születtek olyan  programok, amelyek nyomatról készült képek alapján próbálják megállapítani az eredetiséget. A programok készítésekor hamisítvány és eredeti képek közötti kulonbségeket elemeztek és csiszolták az algoritmusokat addig, amíg azok elfogadhato eredményeket nem produkáltak.
 
@@ -162,37 +161,32 @@ amíg azok elfogadható eredményeket nem produkáltak.
 
 
 Így születtek olyan megoldások, amik a \ref{sec:nyomatbiztonsag}. 
-pontban említett, első és a második kategóriák közé esnek, tehát az utca emberének lettek tervezve, 
+szekcióban említett, első és a második kategóriák közé esnek, tehát az utca emberének lettek tervezve, 
 de mégis céleszközt használva, hétköznapi okostelefon segítségével ellenőrzik a nyomatot.
 Ezek alapján a tervünk egy olyan alkalmazás készítése, amely a kérdéses dokumentum
-lefényképezését követően egy \textit{app} segítségével, helyben ellenőrzi annak eredetiségét.
+lefényképezését követően egy \textit{applikáció} segítségével, helyben ellenőrzi annak eredetiségét.
 %Az ötlet, hogy lefényképezzük a dokumentumot, és ezt helyben, egy \textit{appal} elemezzük.
 
 
 Speciálisan, az általunk részben felhasznált megoldás különböző szempontok alapján méréseket
 végez a képen, és nagyságrendileg 10-12 mérőszámot ad eredményül, amelyeket
-aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}.
-
-A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például egy nagyon jó hamisítvány,
+aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudjuk eldönteni bizonyosan}. A \textit{Nem tudjuk} esetet több dolog is kiválthatja, például egy nagyon jó hamisítvány,
 de akár egy remegő kézzel készített kép is.
 %de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
 
 \subsection{Gépi tanulás}
 
 
-Gépi tanulásról beszélünk, amikor egy modellt nem programozással alakítunk, hanem példákat 
-mutatunk neki, amiket egy tanulóalgoritmus beépít a rendszerbe, ideális esetben úgy,
-hogy a rendszer teljes hatékonysága javul. 
+Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bemenet-kimenet tanító példapárokon valamilyen célfüggvényt minimalizálásával hangolunk be. A célfüggvény általában valamilyen predikciós hiba: a bemeneteket leképezve a kimenetet szeretnénk megbecsülni, lehetőleg úgy, hogy a becslés új, még nem látott példapárokon is pontos legyen.
 
-Manapság egyre több területen használják, például mintafelismerésre: gyógyászat, önvezető autók, nyomtatott szöveg felismerése; klaszterezésre: adatbányászat, szociális hálók; vagy 
-mesterséges intelligenciák készítésére: ajánló rendszerek, csevegő robotok, játékok (például Go vagy Sakk).
+Manapság egyre több területen használják automatizálásra, például kép-, hang- és nyelvfeldolgozásban, gráf adatokon, Megerősítéses Tanulásban.% és egyéb automatizálásban mintafelismerésre: gyógyászat, önvezető autók, nyomtatott szöveg felismerése; klaszterezésre: adatbányászat, szociális hálók; vagy 
+%mesterséges intelligenciák készítésére: ajánló rendszerek, csevegő robotok, játékok (például Go vagy Sakk).
 
-Alapvetően két nagy csoportja létezik: felügyeletlen és felügyelt tanulás.
-Előbbihez nem áll rendelkezésünkre az elvárt eredmény (\textit{ground truth}), nem
-tudjuk mit szeretnénk megtanítani.  A felügyeletlen tanulás célja, hogy a modell magától találjon új összefüggéseket.
-Mi a második témakörrel foglalkozunk: rendelkezésre állnak a tanító példák és a hozzájuk
-tartozó elvárt kimenetek. Ezen belül is a Támasztóvektor Gépeket és a Mély Konvolúciós hálókat
-fogjuk alkalmazni.
+Alapvetően két nagy csoportja létezik: felügyelt és felügyeletlen tanulás.
+Az előbbi esetben rendelkezésre áll a bemenetekhez tartozó elvárt kimenet (\textit{ground truth}); utóbbi esetben viszont nem, ekkor jobb híján a bemenetet szükséges kimenetként is használni, és meg lehet próbálni információt kompresszálni, zajt szűrni.  %A felügyeletlen tanulás célja, hogy a modell magától találjon új összefüggéseket.
+Mi a mindkét témakörrel foglalkozunk: rendelkezésre állnak a tanító példák és a hozzájuk
+tartozó elvárt kimenetek; emellett vizsgáljuk a valódi bemeneteken tanított felügyeletlen rendszer becslési képességét is, ekkor azt várjuk, hogy a hamis mintákat csak rosszul tudja rekonstruálni. Modellként Támasztóvektor Gépeket és Mély Konvolúciós hálókat
+fogunk alkalmazni.
 
 
 \subsubsection{Támasztóvektor Gép}
@@ -203,57 +197,63 @@ Alapja, hogy teret egy hipersíkkal ketté osztjuk úgy, hogy a két csoport el�
 Egy csoport és sík távolsága alatt a sík és az ahhoz legközelebbi, az adott csoportba tartozó elem távolságát értjük. 
 
 
-A két távolság összegét hívjuk \textit{margónak}: $ d = d_1 + d_2 $.
+A két távolság összegét hívjuk \textit{margónak}: 
+\[d = d_1 + d_2.\]
 
-A bemenő adatok vektorait jelöljük $ \underline{x_i} $-vel, a hozzájuk tartozó kimenetet
-pedig $ y_i $-vel, ahol $ y_i=-1 $, ha az első csoportba tartozik, és $ y_i=1 $, ha a másodikba.
+A bemenő adatok vektorait jelöljük $ \underline{x}_i $-vel, a hozzájuk tartozó kimenetet
+pedig $ y_i $-vel, ahol $ y_i=-1 $, ha az első csoportba tartozik, és $ y_i=1 $, ha a másodikba; $i=1,\dots,n$.
 
 A hipersíkot a normálvektorával (súlyával, weight): $ \underline{w} $, és \textit{bias}-szal 
 (részlehajlás): $ b $ ábrázoljuk.
 
 
-Ekkor a sík pontjai $ \underline{x}: \underline{x}^T \cdot \underline{w} - b = 0 $
+Ekkor a sík pontjai 
+\[\underline{x}: \underline{x}^T \underline{w} - b = 0.\]
 
 A csoportok margójához tartozó hipersíkok pedig:
 
-$ \underline{x}: \underline{x}^T \cdot \underline{w} - b = +1 $
-
-$ \underline{x}: \underline{x}^T \cdot \underline{w} - b = -1 $
-\\
+\begin{align*}
+\underline{x}&\colon \underline{x}^T \underline{w} - b = +1, \\
+\underline{x}&\colon \underline{x}^T \underline{w} - b = -1.
+\end{align*}
 Ekkor a feladat $ \underline{w} $ és $ b $ meghatározása úgy, hogy:
 
-$ \underline{x}^T \cdot \underline{w} - b \geq +1 $ ha $  y=1 $
+\[
+\begin{cases}
+\underline{x}^T \underline{w} - b \geq +1, & \text{ ha }  y=1, \\
+\underline{x}^T \underline{w} - b \leq -1, & \text{ ha }  y=-1.
+\end{cases}
+\]
 
-$ \underline{x}^T \cdot \underline{w} - b \leq -1 $ ha $  y=-1 $
-
-Ekkor $ d_1 = d_2 = \frac{2}{\norm{\underline{w}}} $  
+Ekkor $ d_1 = d_2 = \frac{2}{\norm{\underline{w}}_2} $.  
 \\
 Mivel $ d $-t szeretnénk maximalizálni, a feladat felírható:
 
-$ y_i \cdot (\underline{x}^T \cdot \underline{w} + b) \geq 1 $
-
-$ \min\limits_{w, b} \norm{\underline{w}} $
+\[
+\min\limits_{\underline{w}, b} \norm{\underline{w}}_2 \quad\text{ s.t. }\quad y_i \cdot (\underline{x}_i^T \underline{w} + b) \geq 1, \quad i=1,\dots,n.
+\]
 
 Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
 vezessünk be egy olyan költségfüggvényt, ami a rossz oldalon lévő elemeket bünteti.
 
-$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
-max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline{w}} $
+\[
+J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+\max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
+\]
 
 
 
 \noindent
 Megmutatható, hogy a feladat megegyezik a következővel (duális probléma): 
 
-$ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
-$ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (x_i \cdot x_j) y_i c_j $
-
-\noindent
-ahol $ \forall i: $
-
-$  \sumn{i} c_i y_i = 0 $
-
-$ 0 \leq c_i \leq \frac{1}{2n\lambda} $
+\begin{multline*}
+\max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i -  
+\frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\underline{x}_i^T \underline{x}_j) y_i c_j \\
+\text{ s.t. } \quad 
+\sumn{i} c_i y_i = 0, \quad
+0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
+i=1,\dots,n.
+\end{multline*}
 
 \noindent
 Ennek megoldására létezik hatékony numerikus módszer.
@@ -261,16 +261,22 @@ Ennek megoldására létezik hatékony numerikus módszer.
 \noindent
 Ekkor a súlyok:
 
-$ \underline{w} = \sumn{i} c_i y_i x_i $
+\[
+\underline{w} = \sumn{i} c_i y_i \underline{x}_i.
+\]
 
 \noindent
 Keressünk egy margón lévő $ (x_i, y_i) $ párt:
-$ b = \underline{w}^T \cdot \underline{x}_i  - y_i$
+\[
+b = \underline{w}^T \underline{x}_i  - y_i.
+\]
 
 \noindent
 Egy minta osztályozása:
 
-$ \overline{y} = sgn(\underline{w} \cdot \underline{x} - b) $
+\[
+\hat{y} = \sign(\underline{w}^T \underline{x} - b).
+\]
 
 %\noindent
 %TODO mennyire részletezzem, hogy ezt hogy kell megoldani?
@@ -289,9 +295,10 @@ Vezessük be a bázisfüggvényeket, amelyek az eredeti adatot egy másik térbe
 a jellemző (\textit{feature}) térbe képezik:
 
 
-$ \varphi : \mathbb{R}^n \rightarrow \mathbb{R}^m $
+\[
+\varphi\colon \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m \gg n.
+\]
 
-(általában $ m >> n $ )
 
 
 \noindent
@@ -300,31 +307,36 @@ Ekkor a feladat a következőképpen módosul:
 \noindent
 Keressük $ c_1 \cdots c_n $ paramétereket, amelyekre teljesül:
 
-$ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
-$ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\varphi(x_i) \cdot \varphi(x_j)) y_i c_j $
-
-\noindent
-,ahol $ \forall i: $
-
-$  \sumn{i} c_i y_i = 0 $
-
-$ 0 \leq c_i \leq \frac{1}{2n\lambda} $
+\begin{multline*}
+\max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i - 
+\frac{1}{2}\sumn{i}\sumn{j} y_i c_i \big(\varphi(\underline{x}_i)^T \varphi(\underline{x}_j)\big) y_i c_j \\
+\text{ s.t. } \quad 
+\sumn{i} c_i y_i = 0, \quad
+0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
+i=1,\dots,n.
+\end{multline*}
 
 \noindent
 Ekkor a súlyok:
 
-$ \underline{w} = \sumn{i} c_i y_i \varphi(x_i) $
+\[
+\underline{w} = \sumn{i} c_i y_i \varphi(\underline{x}_i).
+\]
 
 \noindent
-Keressünk egy margón lévő $ (x_i, y_i) $ párt:
+Keressünk egy margón lévő $ (\underline{x}_i, y_i) $ párt:
 
-$ b = \underline{w}^T \cdot \varphi(\underline{x}_i)  - y_i$
+\[
+b = \underline{w}^T \varphi(\underline{x}_i)  - y_i.
+\]
 
 
 \noindent
 Egy minta osztályozása ekkor:
 
-$ \overline{y} = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) $
+\[
+\hat{y} = \sign(\underline{w}^T \varphi(\underline{x}) - b).
+\]
 
 
 %\paragraph{Kernel trükk} 
@@ -332,7 +344,7 @@ $ \overline{y} = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) $
 
 
 A jellemzőtér nagy, vagy akár végtelen dimenziós is lehet. Bizonyos esetekben a fenti képletben lévő
-$ \varphi(x_i) \cdot \varphi(x_j) $ skaláris szorzatot ki tudjuk számolni anélkül, hogy a transzformációt 
+$ \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatot ki tudjuk számolni anélkül, hogy a transzformációt 
 elvégeznénk.
 
 
@@ -340,28 +352,30 @@ elvégeznénk.
 \noindent
 Ehhez vezessük be a \textit{kernel függvényeket}:
 
-$ K(x_i, x_j) = \varphi(x_i)^T \cdot \varphi(x_j) $
+\[
+k(\underline{x}_i, \underline{x}_j) = \varphi(\underline{x}_i)^T \varphi(\underline{x}_j).
+\]
 
 \noindent
 Látható, hogy a maximalizálás ekkor is elvégezhető:
 
 
-$ \max\limits_{c_1 \dots c_n} \sum\limits_{i=1}^{n}c_i -  $
-$ \frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(x_i, x_j) y_i c_j $
-
-\noindent
-,ahol $ \forall i: $
-
-$  \sumn{i} c_i y_i = 0 $
-
-$ 0 \leq c_i \leq \frac{1}{2n\lambda} $
+\begin{multline*}
+\max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i - 
+\frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(\underline{x}_i, \underline{x}_j) y_i c_j \\
+\text{ s.t. } \quad 
+\sumn{i} c_i y_i = 0, \quad
+0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
+i=1,\dots,n.
+\end{multline*}
 
 \noindent
 És a predikció is csak kicsit módosul
-egy $ x' $ mintára:
+egy $ \underline{x} $ mintára:
 
-$ y' = sgn(\underline{w} \cdot \varphi(\underline{x}) - b) = $
-$ sgn(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}') - b) $
+\[
+\hat{y} = \sign\big(\underline{w}^T \varphi(\underline{x}) - b\big) = \sign\big(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}) - b\big).
+\]
 
 
 %TODO mutassunk bázisfüggvényeket
