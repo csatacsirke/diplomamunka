@@ -73,7 +73,7 @@ Szeretnénk tehát egy olyan védelmet, amit bárki ellenőrizni tud, mégis olc
 hogy a nyomatban elhelyezett mintát egy okostelefonra készült alkalmazással lefényképezzük,
 elemezzük, és ez alapján eldöntjük, hogy az eredeti-e.
 
-
+% TODO urlt kitölteni
 Egy ilyen megoldást készített a Jura Trade kft.\footnote{\url{url}} is. Ezen dolgozat célja ennek az alkalmazásnak
 a továbbfejlesztése gépi tanulással: \textit{Támasztóvektor Gépekkel} és \textit{Konvolúciós Hálókkal},
 amelyek napjainkban egyre nagyobb szerepet kapnak az informatika számos területén, elsősorban kép- és hangfeldolgozásban. 
@@ -174,6 +174,10 @@ aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudj
 %de akár egy rossz kép is, például ha remegett az ember keze fényképezéskor.
 
 \subsection{Gépi tanulás}
+% TODO Kanonikus gépi tanulási feldatat:
+% min teta : L(teta, x_i, y_i) = 1/n * sumn l (f(teta, x_i), y_i) + R(teta)
+%R : regularizáció
+% f: többszörösen összetett ( mély hálóknál legalábbis)fv - ezt meg lehet mutatni az egyes specializációknal
 
 Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bemenet-kimenet tanító példapárokon valamilyen célfüggvényt minimalizálásával hangolunk be. A célfüggvény általában valamilyen predikciós hiba: a bemeneteket leképezve a kimenetet szeretnénk megbecsülni, lehetőleg úgy, hogy a becslés új, még nem látott példapárokon is pontos legyen.
 
@@ -188,6 +192,8 @@ fogunk alkalmazni.
 
 
 \subsubsection{Támasztóvektor Gép}
+
+% TODO teta = {w, b}
 
 A Támasztóvektor Gép (Support Vector Machine, SVM) egy bináris osztályozási feladat. 
 A teret egy hipersíkkal két részre osztjuk úgy, hogy a két osztály előjeles távolsága ($ d_1, d_2 $) az elválasztó hipersíktól maximális legyen. 
@@ -222,6 +228,9 @@ vezessünk be egy puha-margón alapuló költségfüggvényt, ami megenged rossz
 J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 \max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 \]
+
+% TODO ez is specializáció
+
 Ezt nevezzük az SVM primál feladatának. A duális feladat Lagrange-multiplikátorokkal felírva a következő kvadratikus programozási (Quadratic Programming, QP) alakra hozható:
 \begin{multline*}
 \max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i -  
@@ -314,7 +323,22 @@ A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 % de az rbf ez lehet hogy ide lehetn rakni?...
 
 
-\subsubsection{Mély hálók}
+\subsubsection{Mesterséges mély neurális hálózatok}
+% TODO többszörösen összetett fv alakú alapú modell, amiben lévő függvények a rétegek. Ezek paraméteres leképezések, aminek paramétereit gradiens módszerrel számoljuk.
+% f(theta,x)=f_K(theta_K, \cdots f_2(theta_2, f_1(theta_1,x) ) \cdots )
+%egy réteg: f_j(theta_j, z), ennek spec esetei a dense g(W z+b) és konvolúciós g(W * z+b)  rétegek, de lehetne sok más is...
+% g : nemlinearitás / aktivációs függvény, relu, tanh, stb
+% l : költség
+
+% TODO dense+konvolucios rétegről ábra
+
+%dense 2d tenzor -> 2d tenzorra képez, shape: (batch, input) -> (batch, output)
+%konv 4d tenzor -> 4d tenzorra képez, shape: (batch, width, height, rgb) -> (batch, width - filter_w + 1, height - filter_h +1, filter count) (valid)
+%+ potenciális padding (same)  + ábra
+
+% TODO konv azért jü, mert csökkenti a paraméterek számát, ezért kevésbé tanul túl, a pixelek szomszédságát kihasználja, a dense nem
+
+
 
 Általánosságban egy mély háló egy nagy bemenetet (a mi esetünkben képet) úgy képez
 a kimenetre, hogy több kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
@@ -331,8 +355,10 @@ kapva ezzel egy kimenetet ($ \underline{y}' $).
 \noindent
 Nézzük ekkor a négyzetes hibát ($ J $) a belső súlyok függvényében ($ \underline{w} $):
 
-$ J(\underline{w}) = \sumn{i} \norm{y_i-y_i'}_2^2 $
-
+\[  J(\underline{w}) = \sumn{i} \norm{y_i-y_i'}_2^2 
+ \]
+ 
+% TODO ide irni hogy ez az általanos feladat specializációja
 
 Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
 a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
@@ -342,8 +368,9 @@ hibatűrő képességükben van.
 Ehhez visszafelé haladva (\textit{backpropagation}) rétegenként visszaterjeszti a hibát,
 és a gradienssel ellentétes irányba $ \underline{w} $-t, így csökkentve a költségfüggvény értékét.
 
-
-$ \underline{w}' = \underline{w} - \gamma \cdot \triangledown J(\underline{w})$
+\[ 
+ \underline{\theta}_{t+1} = \underline{\theta}_t - \gamma \cdot \frac{\partial L(\underline{\theta}, x_i, y_i)}{\partial \underline{\theta}}\bigg\rvert_{\underline{\theta}=\underline{\theta}_t}
+ \]
 
 \noindent
 ,ahol $ \gamma < 1 $ a tanulási együttható.
@@ -899,6 +926,8 @@ kernel függvény megadására.
 
 
 \paragraph{Lineáris} (\texttt{linear})
+% TODO aláhúzásokra figyelni
+%TODO képletek legyenek a háttérben
 
 $ k(x, x') = \underline{x}^T \cdot \underline{x}' $
 
@@ -1011,6 +1040,8 @@ mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer 
 kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 
 
 Az általunk használt konfiguráció a következő volt:
+% TODO szinezni
+
 \begin{lstlisting}
 
 
@@ -1174,7 +1205,8 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 A végső szerkezet Keras segítségével megvalósítva:
 
 %TODO WTF az bal oldali szaggatott cucc?
-
+% convnet architektúra ábra a kód helyett:
+% tikz, vagy rajz
 \lstset{language=Python}
 \begin{lstlisting}  
 	model = Sequential()
@@ -1729,25 +1761,28 @@ kifejezve:
 Ahogy a \ref{sec:dupla.kepes.eljaras} pontban írtuk, három módszer volt a tanításra.
 Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel összehasonlítva:
 
-
-\begin{tabular}{ l l l l l }
-	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
-	*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
-	*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
-	
-	\hline
-	(1) verdict+SVM					& 894			& 0				& 0.00297	& 0.00566	\\
-	(2) merged+SVM					& 453			& 0				& 0.01493	& 0.00771	\\
-	(3) verdict+SVM 2 képpel		& 423			& 0				& 0.01420	& 0.01059   \\
-	
-\end{tabular}
-
-\mbox{}
-
+\begin{figure}[h!]
+	\begin{tabular}{ l l l l l }
+		\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
+		*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
+		*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
+		
+		\hline
+		(1) verdict+SVM					& 894			& 0				& 0.00297	& 0.00566	\\
+		(2) merged+SVM					& 453			& 0				& 0.01493	& 0.00771	\\
+		(3) verdict+SVM 2 képpel		& 423			& 0				& 0.01420	& 0.01059   \\
+		
+	\end{tabular}
 
 \textit{*Lásd a \ref{sec:adatok} pontot.}
+% TODO caption	
+\end{figure}
 
-\mbox{}
+%\mbox{}
+
+
+
+%\mbox{}
 
 
 
