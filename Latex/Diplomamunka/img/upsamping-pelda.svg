@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="142.06528mm"
-   height="53.919029mm"
-   viewBox="0 0 142.06528 53.919029"
+   width="54.960629mm"
+   height="20.859592mm"
+   viewBox="0 0 54.96063 20.859592"
    version="1.1"
    id="svg5447"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="upsamping-pelda.svg">
+   sodipodi:docname="upsamping-pelda.svg"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <defs
      id="defs5441">
     <pattern
@@ -34,8 +34,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="38.024816"
-     inkscape:cy="-72.944046"
+     inkscape:cx="-132.29668"
+     inkscape:cy="-135.41858"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -61,10 +61,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-40.659321,-67.64426)">
+     transform="translate(-84.211645,-84.173977)">
     <g
        id="g5645"
-       transform="translate(0,3.467181)">
+       transform="matrix(0.38686884,0,0,0.38686884,68.481821,59.345866)">
       <path
          inkscape:connector-curvature="0"
          style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.70418108"
@@ -135,7 +135,8 @@
              id="tspan5506">6</tspan></tspan></text>
     </g>
     <g
-       id="g5629">
+       id="g5629"
+       transform="matrix(0.38686884,0,0,0.38686884,68.481821,58.004521)">
       <path
          inkscape:connector-curvature="0"
          style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.70418108"
@@ -284,7 +285,7 @@
              id="tspan5538">6</tspan></tspan></text>
     </g>
     <g
-       transform="matrix(2.5757803,0,0,2.5757803,-246.19936,-161.3846)"
+       transform="matrix(0.99648914,0,0,0.99648914,-26.76504,-4.430152)"
        id="g5649">
       <path
          inkscape:connector-curvature="0"
@@ -299,14 +300,14 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:27.81780624px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.69544512"
-       x="69.243172"
-       y="77.325218"
+       style="font-style:normal;font-weight:normal;font-size:10.76184273px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26904604"
+       x="95.269844"
+       y="87.919235"
        id="text5439"><tspan
          sodipodi:role="line"
          id="tspan5437"
-         x="69.243172"
-         y="77.325218"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.27260208px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.69544512">Upsampling</tspan></text>
+         x="95.269844"
+         y="87.919235"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.58728075px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26904604">Upsampling</tspan></text>
   </g>
 </svg>

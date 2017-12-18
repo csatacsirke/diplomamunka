@@ -206,7 +206,7 @@ fogunk alkalmazni.
 
 
 \subsubsection{Támasztóvektor Gép}
-
+\label{sec:svm}
 
 A Támasztóvektor Gép (Support Vector Machine, SVM) egy bináris osztályozási feladat. 
 A teret egy hipersíkkal két részre osztjuk úgy, hogy a két osztály előjeles távolsága ($ d_1, d_2 $) az elválasztó hipersíktól maximális legyen. 
@@ -288,7 +288,7 @@ a \textit{feature}-térbe képezik:
 Ekkor a feladat a következőképpen módosul:
 \begin{multline*}
 \max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i - 
-\frac{1}{2}\sumn{i}\sumn{j} y_i c_i \big(\varphi(\underline{x}_i)^T \varphi(\underline{x}_j)\big) y_i c_j \\
+\frac{1}{2}\sumn{i}\sumn{j} y_i c_i \big(\varphi(\underline{x}_i)^T \varphi(\underline{x}_j)\big) y_j c_j \\
 \text{ s.t. } \quad 
 \sumn{i} c_i y_i = 0, \quad
 0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
@@ -311,6 +311,7 @@ Egy minta osztályozása ekkor:
 %\paragraph{Kernel trükk} 
 \subsubsubsection{Kernel trükk}
 
+
 A feature-tér nagy, akár végtelen dimenziós is lehet. Mercer tételének teljesülése esetén a fenti képletben lévő
 $ \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatokat ki tudjuk számolni anélkül, hogy a transzformációt 
 elvégeznénk.
@@ -321,7 +322,7 @@ k(\underline{x}_i, \underline{x}_j) = \varphi(\underline{x}_i)^T \varphi(\underl
 Látható, hogy a maximalizálás ekkor is elvégezhető:
 \begin{multline*}
 \max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i - 
-\frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(\underline{x}_i, \underline{x}_j) y_i c_j \\
+\frac{1}{2}\sumn{i}\sumn{j} y_i c_i k(\underline{x}_i, \underline{x}_j) y_j c_j \\
 \text{ s.t. } \quad 
 \sumn{i} c_i y_i = 0, \quad
 0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
@@ -331,6 +332,38 @@ A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 \[
 \hat{y} = \sign\big(\underline{w}^T \varphi(\underline{x}) - b\big) = \sign\big(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}) - b\big).
 \]
+
+\subsubsubsection{Kernelek:}
+\label{sec:kernelek}
+
+
+Lineáris:
+
+\[  k(\underline{x}, \underline{x}') = \underline{x}^T \cdot \underline{x}'  \]
+
+
+Polinomiális:
+
+\[  k(\underline{x}, \underline{x}') = (\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)^d  \]
+
+
+Radiális Bázis Függvények (\texttt{rbf}):
+
+
+\[  k(\underline{x}, \underline{x}') = exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2)  \]
+
+
+
+Szigmoid: 
+
+\[  
+k(\underline{x}, \underline{x}') = tanh(\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)  
+\]
+
+
+
+
+
 
 
 %TODO itt mutassunk bázisfüggvényeket
@@ -450,6 +483,32 @@ Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backp
 %$ Relu(\underline{x}) = (Relu(x_1), Relu(x_2) \dots Relu(x_n))^T $
 %
 %
+
+
+\subsubsection{Optimalizáló algoritmus}
+% TODO ez csúnya lett így
+Mi az Adaptív Momentum Becslés (\textit{Adaptive Moment Estimation, Adam~\cite{adam} }) módszert használtuk, mely a gradiens módszeren alapul.
+
+\noindent
+Az algoritmus röviden:
+
+\[  m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w J(w_t)  \]
+\[  v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w J(w_t))^2  \]
+\[  \hat{m}_w = \dfrac{m_w^{t+1}}{1 - \beta_1}  \]
+\[  \hat{v}_w = \dfrac{v_w^{t+1}}{1 - \beta_2}  \]
+\[ w^{t+1} = w^{t} - \gamma \dfrac{\hat{m}_w}{\hat{v}_w + \epsilon}   \]
+
+\noindent
+,ahol $ \beta_{1,2} $ a felejtési együtthatók, $ \gamma $ a tanulási együttható,
+$ w $ az optimalizálandó paraméter, és $ J $ a költségfüggvény.
+
+\noindent
+\texttt{Kerasban} az alapbeállítások: 
+$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
+
+%Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
+
+
 
 \subsubsection{Rétegek}
 
@@ -843,8 +902,8 @@ Ezekre többféle metrika is létezik, ezek közül tekintünk néhányat.
 Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalmakat:
 
 
-Igaz-pozitív (\textit{true positive, tp}), 
-Igaz-negatív (\textit{true negative, tn}): \\
+Valódi-pozitív (\textit{true positive, tp}), 
+Valódi-negatív (\textit{true negative, tn}): \\
 Amikor egy példát a megfelelően osztályozunk.
 
 Fals pozitív / Elsőfajú hiba (\textit{fp}) 
@@ -860,17 +919,40 @@ különben megrendülne a bankjegybe vetett bizalom.
 
 % vagy emékezzünk a meghurcolt emberre, akinek a bkv bérletéről azt hitték hamis, pedig nem is
 
+\subsubsubsection{Hisztogram}
+
+Egy eloszlás megjelenítésére a legjobb módszer egy hisztogram készítése, amely véges számú, általában egyenközű intervallumra osztja az ábrázolandó halmazt, majd egy-egy intervallumhoz hozzárendeli, hogy hány minta esett bele. Közös hisztogramon tudunk ábrázolni több eloszlást is, ez kiváló arra, ha szemmel szeretnénk eldönteni, hogy szeparálható-e két adathalmaz. Erre láthatunk példát a \ref{fig:hist.pelda}. ábrán.
+
+%Eloszlások vizualizációjára az egyik legjobb módszer
 
 
 %\paragraph{ROC-görbe}
 \subsubsubsection{ROC-görbe}
 
 
-Az előző két hiba arányát a Vevő működési karakterisztika 
-(\textit{Receiver operating characteristic}) 
-görbével szoktuk jellemezni. A két tengelyen az egyes hibák 
-rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú 
-hiba-rátához mekkora másodfajú tartozik.
+Az előző két hiba arányát a Vevő működési karakterisztika (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
+
+% TODO kicsit elcsúszott
+
+\begin{figure}[h!]
+	
+	
+	\begin{minipage}[c]{0.5\linewidth}
+		\centering
+		\includesvg[scale=0.5]{img/rocexample.svg}
+		\caption{Egy ROC-görbe}
+		\label{fig:roc.pelda}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.5\linewidth}
+		\centering
+		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-test.svg}
+		\caption{2 osztály hisztogramja}
+		\label{fig:hist.pelda}
+		
+	\end{minipage}
+	
+\end{figure}
 
 
 
@@ -878,10 +960,10 @@ hiba-rátához mekkora másodfajú tartozik.
 
 Azt méri, hogy az osztályozásnál a minták hányad részben
 kerültek jó osztályba.
-Ha $ (y_i, y_i') $ az elvárt értékek és a hozzájuk tartozó 
+Ha $ (y_i, \hat{y_i}) $ az elvárt értékek és a hozzájuk tartozó 
 predikciók, akkor
 
-$ acc = \dfrac{\sumn{i} \chi\{y_i = y_i'\}}{n} $ 
+\[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n}  \]
 
 Bár ez személetes, nem tükrözi igazán jól a hatékonyságot.
 
@@ -889,7 +971,7 @@ Bár ez személetes, nem tükrözi igazán jól a hatékonyságot.
 \paragraph{F1 score} \mbox{} 
 
 
-$ F_1 = \dfrac{2tp}{2tp + fn + fp} $
+\[  F_1 = \dfrac{2tp}{2tp + fn + fp}  \]
 
 \noindent
 Hasonló a pontossághoz, de jobb mérőszám, ha az osztályok kiegyenlítetlenek.
@@ -944,17 +1026,19 @@ túltanulni, ilyenkor megállunk (\textit{early-stopping}).
 %\paragraph{Regularizáció}
 \subsubsubsection{Regularizáció}
 
-Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
-költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
+%Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
+%költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
 
-$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
-max(0, 1 - y_i(\underline{w} \cdot \underline{x} - b) + \lambda \norm{\underline{w}} $ ,
+Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\theta) $ függvény volt a regularizáció. Például az SVM feladatnál:
+
+%Például, ahogy az SVM-nél láthattuk:
+
+
+\[  J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+max(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
 
 \noindent
-,ahol $  \lambda \norm{\underline{w}} $ a regularizációs tag.
-
-
-
+$  \lambda \norm{\underline{w}} $ a regularizációs tag, $ \lambda $ pedig egy hiperparaméter.
 
 
 
@@ -1064,29 +1148,30 @@ ezek lesznek a modellünk paraméterei.
 
 \subsubsection{A modell}
 
-Az SVN-ünket az \texttt{Sklearn} csomag segítségével építjük fel. 
+Az SVN-ünket az \texttt{Sklearn} csomag \texttt{SVC} osztálya segítségével építjük fel. A következőekben ennek paramétereit tárgyaljuk.
 
-
-\begin{lstlisting}  
-
-
-	clf = SVC(
-			C=1., 
-			cache_size=200, 
-			class_weight=class_weight, 
-			coef0=0.0,
-			decision_function_shape=None, 
-			degree=2, 
-			gamma='auto', 
-			kernel='rbf',
-			max_iter=-1,
-			probability=True, 
-			random_state=None, 
-			shrinking=True,
-			tol=0.001, 
-			verbose=False)
-
-\end{lstlisting}
+% TODO kell ide a kód? vagy fölösleges
+%
+%\begin{lstlisting}  
+%
+%
+%	clf = SVC(
+%			C=1., 
+%			cache_size=200, 
+%			class_weight=class_weight, 
+%			coef0=0.0,
+%			decision_function_shape=None, 
+%			degree=2, 
+%			gamma='auto', 
+%			kernel='rbf',
+%			max_iter=-1,
+%			probability=True, 
+%			random_state=None, 
+%			shrinking=True,
+%			tol=0.001, 
+%			verbose=False)
+%
+%\end{lstlisting}
 
 
 
@@ -1096,43 +1181,61 @@ Az SVN-ünket az \texttt{Sklearn} csomag segítségével építjük fel.
 
 %http://scikit-learn.org/stable/modules/svm.html#svm-kernels
 
-Mint azt a bevezetésben írtuk, a kernelek feladata, hogy megnöveljék a probléma
+Mint azt a \ref{sec:kernelek}. fejezetben írtuk, a kernelek feladata, hogy megnöveljék a probléma
 dimenzióját annak érdekében, hogy az így lineárisan szeparálhatóvá váljon, mindezt 
 úgy, hogy meglévő jellemzőpárokból újakat generálnak előre megadott képletek,
 bázisok segítségével. Nézzük \texttt{sklearn}-ben milyen lehetőségeink vannak a 
-kernel függvény megadására.
+kernel függvények megadására.
 
-
-\paragraph{Lineáris} (\texttt{linear})
-% TODO aláhúzásokra figyelni
-%TODO képletek legyenek a háttérben
-
-$ k(x, x') = \underline{x}^T \cdot \underline{x}' $
-
-
-\paragraph{Polinomiális} (\texttt{poly})
-
-$ k(x, x') = (\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)^d $
-
-\texttt{SVC.degree} $ \rightarrow d $
-
-\texttt{SVC.coeff0} $ \rightarrow r $
-
-\paragraph{Radiális Bázis Függvények} (\texttt{rbf})
-
-
-$ k(x, x') = exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2) $
-
-\texttt{SVC.gamma} $ \rightarrow \gamma $
-
-
-
-
-\paragraph{Szigmoid} (\texttt{sigmoid})
-
-$ k(x, x') = tanh(\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r) $
-
-\texttt{SVC.coeff0} $ \rightarrow r $
+\begin{itemize}
+\item
+	\textbf{Lineáris:} \\
+	\texttt{SVC.kernel='linear'}
+\item
+	\textbf{Polinomiális:} \\
+	\texttt{SVC.kernel='poly'}	\\
+	\texttt{SVC.degree} $ \rightarrow d $ \\
+	\texttt{SVC.coeff0} $ \rightarrow r $
+\item 
+	\textbf{Radiális Bázis Függvények:} \\
+	\texttt{SVC.kernel='rbf'}	\\
+	\texttt{SVC.gamma} $ \rightarrow \gamma $
+\item 
+	\textbf{Szigmoid:} \\
+	\texttt{SVC.kernel='sigmoid'}	\\
+	\texttt{SVC.coeff0} $ \rightarrow r $
+\end{itemize}
+%
+%\paragraph{Lineáris} (\texttt{linear})
+%% TODO aláhúzásokra figyelni
+%%TODO képletek legyenek a háttérben
+%
+%\[  k(x, x') = \underline{x}^T \cdot \underline{x}'  \]
+%
+%
+%\paragraph{Polinomiális} (\texttt{poly})
+%
+%\[  k(x, x') = (\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)^d  \]
+%
+%\texttt{SVC.degree} $ \rightarrow d $
+%
+%\texttt{SVC.coeff0} $ \rightarrow r $
+%
+%\paragraph{Radiális Bázis Függvények} (\texttt{rbf})
+%
+%
+%\[  k(x, x') = exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2)  \]
+%
+%\texttt{SVC.gamma} $ \rightarrow \gamma $
+%
+%
+%
+%
+%\paragraph{Szigmoid} (\texttt{sigmoid})
+%
+%\[  k(x, x') = tanh(\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)  \]
+%
+%\texttt{SVC.coeff0} $ \rightarrow r $
 
 
 \noindent
@@ -1140,7 +1243,7 @@ Mi a dolgozatban végül \texttt{RBF} kernelt használtunk.
 
 \subsubsection{Egyéb paraméterek}
 
-\subsubsubsection{class\_weight}
+\subsubsubsection{SVC.class\_weight}
 
 Amennyiben az adatunk kiegyensúlyozatlan (márpedig nekünk az), ezzel adhatjuk meg
 az egy-egy osztály súlyát, amely általános esetben fordítottan arányos az elemszámmal.
@@ -1149,7 +1252,7 @@ Ehhez használtuk a csomag \texttt{compute\_class\_weight} függvényét, ami é
 Paramétere  kívánt osztályok, és \textit{ground truth}-ok.
 
 
-\subsubsubsection{tol}
+\subsubsubsection{SVC.tol}
 
 Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 
@@ -1159,20 +1262,24 @@ Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 %surface. A low C makes the decision surface smooth, while a high C aims at classifying all training
 %examples correctly by giving the model freedom to select more samples as support vectors
 
-\subsubsubsection{C \footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}}}  
+\subsubsubsection{SVC.C \footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}}}  
 
-Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára:
-% TODO lehet hogy elég egy visszautalás, a megvalósításban már ne legyen képlet
+%Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára:
+%% TODO lehet hogy elég egy visszautalás, a megvalósításban már ne legyen képlet
+%
+%%$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+%%f(x_i, y_i) + \lambda \norm{\underline{w}} $
+%
+%\noindent
+%Ekkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
+%Ha $ C $ kicsi, akkor simább a döntési felület és egyszerűbb modell, ha nagyobb, akkor 
+%jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
+%miatt lehet problémás.
 
-$ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
-f(x_i, y_i) + \lambda \norm{\underline{w}} $
-
-\noindent
-Ekkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
+Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára a \ref{sec:svm}. fejezetben, akkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
 Ha $ C $ kicsi, akkor simább a döntési felület és egyszerűbb modell, ha nagyobb, akkor 
 jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
 miatt lehet problémás.
-
 
 
 
@@ -1218,35 +1325,37 @@ igénybe. Használatához meg kell adjuk, hogy milyen változókat milyen valós
 mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdni véletlenszerűen
 kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 
 
-Az általunk használt konfiguráció a következő volt:
-% TODO szinezni
-
-\begin{lstlisting}
-
-
-	from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-	
-	low = np.log(1e-3)
-	high = np.log(1e+3)
-	
-	fspace = {	
-		'C': hp.loguniform('C', low, high),
-		'gamma': hp.loguniform('gamma', low, high)
-	}
-	
-	def f(params):
-		C = params['C']
-		gamma = params['gamma']
-		fpr, fnr = batch_fit_and_test(x, y, file_names, N=200, gamma=gamma, C=C)
-		val = fpr + fnr
-		return {'loss': val, 'status': STATUS_OK}
-	
-	trials = Trials()
-	best = fmin(fn=f, space=fspace, algo=tpe.suggest, max_evals=100, trials=trials)
-	
-	# futtatas vegen:
-	# best: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
-\end{lstlisting}
+Mi a \texttt{SVC.C} és a \texttt{SVC.gamma} paramétereket kerestük a [-0.001, 1000] intervallumban,  logaritmikusan egyenletes eloszlást használtunk, és 100 helyen értékeltük ki.
+%
+%Az általunk használt konfiguráció a következő volt:
+%% TODO szinezni
+%
+%\begin{lstlisting}
+%
+%
+%	from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+%	
+%	low = np.log(1e-3)
+%	high = np.log(1e+3)
+%	
+%	fspace = {	
+%		'C': hp.loguniform('C', low, high),
+%		'gamma': hp.loguniform('gamma', low, high)
+%	}
+%	
+%	def f(params):
+%		C = params['C']
+%		gamma = params['gamma']
+%		fpr, fnr = batch_fit_and_test(x, y, file_names, N=200, gamma=gamma, C=C)
+%		val = fpr + fnr
+%		return {'loss': val, 'status': STATUS_OK}
+%	
+%	trials = Trials()
+%	best = fmin(fn=f, space=fspace, algo=tpe.suggest, max_evals=100, trials=trials)
+%	
+%	# futtatas vegen:
+%	# best: {'C': 6.250906239883302, 'gamma': 0.03357455814119452}
+%\end{lstlisting}
 
 
 A legjobb eredményt a $ C=6.25 $ és $ \gamma = 3.3 \cdot 10^{-2} $ paraméterekkel érte el $ 100 $
@@ -1381,55 +1490,65 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 	\item Predikció
 \end{enumerate}
 
-A végső szerkezet Keras segítségével megvalósítva:
-
+%A végső szerkezet Keras segítségével megvalósítva:
+\textbf{A végső modell}:
+% TODO konv lokális, dense nem
 %TODO WTF az bal oldali szaggatott cucc?
-% convnet architektúra ábra a kód helyett:
+% TODO convnet architektúra ábra a kód helyett:
 % tikz, vagy rajz
-\lstset{language=Python}
-\begin{lstlisting}  
-	model = Sequential()
-	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	model.add(Conv2D(64, (5, 5)))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	
-	model.add(Conv2D(256, (5, 5)))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	model.add(Conv2D(256, (5, 5)))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	
-	model.add(Flatten())
-	model.add(Dense(256))
-	model.add(Activation('relu'))
-	
-	model.add(Dense(256))
-	model.add(Activation('relu'))
-	
-	model.add(Dense(256))
-	model.add(Activation('relu'))
-	
-	
-	model.add(Dropout(0.5))
-	model.add(Dense(2))
-	model.add(Activation('softmax'))
-	
-	
-	model.compile(
-		loss='sparse_categorical_crossentropy',
-		optimizer='adam',
-		metrics=['accuracy']
-	) 
+% TODO ellenőrizni a nyomtathatóságot
+\begin{figure} [h!]
+	\label{fig:predictor-halo-modell}
+	\centering
+	\includegraphics[scale=0.3]{img/predictor-network-modell.pdf}
+	\caption{A háló modellje}
+\end{figure}
 
-\end{lstlisting}
+%
+%\lstset{language=Python}
+%\begin{lstlisting}  
+%	model = Sequential()
+%	model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+%	model.add(Activation('relu'))
+%	model.add(MaxPooling2D(pool_size=(2, 2)))
+%	
+%	model.add(Conv2D(64, (5, 5)))
+%	model.add(Activation('relu'))
+%	model.add(MaxPooling2D(pool_size=(2, 2)))
+%	
+%	
+%	model.add(Conv2D(256, (5, 5)))
+%	model.add(Activation('relu'))
+%	model.add(MaxPooling2D(pool_size=(2, 2)))
+%	
+%	model.add(Conv2D(256, (5, 5)))
+%	model.add(Activation('relu'))
+%	model.add(MaxPooling2D(pool_size=(2, 2)))
+%	
+%	
+%	model.add(Flatten())
+%	model.add(Dense(256))
+%	model.add(Activation('relu'))
+%	
+%	model.add(Dense(256))
+%	model.add(Activation('relu'))
+%	
+%	model.add(Dense(256))
+%	model.add(Activation('relu'))
+%	
+%	
+%	model.add(Dropout(0.5))
+%	model.add(Dense(2))
+%	model.add(Activation('softmax'))
+%	
+%	
+%	model.compile(
+%		loss='sparse_categorical_crossentropy',
+%		optimizer='adam',
+%		metrics=['accuracy']
+%	) 
+%
+%\end{lstlisting}
 
 
 Az $ 5 \times 5 $-ös kerneleket \textit{Relu} nemlinearitással találtuk legcélszerűbbnek,
@@ -1464,7 +1583,7 @@ Mi az általános esetet használtuk, de a három közül bármelyik megfelelt v
 
 Megválasztásakor arra törekedtünk, hogy minél nagyobb legyen, ezzel gyorsítva a feldolgozást.
 Ekkor matematikailag is magabiztosabb a konvergencia egy határig, 
-valamint a GPU-RAM átviteli sávszélessége hiába nagy, de jelentős a konstans késletetés, 
+valamint a GPU-RAM átviteli sávszélessége hiába nagy, de jelentős a konstans késleltetés, 
 ami abból adódik, hogy a videókártya vezérlőszoftver nem azonnal hajtja végre az adatmozgatást,
 hanem csak ha elég sok összegyűlt, vagy némi idő eltelt, ezzel javítva az teljesítményt teljes 
 kihasználtság esetén. Egy eposz feldolgozása akár tízszer lassabb is lehet, ha a példákat
@@ -1551,9 +1670,9 @@ figyelembe a tanításnál. Az \texttt{sklearn} csomag biztosít egy függvényt
 \texttt{sklearn.utils.compute\_class\_weight} néven, vagy kézzel könnyen kiszámolhatjuk 
 magunknak:
 
-$ w_k' =  \dfrac{n}{ \sumn{i} \chi\{y_i = k\}}  $
+\[  w_k' =  \dfrac{n}{ \sumn{i} \chi\{y_i = k\}}   \]
 
-$ w_k =  \dfrac{w_k'}{\sumn{i} w_i'} $
+\[  w_k =  \dfrac{w_k'}{\sumn{i} w_i'}  \]
 
 
 A képek különböző telefonokkal készültek, némely állványról, a többi pedig kézből.
@@ -1596,29 +1715,29 @@ Ahogy az előző fejezetben írtuk a tanítás problémáját tulajdonképpen vi
 egy numerikus optimalizációs feladatra. Erre több módszer létezik, de általában a 
 Gradiens Módszeren alapulnak. Mi az Adaptív Momentum Becslés 
 (\textit{Adaptive Moment Estimation, Adam~\cite{adam} }) módszert használtuk.
-
-\noindent
-Az algoritmus röviden:
-
-$ m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w J(w_t) $
-
-$ v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w J(w_t))^2 $
-
-$ \hat{m}_w = \dfrac{m_w^{t+1}}{1 - \beta_1} $
-
-$ \hat{v}_w = \dfrac{v_w^{t+1}}{1 - \beta_2} $
-
-$ w^{t+1} = w^{t} - \gamma \dfrac{\hat{m}_w}{\hat{v}_w + \epsilon}   $
-
-\noindent
-,ahol $ \beta_{1,2} $ a felejtési együtthatók, $ \gamma $ a tanulási együttható,
-$ w $ az optimalizálandó paraméter, és $ J $ a költségfüggvény.
-
-\noindent
-\texttt{Kerasban} az alapbeállítások: 
-$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
-
-%Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
+%
+%\noindent
+%Az algoritmus röviden:
+%
+%\[  m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w J(w_t)  \]
+%
+%\[  v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w J(w_t))^2  \]
+%
+%\[  \hat{m}_w = \dfrac{m_w^{t+1}}{1 - \beta_1}  \]
+%
+%\[  \hat{v}_w = \dfrac{v_w^{t+1}}{1 - \beta_2}  \]
+%
+%$ w^{t+1} = w^{t} - \gamma \dfrac{\hat{m}_w}{\hat{v}_w + \epsilon}   $
+%
+%\noindent
+%,ahol $ \beta_{1,2} $ a felejtési együtthatók, $ \gamma $ a tanulási együttható,
+%$ w $ az optimalizálandó paraméter, és $ J $ a költségfüggvény.
+%
+%\noindent
+%\texttt{Kerasban} az alapbeállítások: 
+%$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
+%
+%%Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
 
 
 \subsubsection{Modell készítés}
@@ -1712,33 +1831,13 @@ pozitív rátát, ahol $ tp = 1 - fn $. (\ref{fig:roc.pelda}. ábra)
 
 
 
-
-\begin{figure}[ht]
-	
-	
-	\begin{minipage}[c]{0.5\linewidth}
-		\centering
-		\includesvg[scale=0.5]{img/rocexample.svg}
-		\caption{ROC-görbe}
-		\label{fig:roc.pelda}
-		
-	\end{minipage}\hfill
-	\begin{minipage}[c]{0.5\linewidth}
-		\centering
-		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-test.svg}
-		\caption{2 osztály hisztogramja}
-		\label{fig:hist.pelda}
-		
-	\end{minipage}
-	
-\end{figure}
 %\begin{figure}[htbp]
 %	\centering
 %	\includesvg[scale=0.5]{img/rocexample}
 %	\caption{ROC-görbe}
 %	\label{fig:roc.pelda}
 %\end{figure}
-
+% TODO innen ki let szedve egy ábra. Ellenőrizd hogy nem maradt e helyette hülyeség
 
 Ha az adathalmaz nem tökéletesen szeparálható ( a görbe alatti terület nem 1), akkor
 nem tudunk univerzálisan jó vágópontot mondani, az viszont megállapítható, hogy egy adott ponthoz 
@@ -1752,7 +1851,7 @@ bizonytalanságért. Viszont ez az állapot javítható újbóli mintavételezé
 ez esetben új kép készítésével, vagy esetleg egy másik módszer ajánlásával.
 
 
-Az \ref{fig:hist.pelda}. példa jól mutatja, hogy egy-egy vágáshoz mekkora hiba fog
+Az \ref{fig:hist.pelda}. ábra jól mutatja, hogy egy-egy vágáshoz mekkora hiba fog
 tartozni, hiszen a nála kisebb értékek hamisként, a nagyobbak pedig eredetiként
 lesznek osztályozva. Látható, hogy a bizonytalan halmazt is ez alapján kell meghatároznunk.
 
@@ -1874,7 +1973,7 @@ mellett volt optimális. Ha ennél kisebb volt, akkor túltanult, ha jelentősen
 ($ 11  $és felette) már nem volt képes értékelhető eredményt adni.
 
 A háló második fele az első fél tükrözve, figyelve arra, hogy a végső dimenzió pont akkora 
-legyen, mint a bemenet. A \textit{MaxPoolingok} párja egy-egy \textit{UpSampling} réteg, amely az adott
+legyen, mint a bemenet. A \textit{Max poolingok} párja egy-egy \textit{Up sampling} réteg, amely az adott
 pixelt egy $ 2 \times 2 $-es ablakban megtöbbszörözi.
 
 Költségfüggvények átlagos hiba-négyzetet (\textit{MSE}) használunk, hiszen arra vagyunk 
@@ -2577,6 +2676,7 @@ A következő szkriptek önmagukban nem futtathatóak, csak segédfüggvényeket
 \end{thebibliography}
 
 
+% TODO github linket belerakni
 
 
 %I think we did a pretty good\textsuperscript{\textit{job}}so far
