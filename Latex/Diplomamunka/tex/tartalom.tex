@@ -74,7 +74,7 @@ hogy a nyomatban elhelyezett mintát egy okostelefonra készült alkalmazással 
 elemezzük, és ez alapján eldöntjük, hogy az eredeti-e.
 
 % TODO urlt kitölteni
-Egy ilyen megoldást készített a Jura Trade kft.\footnote{\url{url}} is. Ezen dolgozat célja ennek az alkalmazásnak
+Egy ilyen megoldást készített a Jura Trade kft.\footnote{\url{http://www.juratrade.hu/}} is. Ezen dolgozat célja ennek az alkalmazásnak
 a továbbfejlesztése gépi tanulással: \textit{Támasztóvektor Gépekkel} és \textit{Konvolúciós Hálókkal},
 amelyek napjainkban egyre nagyobb szerepet kapnak az informatika számos területén, elsősorban kép- és hangfeldolgozásban. 
 %ebben a témakörben mégsem alkalmazta őket egyelőre senki.
@@ -527,9 +527,9 @@ méretét.
 
 
 
-\subsubsection{Autóenkóder}
+\subsubsection{Autoencoder}
 
-Az autóenkóder egy olyan speciális háló, amelynél a cél, hogy 
+Az autoencoder egy olyan speciális háló, amelynél a cél, hogy 
 a bemenetet veszteségesen egy belső reprezentációra képezzük,
 majd ebből megpróbáljuk visszaállítani az eredeti adatot.
 Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
@@ -538,6 +538,7 @@ A költségfüggvény a következőképpen alakul:
 
 $ J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'} $
 
+% TODO általános alakra visszavezentni
 %\noindent
 %Általában $ \norm{.} $ alatt az $ L2 $ normát értjük, azaz az átlagos 
 %négyzetes hibát számoljuk (\textit{Mean square error, MSE}).
@@ -794,15 +795,15 @@ a nyers adatból, a képből meghozni.
 \subsection{Eszközök}
 
 A megvalósítás nyelvének python-t választottunk.
-A gépi tanuláshoz a \texttt{Keras} \cite{keras} és \texttt{Sklearn} \cite{sklearn} könyvtárakat 
-használtuk. Ezek a \texttt{Tensorflow} \cite{tensorflow} csomag segítségével képesek a
+A gépi tanuláshoz a \texttt{Keras} \footnote{\url{https://keras.io/}} és \texttt{Sklearn} \footnote{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}} könyvtárakat 
+használtuk. Ezek a \texttt{Tensorflow} \footnote{\url{https://www.tensorflow.org/}} csomag segítségével képesek a
 GPU-n futni, ezáltal gyorsítva a tanítás folyamatát. Ez különösképpen a 
 képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
 százszoros sebességnövekedést mértünk.
 
 Ahhoz, hogy a \texttt{Kerast} GPU-n tudjuk futtatni, szükségünk van az \texttt{Nvidia}
-\texttt{Cuda}\cite{cuda} csomagjára, amely a videókártya általános célú programozását 
-segíti, valamint a \texttt{cuDNN}\cite{cudnn} könyvtárra, amely mély neuronhálók tanításához 
+\texttt{Cuda}\footnote{\url{https://developer.nvidia.com/cuda-downloads}} csomagjára, amely a videókártya általános célú programozását 
+segíti, valamint a \texttt{cuDNN}\footnote{\url{https://developer.nvidia.com/cudnn}} könyvtárra, amely mély neuronhálók tanításához 
 szükséges komponensek hatékony implementációját tartalmazza. Fontos, hogy egyeztessük
 össze a \texttt{Tensorflow} követelményeit az általunk letöltött \texttt{Nvidia} csomagokkal,
 ugyanis azok nem visszafelé kompatibilisek.
@@ -810,7 +811,7 @@ ugyanis azok nem visszafelé kompatibilisek.
 Az említett csomagok az előző fejezetben leírt módszereket használva egy
 keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíteni,
 és azokat azonnal kipróbálni. Ezen kívül jól illeszkednek a python többi könyvtárához,
-például a \texttt{numpy}\cite{numpy} (általános aritmetikai könyvtár) és \texttt{opencv} \cite{opencv}
+például a \texttt{numpy}\footnote{\url{http://www.numpy.org}} (általános aritmetikai könyvtár) és \texttt{opencv} \footnote{\url{https://opencv.org/}}
 (computer vision, képfeldolgozás) csomagokhoz.
 
 
@@ -981,9 +982,10 @@ Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 %surface. A low C makes the decision surface smooth, while a high C aims at classifying all training
 %examples correctly by giving the model freedom to select more samples as support vectors
 
-\subsubsubsection{C \cite{svm.c}}  
+\subsubsubsection{C \footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}}}  
 
-Regularizációt\cite{sklearn.regularization} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára:
+Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára:
+% TODO lehet hogy elég egy visszautalás, a megvalósításban már ne legyen képlet
 
 $ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 f(x_i, y_i) + \lambda \norm{\underline{w}} $
@@ -1034,7 +1036,7 @@ konfidencia mellett mondhatjuk, hogy ha egy hiperparaméter halmaz ilyen módon 
 produkál, akkor nem fogja jelentősen befolyásolni a tanító halmaz megválasztása a validációs 
 eredmény eloszlását.
 
-A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt} \cite{hyperopt} csomagot vettük
+A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt} \footnote{\url{https://github.com/hyperopt/hyperopt}} csomagot vettük
 igénybe. Használatához meg kell adjuk, hogy milyen változókat milyen valószínűségi eloszlás szerint
 mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdni véletlenszerűen
 kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 
@@ -2046,9 +2048,9 @@ kiváló prototípus készítéshez, de tekintve, hogy egy szkriptnyelv, a hibak
 típusosság hiányában sokkal nehezebb. Emiatt célszerűnek látom az éles környezetben 
 való használathoz egy fordítóval rendelkező, biztonságos, de mégis hatékony nyelven 
 való megvalósítását, erre \texttt{C++}-t javaslok. Ehhez létezik kiegészítő könyvtár,
-amivel a \texttt{Keras}\cite{keras} által készített modellt használni tudjuk, valamint az 
+amivel a \texttt{Keras} által készített modellt használni tudjuk, valamint az 
 ehhez szükséges 
-\texttt{Tensorflow}\cite{tensorflow} csomag szintén elérhető.
+\texttt{Tensorflow} csomag szintén elérhető.
 
 
 Preferenciáktól függő feladat egy \textit{Bizonytalan} intervallum bevezetése minden
@@ -2101,7 +2103,7 @@ a teljesítmény sem romlik jelentősen. Ezek alapján nem meglepő, hogy a legt
 gépi tanulással foglalkozó programcsomagnak létezik \texttt{python} interfésze.
 
 
-Mi \texttt{WinPython 3.5.4}\cite{winpython} disztribúciót használtunk, de bármelyik másik 
+Mi \texttt{WinPython 3.5.4}\footnote{\url{https://winpython.github.io/}} disztribúciót használtunk, de bármelyik másik 
 \texttt{python 3.x} jó lett volna. A szerző személyes tapasztalati miatt Visual Studio IDE-ben
 fejlesztettünk. Emiatt a projekt könyvtárában találunk egy \texttt{.sln} és egy \texttt{.pyproj}
 fájlt. Ez tartalmazza a szükséges konfigurációkat a fejlesztőkörnyezet számára.	Ezeket használva
@@ -2115,7 +2117,7 @@ kívül nem szükséges egyéb keretrendszer, azok parancssorból futtatva is m�
 
 \subsection{Felhasznált csomagok}
 
-\texttt{Python} csomagokat a \texttt{pip}\cite{pip} segítségével tudunk telepíteni, mely a 
+\texttt{Python} csomagokat a \texttt{pip}\footnote{\url{https://pypi.python.org/pypi/pip}} segítségével tudunk telepíteni, mely a 
 disztribúciónkban \texttt{/Scripts/pip.exe} néven található meg. Ehhez a következő parancsot
 használjuk:
 
@@ -2126,19 +2128,19 @@ használjuk:
 Ekkor a rendszer letölti a csomagot annak minden függőségével együtt, gondoskodva a megfelelő
 verziókról is. 
 
-\subsubsection{NumPy\cite{numpy}}
+\subsubsection{NumPy}
 
 Általános matematikai csomag, széles körű függvénykínálattal.
 Szinte minden más, általunk használt csomag erre épül.
 
 
-\subsubsection{SciPy\cite{scipy}}
+\subsubsection{SciPy}
 
 Tudományos csomag, általános funkciókkal. Sok más magasabb szintű csomag épül rá. Mi például
 a \texttt{matplotlib} könyvtárát használtuk diagramjaink készítéséhez.
 
 
-\subsubsection{TensorFlow\cite{tensorflow}}
+\subsubsection{TensorFlow}
 
 Elosztott matematika könyvtár, amely lehetővé teszik bonyolult számítások párhuzamosított
 elvégzését heterogén platformokon. Mi ezt csak közvetve használjuk a magasabb szintű 
@@ -2148,19 +2150,19 @@ könyvtárak által, kivéve mikor a maximális memóriaméretet állítjuk be, 
 
 
 
-\subsubsection{Sklearn\cite{sklearn}} 
+\subsubsection{Sklearn} 
 
 Egy nyílt forráskódú, \texttt{python} alapú gépi tanulási algoritmusokat nyújtó csomag. 
 Az SVM osztályozáshoz ezt használtuk.
 
 
-\subsubsection{Keras\cite{keras}}
+\subsubsection{Keras}
 
 Magas szintű könyvtár neuronhálók építéséhez. Válaszható, hogy milyen alacsony szintű
 aritmetikai könyvtárat használjon, mi a fent említett \texttt{TensorFlow}-t választottuk.
 A konvolúciós hálónkat ezzel készítettük.
 
-\subsubsection{OpenCV\cite{opencv}}
+\subsubsection{OpenCV}
 
 Számítógépes látáshoz írt képkezelő könyvtár. Lényegében minden meg van benne ami egy
 átlagos képszerkesztő programban. Ennek segítségével töltjük be a képeket, valamint 
@@ -2177,7 +2179,7 @@ de ez csak akkor igaz, ha megelégszünk azzal, hogy a program a CPU-n fut. A GP
 használatba vételéhez további komponensek szükségesek.
 
 
-Először is szükségünk van egy \texttt{CUDA}-t\cite{cuda} támogató videókártyára. Erre jelenleg csak
+Először is szükségünk van egy \texttt{CUDA}-t támogató videókártyára. Erre jelenleg csak
 az Nvidia kártyák képesek. Ezután fel kell telepítenünk a CUDA fejlesztő csomagját (SDK), ami a
 GPU általános célú programozását teszi lehetővé. 
 
@@ -2394,52 +2396,6 @@ A következő szkriptek önmagukban nem futtathatóak, csak segédfüggvényeket
 	arXiv:1412.6980v9 [cs.LG]
 	
 	
-	\bibitem{numpy} 
-	\url{http://www.numpy.org}
-	
-	
-	\bibitem{scipy} 
-	\url{https://www.scipy.org/}
-	
-	
-	\bibitem{tensorflow} 
-	\url{https://www.tensorflow.org/}
-	
-	\bibitem{sklearn} 
-	\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}
-	
-	\bibitem{svm.c} 
-	\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}
-	
-	\bibitem{sklearn.regularization} 
-	\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}
-	
-	\bibitem{hyperopt} 
-	\url{https://github.com/hyperopt/hyperopt}
-	
-	\bibitem{keras} 
-	\url{https://keras.io/}
-	
-
-	\bibitem{opencv} 
-	\url{https://opencv.org/}
-
-	\bibitem{cuda} 
-	\url{https://developer.nvidia.com/cuda-downloads}
-
-
-
-	\bibitem{cudnn} 
-	\url{https://developer.nvidia.com/cudnn}
-
-	\bibitem{winpython} 
-	\url{https://winpython.github.io/}
-	
-	
-	\bibitem{pip} 
-	\url{https://pypi.python.org/pypi/pip}
-	
-
 	
 \end{thebibliography}
 
