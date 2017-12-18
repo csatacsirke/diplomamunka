@@ -486,6 +486,8 @@ Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backp
 
 
 \subsubsection{Optimalizáló algoritmus}
+\label{sec:adam}
+
 % TODO ez csúnya lett így
 Mi az Adaptív Momentum Becslés (\textit{Adaptive Moment Estimation, Adam~\cite{adam} }) módszert használtuk, mely a gradiens módszeren alapul.
 
@@ -1711,10 +1713,7 @@ eloszlást használtunk. Ez a módszer jó mind konvolúciós, mind a sűrű ré
 
 \subsubsubsection{Optimalizáló}
 
-Ahogy az előző fejezetben írtuk a tanítás problémáját tulajdonképpen visszavezettük
-egy numerikus optimalizációs feladatra. Erre több módszer létezik, de általában a 
-Gradiens Módszeren alapulnak. Mi az Adaptív Momentum Becslés 
-(\textit{Adaptive Moment Estimation, Adam~\cite{adam} }) módszert használtuk.
+Ahogy az korábban írtuk, a tanítás problémáját tulajdonképpen visszavezettük egy numerikus optimalizációs feladatra. Erre több módszer létezik, de általában a Gradiens Módszeren alapulnak. Mi az Adaptív Momentum Becslés (\textit{Adaptive Moment Estimation, Adam~\cite{adam} }) módszert használtuk. Erről bővebben a \ref{sec:adam}. fejezetben írtunk.
 %
 %\noindent
 %Az algoritmus röviden:
@@ -1915,56 +1914,67 @@ kimenetekben. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelento
 
 
 \subsubsection{Modell}
-\noindent
-\textbf{Keras segítségével a következő modellt építettük:}
 
 
-\lstset{language=Python}
-\begin{lstlisting}  
+%\textbf{Keras segítségével a következő modellt építettük:}
 
-	model = Sequential()
-	
-	kernel_sizes = [7, 7, 7]
-	kernel_dims = list(map(lambda x: (x,x), kernel_sizes))
-	iterator = iter(kernel_dims)
-	reverse_iterator = reversed(kernel_dims)
-	
-	padding = "same"
-	
-	padding_size = sum(kernel_sizes)*2
-	
-	model.add(ZeroPadding2D(padding=(padding_size, padding_size), input_shape=(None, None, 3)))
-	model.add(Conv2D(64, next(iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	model.add(Conv2D(128, next(iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-	model.add(Conv2D(256, next(iterator), padding=padding))
-	model.add(Activation('relu'))
-	
-	# Visszaalakitas
-	
-	model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(UpSampling2D(size=(2, 2)))
-	
-	model.add(Conv2DTranspose(64, next(reverse_iterator), padding=padding))
-	model.add(Activation('relu'))
-	model.add(UpSampling2D(size=(2, 2)))
-	
-	model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
-	model.add(Cropping2D(cropping=(padding_size, padding_size)))
-	
-	model.compile(
-		loss='mean_squared_error',
-		optimizer='adam', 
-		metrics=['accuracy']) 
-) 
 
-\end{lstlisting}
+\begin{figure} [h!]
+	\label{fig:autoencoder-halo-modell}
+	\centering
+	\includegraphics[scale=0.3]{img/autoencoder-network-modell.pdf}
+	\caption{A háló modellje}
+\end{figure}
+
+
+
+%
+%\lstset{language=Python}
+%\begin{lstlisting}  
+%
+%	model = Sequential()
+%	
+%	kernel_sizes = [7, 7, 7]
+%	kernel_dims = list(map(lambda x: (x,x), kernel_sizes))
+%	iterator = iter(kernel_dims)
+%	reverse_iterator = reversed(kernel_dims)
+%	
+%	padding = "same"
+%	
+%	padding_size = sum(kernel_sizes)*2
+%	
+%	model.add(ZeroPadding2D(padding=(padding_size, padding_size), input_shape=(None, None, 3)))
+%	model.add(Conv2D(64, next(iterator), padding=padding))
+%	model.add(Activation('relu'))
+%	model.add(MaxPooling2D(pool_size=(2, 2)))
+%	
+%	model.add(Conv2D(128, next(iterator), padding=padding))
+%	model.add(Activation('relu'))
+%	model.add(MaxPooling2D(pool_size=(2, 2)))
+%	
+%	model.add(Conv2D(256, next(iterator), padding=padding))
+%	model.add(Activation('relu'))
+%	
+%	# Visszaalakitas
+%	
+%	model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
+%	model.add(Activation('relu'))
+%	model.add(UpSampling2D(size=(2, 2)))
+%	
+%	model.add(Conv2DTranspose(64, next(reverse_iterator), padding=padding))
+%	model.add(Activation('relu'))
+%	model.add(UpSampling2D(size=(2, 2)))
+%	
+%	model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
+%	model.add(Cropping2D(cropping=(padding_size, padding_size)))
+%	
+%	model.compile(
+%		loss='mean_squared_error',
+%		optimizer='adam', 
+%		metrics=['accuracy']) 
+%) 
+%
+%\end{lstlisting}
 
 
 Az előző fejezet konvolúciós hálójához hasonlóan Konvolúció-Relu-MaxPooling hármasokat
