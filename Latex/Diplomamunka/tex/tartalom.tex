@@ -661,16 +661,17 @@ a tömörített képet. Matematikailag ugyanaz mint a konvolúció,
 a különbség csak az eredmény dimenziójában van.
 
 
-\paragraph{Alulmintavételező réteg} (\textit{Pooling, subsampling})
+\paragraph{Alul-mintavételező réteg} (\textit{Pooling, subsampling})
 
 
-Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre 
-jó módszer, hogy a képet feleakkorára* csökkentjük, azaz négyesével összevonjuk
-a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
-(\textit{* Lehet n-ed részére is csökkenteni a képet, nem csak a felére})
+%Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára* csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
+%(\textit{* Lehet n-ed részére is csökkenteni a képet, nem csak a felére})
+
+Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára\footnote{Gyakorlatban általában felezzük a képet, de lehet bármilyen más, egész számú hányados is.} csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
 
 
-Legtipikusabb a \textit{max pooling} réteg, ami a négy pixel maximumát veszi.
+
+Ha jellemzővektorokkal dolgozunk, akkor legtipikusabb a \textit{Max pooling} réteg, ami a négy pixel maximumát veszi, de használatos még az \textit{Average pooling} is, amely az értékeket átlagolja. Ennek akkor van jelentősége, ha színértékekből álló képet szeretnénk alul mintavételezni.
 
 % TODO ez a két ábra elrendezése egyszer már rossz volt az oldaltörés miatt! lecsekkolni hogy nem romlott e el
 
@@ -682,10 +683,10 @@ Legtipikusabb a \textit{max pooling} réteg, ami a négy pixel maximumát veszi.
 \end{figure}
 
 
-\paragraph{Felülmintavételező réteg} (\textit{Upsampling})
+\paragraph{Felül-mintavételező réteg} (\textit{Upsampling})
 
 
-Az alulmintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg
+Az alul-mintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg
 méretét.
 
 
@@ -693,7 +694,7 @@ méretét.
 \begin{figure} [h!]
 	\centering
 	\includegraphics[scale=1.2]{img/upsamping-pelda.pdf}
-	\caption{Upsampling}
+	\caption{Felül-mintavételezés}
 	\label{fig:upsampling-pelda}
 \end{figure}
 
@@ -701,14 +702,17 @@ méretét.
 
 \subsubsection{Autoencoder}
 
-Az autoencoder egy olyan speciális háló, amelynél a cél, hogy 
-a bemenetet veszteségesen egy belső reprezentációra képezzük,
-majd ebből megpróbáljuk visszaállítani az eredeti adatot.
-Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
-A költségfüggvény a következőképpen alakul:
+Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
+Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási feladat úgy módosul, hogy $ \underline{x} = \underline{y} $, azaz az elvárt kimenet megegyezik az elvárt bemenettel:
+\[ 
+\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
+\]
 
 
-$ J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'} $
+%A költségfüggvény a következőképpen alakul:
+
+
+%\[  J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'}  \]
 
 % TODO általános alakra visszavezentni
 %\noindent
@@ -719,16 +723,18 @@ $ J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'} $
 
 \subsubsection{Költségfüggvények}
 
-Általános alakban ha $ y $ az elvárt eredmény, és $ y' $ a háló
-outputja, akkor a hibafüggvény a következő:
+Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanulási feladatot, említettük, hogy az $ l(\underline{\hat{y}}, \underline{y}) $ függvényt költségfüggvénynek nevezzük. Nézzük most, hogy a dolgozatban miket használunk.
 
-$ J(\underline{w}) = \dfrac{1}{n} \sumn{i} f(y, y') $
+%Általános alakban ha $ y $ az elvárt eredmény, és $ \hat{y} $ a háló
+%outputja, akkor a hibafüggvény a következő:
+%
+%$ J(\underline{w}) = \dfrac{1}{n} \sumn{i} f(\underline{y}, \hat{\underline{y}}) $
 
 
 \paragraph{Átlagos négyzetes hiba} (\textit{Mean square error, MSE})
 
 
-$ f(y, y') = \norm{y - y'}_2^2 $
+\[  l(\underline{\hat{y}}, \underline{y}) = \norm{\underline{\hat{y}} - \underline{y}}_2^2  \]
 
 \noindent
 Az autoencodernél ezt használjuk.
@@ -736,17 +742,16 @@ Az autoencodernél ezt használjuk.
 
 \paragraph{Keresztentrópia} (\textit{Cross-entropy})
 
-Legyen $ y = (0, 0, \dots 1 \dots 0, 0)^T, $ 
+Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
 ahol az 1 helye a hozzá tartozó osztály indexe.
 
-Bináris esetben $ y=(0, 1) $ ha a mintha az egyik, és
-$ y=(1, 0) $ ha a másik csoportba tartozik.
+Bináris esetben $ \underline{y}=(0, 1) $ ha a mintha az egyik, és
+$ \underline{y}=(1, 0) $ ha a másik csoportba tartozik.
 
-$ f(\underline{y}, \underline{y}') = - \underline{y}^T \cdot log(\underline{y}') $
+\[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T \cdot log(\underline{\hat{y}})  \]
 
 \noindent
 Osztályozásnál ezt használjuk.
-
 
 
 \subsubsection{Kapcsolódó fogalmak}
