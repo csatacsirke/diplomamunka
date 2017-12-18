@@ -73,7 +73,7 @@ Szeretnénk tehát egy olyan védelmet, amit bárki ellenőrizni tud, mégis olc
 hogy a nyomatban elhelyezett mintát egy okostelefonra készült alkalmazással lefényképezzük,
 elemezzük, és ez alapján eldöntjük, hogy az eredeti-e.
 
-% TODO urlt kitölteni
+
 Egy ilyen megoldást készített a Jura Trade kft.\footnote{\url{http://www.juratrade.hu/}} is. Ezen dolgozat célja ennek az alkalmazásnak
 a továbbfejlesztése gépi tanulással: \textit{Támasztóvektor Gépekkel} és \textit{Konvolúciós Hálókkal},
 amelyek napjainkban egyre nagyobb szerepet kapnak az informatika számos területén, elsősorban kép- és hangfeldolgozásban. 
@@ -102,7 +102,7 @@ amely ezután magában alkalmas eredetiség-ellenőrzésre.
 
 %
 %
-%TODO
+
 %nyomdász
 %vonalvastagság
 %legkisebb nyomtatható elem
@@ -175,11 +175,25 @@ aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudj
 
 \subsection{Gépi tanulás}
 % TODO Kanonikus gépi tanulási feldatat:
+% TODO lehet hogy itt kéne megmagyarázni a használt fogalmakat, pl regularizáció
 % min teta : L(teta, x_i, y_i) = 1/n * sumn l (f(teta, x_i), y_i) + R(teta)
 %R : regularizáció
 % f: többszörösen összetett ( mély hálóknál legalábbis)fv - ezt meg lehet mutatni az egyes specializációknal
 
 Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bemenet-kimenet tanító példapárokon valamilyen célfüggvényt minimalizálásával hangolunk be. A célfüggvény általában valamilyen predikciós hiba: a bemeneteket leképezve a kimenetet szeretnénk megbecsülni, lehetőleg úgy, hogy a becslés új, még nem látott példapárokon is pontos legyen.
+
+
+% TODO itt lehet, hogy ki lehetne fejteni, hogy x,y ne mfeltétlen vektor hanem akár lista vagy tenzor vagy akármi is lehet, lényeg hogy több van belőlük
+
+\label{sec:kanonikus.feladat}
+A kanonikus gépi tanulási feladat a következőképpen írható fel:
+\[ 
+%\min\limits_{\theta} L(\theta, x_i, y_i) = \frac{1}{n}  \sumn{i} l(f(\theta, x_i), y_i) + R(\theta)
+\min\limits_{\theta} L(\theta, \underline{x}, \underline{y}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), y_i) + R(\theta)
+ \]
+, ahol $ \underline{x} $ a bemenet, $ \underline{y} $ a hozzá tartozó kimenet, $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, $ \theta $ a tanulandó paraméterek.
+
+
 
 Manapság egyre több területen használják automatizálásra, például kép-, hang- és nyelvfeldolgozásban, gráf adatokon, Megerősítéses Tanulásban.% és egyéb automatizálásban mintafelismerésre: gyógyászat, önvezető autók, nyomtatott szöveg felismerése; klaszterezésre: adatbányászat, szociális hálók; vagy 
 %mesterséges intelligenciák készítésére: ajánló rendszerek, csevegő robotok, játékok (például Go vagy Sakk).
@@ -193,7 +207,6 @@ fogunk alkalmazni.
 
 \subsubsection{Támasztóvektor Gép}
 
-% TODO teta = {w, b}
 
 A Támasztóvektor Gép (Support Vector Machine, SVM) egy bináris osztályozási feladat. 
 A teret egy hipersíkkal két részre osztjuk úgy, hogy a két osztály előjeles távolsága ($ d_1, d_2 $) az elválasztó hipersíktól maximális legyen. 
@@ -229,7 +242,9 @@ J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n}
 \max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 \]
 
-% TODO ez is specializáció
+Belátható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános feladat specializációja, ahol a modell: $  y_i(\underline{w} \cdot \underline{x}_i - b) $; a paraméterek: $ \theta = \{\underline{w}, b\} $ ; a költség: $ \max\big(0, 1 - \hat{y}) $; a regularizáció: $ \lambda \norm{\underline{w}}_2^2 $
+
+% TODO ez a jelölés lehet, hogy zavaros, rákérdezni
 
 Ezt nevezzük az SVM primál feladatának. A duális feladat Lagrange-multiplikátorokkal felírva a következő kvadratikus programozási (Quadratic Programming, QP) alakra hozható:
 \begin{multline*}
@@ -318,14 +333,14 @@ A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 \]
 
 
-%TODO mutassunk bázisfüggvényeket
+%TODO itt mutassunk bázisfüggvényeket
 %ez a megvalósítás részbe került
 % de az rbf ez lehet hogy ide lehetn rakni?...
 
 
 \subsubsection{Mesterséges mély neurális hálózatok}
 % TODO többszörösen összetett fv alakú alapú modell, amiben lévő függvények a rétegek. Ezek paraméteres leképezések, aminek paramétereit gradiens módszerrel számoljuk.
-% f(theta,x)=f_K(theta_K, \cdots f_2(theta_2, f_1(theta_1,x) ) \cdots )
+% f(theta,x)=f_K(theta_K, \dots f_2(theta_2, f_1(theta_1,x) ) \dots )
 %egy réteg: f_j(theta_j, z), ennek spec esetei a dense g(W z+b) és konvolúciós g(W * z+b)  rétegek, de lehetne sok más is...
 % g : nemlinearitás / aktivációs függvény, relu, tanh, stb
 % l : költség
@@ -341,32 +356,48 @@ A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 
 
 Általánosságban egy mély háló egy nagy bemenetet (a mi esetünkben képet) úgy képez
-a kimenetre, hogy több kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
+a kimenetre, hogy több, kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
 amíg a dimenziója el nem éri a várt kimenetét. 
 (Nálunk ez egy 0 és 1 közti szám, ahol 1 az eredeti, 0 a hamis.)
 
 
-Ez egy felügyelt tanulás, tehát a háló tanításához szükségünk van az inputhoz ($ \underline{x} $) 
-tartozó outputra, a \textit{ground truth}ra ($ \underline{y} $). 
+% TODO ez picit szóismétlés így?
+Egy mély háló modellje egy többszörösen összetett függvény, melynek függvényei a rétegek. Ezek paraméteres leképzések, melyek paramétereit gradiens módszerrel számoljuk. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
+%Egy mély háló modellje a következő alakban írható fel:
+
+\[ 
+f(\theta,\underline{x})=f_K(\theta_K, \dots f_2(\theta_2, f_1(\theta_1, \underline{x}) ) \dots )
+ \]
+ \[ \theta = \{\theta_1, \dots, \theta_K\} \]
+
+
+
+
+Ha rendelkezünk az inputhoz tartozó elvárt outputtal, a \textit{ground truth}-tal, akkor ez felügyelt tanulás, különben felügyelet nélküli tanulás, amilyen például a később használt autoencoder.
+
+%Ez egy felügyelt tanulás, tehát a háló tanításához szükségünk van az inputhoz ($ \underline{x} $)  tartozó outputra, a \textit{ground truth}ra ($ \underline{y} $). 
 A háló súlyait kezdetben véletlenszerűen inicializáljuk.
 Ezután minden iterációban néhány inputra lefuttatjuk a hálót, 
-kapva ezzel egy kimenetet ($ \underline{y}' $).
+kapva ezzel egy becsült kimenetet ($ \hat{\underline{y}} $).
 
-\noindent
-Nézzük ekkor a négyzetes hibát ($ J $) a belső súlyok függvényében ($ \underline{w} $):
+%Ekkor a hibafüggvényünk:
 
-\[  J(\underline{w}) = \sumn{i} \norm{y_i-y_i'}_2^2 
- \]
- 
-% TODO ide irni hogy ez az általanos feladat specializációja
+%\noindent
+%Nézzük ekkor a négyzetes hibát ($ J $) a belső súlyok függvényében ($ \underline{w} $):
+%
+%\[  J(\underline{w}) = \sumn{i} \norm{y_i-y_i'}_2^2 
+% \]
 
-Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
-a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
+
+Látható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános minimalizációs feladat specializációja.
+%Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
+%a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
+Ennek megoldására ugyan több algoritmus is létezik, lényegében mindegyik a gradiens módszer egy változata.
 A különbség a konvergencia sebessége és a lokális szélsőértékkel szembeni 
 hibatűrő képességükben van.
 
-Ehhez visszafelé haladva (\textit{backpropagation}) rétegenként visszaterjeszti a hibát,
-és a gradienssel ellentétes irányba $ \underline{w} $-t, így csökkentve a költségfüggvény értékét.
+Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backpropagation}),
+és a gradienssel ellentétes irányba módosítja $ \underline{\theta} $-t, így csökkentve a költségfüggvény értékét.
 
 \[ 
  \underline{\theta}_{t+1} = \underline{\theta}_t - \gamma \cdot \frac{\partial L(\underline{\theta}, x_i, y_i)}{\partial \underline{\theta}}\bigg\rvert_{\underline{\theta}=\underline{\theta}_t}
@@ -379,77 +410,185 @@ Ehhez visszafelé haladva (\textit{backpropagation}) rétegenként visszaterjesz
 %\noindent
 %\paragraph{Példa}
 
-\subsubsubsection{Példa}
-
-Tekintsünk egy sűrű perceptron réteget, ahol $ (x_i, y_i) $ a 
-bemenet és a hozzá tartozó kimenet:
-
-$ \underline{y}' = Relu(W \cdot \underline{x} + \underline{b}) $
-
-$ W' = W - \gamma \cdot  \triangledown  J(\underline{W})$
-$ = W - \gamma \cdot \derivative{J(W)}{W} $
-
-$ = W - \gamma \cdot  \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-y_i'}_2^2}{W} $
-
-
-$ = W - \gamma \cdot \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-Relu(W \cdot \underline{x}_i + \underline{b})}_2^2}{W} $
-
-$ = W - \gamma \cdot \dfrac{1}{n} \sumn{i} 2 (y_i-Relu(W \cdot \underline{x}_i + \underline{b})) \cdot   $
-$ Relu'(W \cdot \underline{x}_i + b) \cdot  diag(\underline{x}_i) $
-
-
-\noindent
-,ahol Relu - \textit{Rectified Linear Unit}:
-
-
-$ Relu(x) =  $
-$ \begin{cases}
-x, & \text{ha}\ x > 0 \\
-0, & \text{különben}
-\end{cases} $
-
-$ Relu'(x) =  $
-$ \begin{cases}
-1, & \text{ha}\ x > 0 \\
-0, & \text{különben}
-\end{cases} $
-
-$ Relu(\underline{x}) = (Relu(x_1), Relu(x_2) \cdots Relu(x_n))^T $
-
-
+%
+%% TODO ez nem biztos hogy fontos
+%\subsubsubsection{Példa}
+%
+%Tekintsünk egy sűrű perceptron réteget, ahol $ (x_i, y_i) $ a 
+%bemenet és a hozzá tartozó kimenet:
+%
+%$ \underline{y}' = Relu(W \cdot \underline{x} + \underline{b}) $
+%
+%$ W' = W - \gamma \cdot  \triangledown  J(\underline{W})$
+%$ = W - \gamma \cdot \derivative{J(W)}{W} $
+%
+%$ = W - \gamma \cdot  \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-y_i'}_2^2}{W} $
+%
+%
+%$ = W - \gamma \cdot \derivative{ \dfrac{1}{n} \sumn{i} \norm{y_i-Relu(W \cdot \underline{x}_i + \underline{b})}_2^2}{W} $
+%
+%$ = W - \gamma \cdot \dfrac{1}{n} \sumn{i} 2 (y_i-Relu(W \cdot \underline{x}_i + \underline{b})) \cdot   $
+%$ Relu'(W \cdot \underline{x}_i + b) \cdot  diag(\underline{x}_i) $
+%
+%
+%\noindent
+%,ahol Relu - \textit{Rectified Linear Unit}:
+%
+%
+%$ Relu(x) =  $
+%$ \begin{cases}
+%x, & \text{ha}\ x > 0 \\
+%0, & \text{különben}
+%\end{cases} $
+%
+%$ Relu'(x) =  $
+%$ \begin{cases}
+%1, & \text{ha}\ x > 0 \\
+%0, & \text{különben}
+%\end{cases} $
+%
+%$ Relu(\underline{x}) = (Relu(x_1), Relu(x_2) \dots Relu(x_n))^T $
+%
+%
 
 \subsubsection{Rétegek}
 
 
-Egy mély háló különböző rétegekből épülhet fel, ám a fenti deriváltakat
-mindig ki lehet számolni analitikusan, ezzel növelve a robosztusságot.
-Nézzük mi milyen rétegeket használunk!
+%Egy mély háló különböző rétegekből épülhet fel, ám a fenti deriváltakat
+%mindig ki lehet számolni analitikusan, ezzel növelve a robosztusságot.
+%Nézzük mi milyen rétegeket használunk!
+
+Az alábbiakban áttekintjük, hogy a dolgozatban szereplő mély hálók milyen rétegekből épülnek fel.
+
 
 \paragraph{Sűrű réteg} (\textit{dense layer}) 
 
 
-Sűrű rétegről beszélünk, ha a bemenet és kimenet 
-minden pontja között van kapcsolat.
+Sűrű rétegről beszélünk, ha a bemenet és kimenet minden pontja között van kapcsolat. Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \theta = \{W, \underline{b}\} $ a réteg súlyai, és $ f $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
+
+
+\[  
+\hat{y} = f(W \cdot x + b)
+\]
+
+% http://www.texample.net/tikz/examples/neural-network/
+
+\begin{figure} [h!]
+	\centering
+	\label{fig:suru.reteg}
+	
+	\def\layersep{2.5cm}
+	\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+		\tikzstyle{every pin edge}=[<-,shorten <=1pt]
+		\tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+		\tikzstyle{input neuron}=[neuron, fill=green!50];
+		\tikzstyle{output neuron}=[neuron, fill=red!50];
+		\tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+		\tikzstyle{annot} = [text width=4em, text centered]
+		
+		%	\def\outcount{3}
+		
+		% Draw the input layer nodes
+		\foreach \name / \y in {1,...,4}
+		% This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+		\node[input neuron, pin=left:Input \#\y] (I-\name) at (0,-\y) {};
+		
+		% Draw the hidden layer nodes
+		\foreach \name / \y in {1,...,5}
+			\path[yshift=0.5cm]
+			node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+		
+		\foreach \name / \y in {1,...,3}
+		%		\path[yshift=0.5cm]
+			\node[output neuron, yshift=-0.5cm, right of=H-3] (O-\name) at (\layersep,-\y cm) {};
+		%		node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+		%		\node[output neuron] (O-\name) at (\layersep,-\y cm) {};
+		% Draw the output layer node
+		%	\node[output neuron,pin={[pin edge={->}]right:Output}, right of=H-3] (O) {};
+		
+		% Connect every node in the input layer with every node in the
+		% hidden layer.
+		\foreach \source in {1,...,4}
+			\foreach \dest in {1,...,5}
+				\path (I-\source) edge (H-\dest);
+		
+		% Connect every node in the hidden layer with the output layer
+		\foreach \source in {1,...,5}
+			\foreach \dest in {1,...,3}
+				\path (H-\source) edge (O-\dest);
+		
+		% Annotate the layers
+		\node[annot,above of=H-1, node distance=1cm] (hl) {Sűrű réteg};
+		\node[annot,left of=hl] {Bemenet};
+		\node[annot,right of=hl] {Kimenet};
+	\end{tikzpicture}
+	
+	
+	\caption{Sűrű réteg}
+	
+\end{figure}
+
+
 
 %\paragraph{Aktivációs réteg} 
 \subsubsubsection{Aktivációs réteg}
 
+% TODO relu már nincs definiálva, majd máshol is csekkolni
+%Aktivációs réteg réteg például a fenti $ Relu() $ függvény, ami 
+%valamilyen nem-linearitást visz a modellbe, ezáltal növelve a háló 
+%kifejezőerejét. 
 
-Aktivációs réteg réteg például a fenti $ Relu() $ függvény, ami 
-valamilyen nem-linearitást visz a modellbe, ezáltal növelve a háló 
-kifejezőerejét. Ha ez nem lenne $ W_1 \cdot W_2 \cdot W_3 $ a szorzást 
-elvégezve összevonható lenne egy közös $ W $ mátrixba, tehát redundáns 
-lenne. Ilyen tipikus függvény még a \textit{softmax} és a \textit{sigmoid}:
+Aktivációs réteg feladata, hogy valamilyen nem-linearitást vigyen a modellbe, ezáltal növelve a háló 
+kifejezőerejét. Általában valamilyen más rétegel együtt használjuk, ahogy például a sűrű rétegnél láthattuk.
 
-$ softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}} $
+%Ha ez nem lenne $ W_1 \cdot W_2 \cdot W_3 $ a szorzást 
+%elvégezve összevonható lenne egy közös $ W $ mátrixba, tehát redundáns 
+%lenne.
+
+% Ilyen tipikus függvény még a \textit{softmax} és a \textit{sigmoid}:
+
+Két tipikus nemlinearitás a $ Relu $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
+
+\[  Relu(x) =  
+ \begin{cases}
+x, & \text{ha}\ x > 0 \\
+0, & \text{különben}
+\end{cases} 
+ \]
 
 
-$ sigmoid(x) = \dfrac{e^x}{e^x + 1} $
+\[  sigmoid(x) = \dfrac{e^x}{e^x + 1}  \]
 
-\noindent
-Az előbbit általában osztályozásnál használjuk, az utóbbit pedig 
-bárhol ahol \textit{Relu}-t is használnánk, de nem akarunk végtelen 
-nagy értékeket kapni.
+
+
+\begin{figure} [h!]
+	
+	\begin{minipage}[c]{0.5\linewidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/Relu.pdf}
+		\caption{Relu aktivációs függvény}
+		\label{fig:relu}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.5\linewidth}
+		\centering
+		\includegraphics[width=\textwidth]{img/sigmoid.pdf}
+		\caption{Szigmoid aktivációs függvény}
+		\label{fig:sigmoid}
+		
+	\end{minipage}
+\end{figure}
+
+A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyobb inputhoz 1 körüli outputot rendel, a többihez nullához közelit. Az eredmények összege pontosan 1.
+ 
+\[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  \]
+
+% TODO softmax ábra kell? csak mert kicsit csúnyácska
+
+%\noindent
+%Az előbbit általában osztályozásnál használjuk, az utóbbit pedig 
+%bárhol ahol \textit{Relu}-t is használnánk, de nem akarunk végtelen 
+%nagy értékeket kapni.
 
 
 
@@ -457,9 +596,7 @@ nagy értékeket kapni.
 \subsubsubsection{Konvolúciós réteg} 
 
 
-Konvolúciós réteget általában kétdimenziós (plusz csatornák) 
-képekre használják, de létezik tetszőleges dimenziós változata is.  
-Matematikailag:
+Konvolúciós réteget általában kétdimenziós képekre használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két jel konvolúciója egy- és kétdimenziós esetben:
 
 
 $ (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k] $
@@ -475,7 +612,7 @@ Ez képeknél egy $ n \times m $ dimenziós mátrix,
 ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
 
 
-Konvolúciós hálóknál ilyen kereneleket rendelünk egy réteghez.
+Konvolúciós hálóknál ilyen kereneleket rendelünk egy-egy réteghez.
 Tanításnál minden kernellel elkészítjük a kép konvolúcióját,
 majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tárolunk.
 Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
@@ -501,7 +638,7 @@ $ n $ pedig a szűrők (a jellemző-vektor elemeinek) száma.
 
 
 A konvolúciós réteg inverze.
-Autóenkóder modellnél használjuk, mikor vissza szeretnénk állítani
+Autoencoder modellnél használjuk, mikor vissza szeretnénk állítani
 a tömörített képet. Matematikailag ugyanaz mint a konvolúció,
 a különbség csak az eredmény dimenziójában van.
 
@@ -564,7 +701,7 @@ Az autoencodernél ezt használjuk.
 
 \paragraph{Keresztentrópia} (\textit{Cross-entropy})
 
-Legyen $ y = (0, 0, \cdots 1 \cdots 0, 0)^T, $ 
+Legyen $ y = (0, 0, \dots 1 \dots 0, 0)^T, $ 
 ahol az 1 helye a hozzá tartozó osztály indexe.
 
 Bináris esetben $ y=(0, 1) $ ha a mintha az egyik, és

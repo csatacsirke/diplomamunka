@@ -1,5 +1,6 @@
 *.aux
 *.log
 *.toc
-*.pdf
+diplomamunka.pdf
 *.gz
+local/
