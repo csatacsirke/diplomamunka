@@ -376,9 +376,9 @@ f(\theta,\underline{x})=f_K(\theta_K, \dots f_2(\theta_2, f_1(\theta_1, \underli
 Ha rendelkezünk az inputhoz tartozó elvárt outputtal, a \textit{ground truth}-tal, akkor ez felügyelt tanulás, különben felügyelet nélküli tanulás, amilyen például a később használt autoencoder.
 
 %Ez egy felügyelt tanulás, tehát a háló tanításához szükségünk van az inputhoz ($ \underline{x} $)  tartozó outputra, a \textit{ground truth}ra ($ \underline{y} $). 
-A háló súlyait kezdetben véletlenszerűen inicializáljuk.
-Ezután minden iterációban néhány inputra lefuttatjuk a hálót, 
-kapva ezzel egy becsült kimenetet ($ \hat{\underline{y}} $).
+%A háló súlyait kezdetben véletlenszerűen inicializáljuk.
+%Ezután minden iterációban néhány inputra lefuttatjuk a hálót, 
+%kapva ezzel egy becsült kimenetet ($ \hat{\underline{y}} $).
 
 %Ekkor a hibafüggvényünk:
 
@@ -595,8 +595,9 @@ A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyo
 %\paragraph{Konvolúciós réteg} 
 \subsubsubsection{Konvolúciós réteg} 
 
+% TODO konvolúció ábra kell? ha igen akkor sima, vagy neuronhálós?
 
-Konvolúciós réteget általában kétdimenziós képekre használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két jel konvolúciója egy- és kétdimenziós esetben:
+Konvolúciós réteget általában kétdimenziós képekre használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
 
 
 $ (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k] $
@@ -607,12 +608,11 @@ $ (x*k)[n, m] =
 x[n, m] \cdot k[n-i, m-j] $
 
 
-Ekkor $ k $-t kernelnek hívjuk.
-Ez képeknél egy $ n \times m $ dimenziós mátrix, 
-ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
+%Ekkor $ k $-t kernelnek hívjuk.
+Ekkor $ k $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
 
 
-Konvolúciós hálóknál ilyen kereneleket rendelünk egy-egy réteghez.
+Konvolúciós hálóknál ilyen kerneleket rendelünk egy-egy réteghez.
 Tanításnál minden kernellel elkészítjük a kép konvolúcióját,
 majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tárolunk.
 Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
@@ -627,10 +627,28 @@ $ \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} 
 $ n $ pedig a szűrők (a jellemző-vektor elemeinek) száma.
 
 
+A konvolúció eredményének méreteiben lehet eltérés módszertől függően. 
+
+\begin{itemize}
+	\item 
+	\textbf{Same Padding}: Az eredeti adatot a határokon kiegészítjük nullákkal úgy, hogy a konvolúciót elvégezve akkora kimenetet kapjunk, mint amekkora a bemenet volt.
+	
+	\item 
+	\textbf{Valid Padding}: A konvolúciót csak olyan helyeken számoljuk ki, ahol a művelet elvégzéséhez minden szükséges adat rendelkezésre áll, azaz nem indexelünk ki a képből. Ha a kernel $ k \times k $ méretű volt, akkor a kimenet mérete $ (k-1) \times (k-1) $-el csökken.
+	
+	\item 
+	\textbf{Full Padding}: Ha a két bemenetünk $ w_1 \times h_1 $ és $ w_2 \times h_2 $ méretű volt, akkor az eredmény ebben a módban $ (w_1 + w_2 - 1) \times (h_1 + h_2 - 1) $ méretű lesz. Ekkor minden ismeretlen adatot nullával helyettesítünk. Ebben a témakörben ezt jellemzően nem használjuk.
+	
+\end{itemize}
+%Az egyik megközelítés meghagyja az eredeti szélességet és magasságot (\textit{same padding}), a másik 
 
 
-%TODO same/valid padding
-
+\begin{figure} [h!]
+	\centering
+	\includegraphics[scale=0.3]{img/konv-pelda.pdf}
+	\caption{Kétdimenziós konvolúció valid paddinggal}
+	\label{fig:conv-pelda}
+\end{figure}
 
 
 %\paragraph{Dekonvolúciós reteg}
@@ -649,11 +667,20 @@ a különbség csak az eredmény dimenziójában van.
 Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre 
 jó módszer, hogy a képet feleakkorára* csökkentjük, azaz négyesével összevonjuk
 a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
-
-
-Legtipikusabb a maxpooling réteg, ami a négy pixel maximumát veszi.
-
 (\textit{* Lehet n-ed részére is csökkenteni a képet, nem csak a felére})
+
+
+Legtipikusabb a \textit{max pooling} réteg, ami a négy pixel maximumát veszi.
+
+% TODO ez a két ábra elrendezése egyszer már rossz volt az oldaltörés miatt! lecsekkolni hogy nem romlott e el
+
+\begin{figure} [h!]
+	\centering
+	\includegraphics[scale=1.2]{img/max-pooling-pelda.pdf}
+	\caption{Max pooling}
+	\label{fig:maxpooling-pelda}
+\end{figure}
+
 
 \paragraph{Felülmintavételező réteg} (\textit{Upsampling})
 
@@ -661,6 +688,14 @@ Legtipikusabb a maxpooling réteg, ami a négy pixel maximumát veszi.
 Az alulmintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg
 méretét.
 
+
+
+\begin{figure} [h!]
+	\centering
+	\includegraphics[scale=1.2]{img/upsamping-pelda.pdf}
+	\caption{Upsampling}
+	\label{fig:upsampling-pelda}
+\end{figure}
 
 
 
