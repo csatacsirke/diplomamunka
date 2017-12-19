@@ -21,8 +21,6 @@ def read_corners_from_csv_row(row : list):
 
 	last_col = row[len(row)-2]
 	
-	#reader = csv.reader(last_col, delimiter=';')
-	#iterator = list(reader)
 	
 	iterator = iter(last_col.split(';'))
 	try:
@@ -77,20 +75,7 @@ def find_corners_in_list(list, file_name_to_find):
 	return None
 
 
-#training_file_names = file_names[0:validation_offset]
-#training_ground_truths = ground_truths[0:validation_offset]
-#validation_file_names = file_names[validation_offset:]
-#validation_ground_truths = ground_truths[validation_offset:]
-#test_file_names = file_names[test_offset:]
-#test_ground_truths = ground_truths[test_offset:]
-
-#pickle_file = os.path.join(data_root, 'dataset_separation.pickle')
 pickle_file = "dataset_separation.pickle"
-#def read_full_input(corners_list=None):
-	
-
-#	return readInputParamsFromCsv(default_input_csv, corners_list=corners_list)
-#	#file_names, ground_truths = readInputParamsFromCsv(input_csv)
 
 def readGroundTruth(row):
     line = row[0]
@@ -205,14 +190,7 @@ def filter_offset_counterfeits(file_names, ground_truths):
 
 
 def create_new_random_dataset_separation(input_file):
-	#global training_file_names, training_ground_truths
-	#global validation_file_names, validation_ground_truths
-	#global test_file_names, test_ground_truths
-
-	#base_dir = 'd:/diplomamunka/SpaceTicket_results/'
-	#input_csv = base_dir + 'Bpas-Verdict.csv'
-
-	#file_names, ground_truths = readInputParamsFromCsv(input_csv)
+	
 	file_names, ground_truths = read_full_input(input_file)
 
 	log("total samples: ", len(file_names))
@@ -233,7 +211,6 @@ def create_new_random_dataset_separation(input_file):
 	ground_truths = list(map(lambda x: ground_truths[x] , permutation))
 
 	
-	# TODO majd 'test set'
 	training_ratio = 0.70
 	validation_ratio = 0.15
 	training_count = round(training_ratio * sample_count)
@@ -273,10 +250,7 @@ def create_new_random_dataset_separation(input_file):
 
 
 def load_dataset_or_create_new(csv_file_name):
-	#global training_file_names, training_ground_truths
-	#global validation_file_names, validation_ground_truths
-	#global test_file_names, test_ground_truths
-
+	
 	global pickle_file
 
 	log("Loading dataset")
@@ -312,10 +286,7 @@ def save_dataset(dataset):
 	(training_file_names, training_ground_truths,
 		validation_file_names, validation_ground_truths,
 		test_file_names, test_ground_truths) = dataset
-	#global training_file_names, training_ground_truths
-	#global validation_file_names, validation_ground_truths
-	#global test_file_names, test_ground_truths
-
+	
 	global pickle_file
 
 	try:
@@ -337,16 +308,6 @@ def save_dataset(dataset):
 		raise
 
 
-#def get_normalized_counterpart(path):
-#	name = os.path.basename(path)
-#	dir = os.path.dirname(path)
-
-		
-#	new_name = "normalized_" + name
-#	new_path = dir + new_name
-
-#	return new_path
-	
 
 def main():
 	default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'

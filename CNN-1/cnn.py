@@ -43,10 +43,6 @@ TODO kéne egy olyan futtatási opció amivel csak predikálni lehet
 """
 
 
-#base_dir = 'd:/diplomamunka/SpaceTicket_results/'
-#default_input_file_name = base_dir + 'Bpas-Verdict.csv'
-
-
 #default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
 default_input_file_name = "jura\\2017.10.25\\Bpas-Verdict.csv"
 
@@ -57,13 +53,12 @@ g_img_height, g_img_width = 256, 256
 # tanulási paraméterek
 epochs = 50
 g_batch_size = 16
-# g_batch_size = 16
 
 use_autoencoder = True
 recalculate = True
 stage = 1
 
-#evaluate_only = False
+
 weights_only = False
 # Ezt töltsd ki ha szeretnéd betölteni a munkamenetet
 weight_file = None
@@ -75,14 +70,6 @@ warn_for_no_corner_info = False
 use_normalized_images = True
 use_full_dataset_for_test = False
 
-#if not recalculate:
-#	weight_file = get_last_weight_file()
-
-	
-
-#if evaluate_only:
-#	assert(recalculate == False)
-#	recalculate = False
 
 
 
@@ -90,22 +77,11 @@ if stage == 2:
 	assert(recalculate == False)
 	recalculate = False
 
-	
-#fnCopy = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_09_18_15_43_35_942_Marci.eredeti_1___.png"
-#fnOrig = "d:\\diplomamunka\\Temp\\kicsi\\SPACTICK_2017_10_09_16_02_27_938_Marci.fenymasolt.copy_0___.png"
-
-#weight_file = "weights/2017_10_17__12_28_56.h5"
-
 
 
 ########################################################################################
 
 
-#result_dir = "weights/"
-# ha van rendes working directory akkor erre nincs szükség
-#result_dir = "" 
-#log_file_path = result_dir + get_current_time_as_string() + "_log" + ".txt"
-#set_log_file_path(log_file_path)
 
 log("Loading keras - this may be slow...", level="warning")
 
@@ -152,9 +128,6 @@ log("Done loading keras")
 
 log("Start")
 
-# globalis változok
-# todo majd a végén ezeket pl command line paraméternek
-
 
 def process_image(image, target_dims=None, training_phase=True):
 	image = image_processing.crop_center(image, 0.6)
@@ -171,16 +144,14 @@ def process_image(image, target_dims=None, training_phase=True):
 
 def load_image_as_array(file_name):
 	#image = KerasImage.load_img(file_name)
-	image = cv2.imread(file_name).astype(float)/255.0
-	# corners_list -> global
-	
 	#image_array = KerasImage.img_to_array(image)
-	#return image_array
+	image = cv2.imread(file_name).astype(float)/255.0
+	
+	
+	
 	return image
 
 
-
-#use_normalized_images
 def create_single_sample_generator(file_names, ground_truths, target_dims, training_phase=True):
 	assert(len(ground_truths) == len(ground_truths))
 	count = len(file_names)
@@ -236,10 +207,6 @@ def create_generator(file_names, ground_truths, target_dims=(g_img_width, g_img_
 			y[i] = ground_truth
 
 
-			#images.append(image_array)
-			#np.append(x, image_array, axis=0)
-			#np.append(y, ground_truth, axis=0)
-		#x = np.array(images)
 		if use_autoencoder:
 			yield x,x
 		else:
@@ -253,7 +220,7 @@ def beautfy_result(results_row):
 	Alapból a str(np.array()) valami ilyet ir ki:
 	[[0]] egy sima 0 helyett
 	"""
-	#y_pred = round(y_pred.flatten().flatten().tolist()[0])
+	
 	file_name, y, y_pred = results_row
 	y_pred = round(y_pred.flatten().flatten().tolist()[0])
 	return (file_name, y, y_pred)
@@ -264,8 +231,7 @@ def evaluate():
 	assert(weight_file is not None)
 
 	log("Evaluating...")
-	#validation_file_names, validation_ground_truths,
-	#test_generator = create_generator(test_file_names, test_ground_truths)
+	
 	eval_full_dataset = True
 	if eval_full_dataset:
 		file_names, ground_truths = dataset_handler.read_full_input(default_input_file_name);
@@ -317,20 +283,12 @@ def show_pictures(x, y, prediction):
 
 	fig = plt.figure()
 
-	#img = img[:,:,::-1]
-	#red, green, blue, alpha = data.T 
-	#data = np.array([blue, green, red, alpha])
-
 	subplot = fig.add_subplot(1,3,1)
 	x = x / 255.0
 	img = np.subtract(1.0, x)
 	
 	plt.imshow(img)
-	#red, green, blue = x.T 
-	#img = np.array([blue, green, red])
-	#img = img.transpose()
-	#plt.imshow(img)
-
+	
 	subplot = fig.add_subplot(1,3,2)
 	prediction = np.divide(prediction, 255)
 	plt.imshow(prediction)
@@ -339,9 +297,6 @@ def show_pictures(x, y, prediction):
 	diff = np.abs(prediction - x)
 	plt.imshow(diff)
 
-	#subplot = fig.add_subplot(1,3,3)
-	#gray = rgb2gray(prediction)
-	#plt.imshow(gray)
 	fig.savefig("images/" + get_current_time_as_string() + "_teszt__.png", dpi=600)
 	#plt.show()
 	plt.close(fig)
@@ -474,7 +429,7 @@ class AutoencoderScheme(Scheme):
 		padding = "same"
 		#padding = "valid"
 
-		#model.add(Conv2D(64, (5, 5), input_shape=input_shape))
+		
 
 		padding_size = sum(kernel_sizes)*2
 	
@@ -491,12 +446,7 @@ class AutoencoderScheme(Scheme):
 		model.add(Conv2D(256, next(iterator), padding=padding))
 		model.add(Activation('relu'))
 
-		#model.add(MaxPooling2D(pool_size=(2, 2)))
-	
-		# dense layer lehet dense is
-	
-		#####
-	
+		
 
 		model.add(Conv2DTranspose(128, next(reverse_iterator), padding=padding))
 		model.add(Activation('relu'))
@@ -510,21 +460,16 @@ class AutoencoderScheme(Scheme):
 		model.add(Conv2DTranspose(3, next(reverse_iterator), padding=padding))
 
 		model.add(Cropping2D(cropping=(padding_size, padding_size)))
-
-		#model.add(ZeroPadding2D())
-		#model.add(Activation('relu'))
-		#model.add(UpSampling2D(size=(2, 2), data_format="channels_last"))
-	
 		#####
 
 		model.compile(loss='mean_squared_error',
-					  optimizer='adam', # ADAM
+					  optimizer='adam', 
 					  metrics=['accuracy']) 
 
 
 		shape = model.get_output_shape_at(0)
 		log(shape)
-		#log(K.int_shape(last_index - 1))
+		
 		log("")
 		log("")
 		log("")
@@ -624,8 +569,8 @@ class PredictorScheme(Scheme):
 		model.add(Dense(2))#1))
 		model.add(Activation('softmax'))#'sigmoid'))
 
-		model.compile(loss='sparse_categorical_crossentropy', #'binary_crossentropy',
-					  optimizer='adam', #'rmsprop', # ADAM
+		model.compile(loss='sparse_categorical_crossentropy', 
+					  optimizer='adam', 
 					  metrics=['accuracy']) 
 
 		return model
@@ -795,14 +740,6 @@ else:
 model = scheme.load_or_build_model(force_recalculate=recalculate)
 #model = load_or_build_model()
 
-
-#if evaluate_only:
-#	log("Evaluating")
-#	if use_autoencoder:
-#		evaluate_autoencoder()
-#	else:
-#		evaluate()
-#	sys.exit()
 	
 if stage is 1:
 	log("Fitting")
@@ -839,14 +776,12 @@ if stage is 1:
 
 		#save_model(model)
 
-		#  ez legyen callbackban
+		
 		log(str(history.history['val_loss']))
 		log(str(history.history['val_acc']))
 		log("=============================================")
 	
-		#if use_autoencoder:
-		#	evaluate_autoencoder()
-
+		
 		break
 
 	pass
@@ -857,70 +792,12 @@ if stage is 1:
 if stage is 2:
 	
 	scheme.eval(model)
-	"""
-	entries = list(zip(training_file_names, training_ground_truths))
-	np.random.shuffle(entries) # in-place
-
-	#entries = entries[0:50]
-
-	results = []
-
-	batch_size = 20
-	for i in range(0, len(entries), batch_size):
-
-
-		batch = entries[i:i+batch_size]
-		x = []
-		for entry in batch:
-			file_name, y = entry
-			image = load_image_as_array(file_name)
-			image = process_image(image, training_phase=False)
-			x.append(image)
-
-
-		x = np.array(x)
-		predictions = model.predict(x)
-
-		for index, prediction in enumerate(predictions):
-			
-			x_linear = x[index].reshape(-1)
-			prediction_linear = prediction.reshape(-1)
-			#MSE_np = keras.losses.mean_squared_error(x_linear, prediction_linear)
-			MSE_np = statistics.mean_squared_error(x_linear, prediction_linear)
-
-			MSE = MSE_np
-			#MSE = MSE_np.eval(session=session)
-			#
-			file_name, y = batch[index]
-			##record = (x, prediction, y, file_name)
-			record = (MSE, y, file_name)
-			results.append(record)
-
-		
-		log(i, " / ", len(entries))
-
-		gc.collect()
-
 	
-	#statistics.eval(results)
-	statistics.write_results_to_csv(results, postfix=".stage2")
-
-	"""
 
 ##################################################################################################################
 
 
 print("vege");
-
-
-
-#log("Fitting[Test]")
-#first, first_y = next(training_generator)
-#first = np.array(first).reshape((1, g_img_height, g_img_width, 3))
-#first_y = np.array(first_y).reshape((1,1))
-#model.fit(first, first_y)
-#log("Fitting[Test] - done")
-#sys.exit()
 
 
 

@@ -187,9 +187,6 @@ def add_evaluation_coulumn(results):
 		new_row = (X, Y, Y_pred, y_diff, file_names)
 		results[index] = new_row
 
-#def convert_to_continuous(Y):
-#	return list(map(lambda x: float(x), Y))
-
 
 
 def convert_to_single_param(Y):
@@ -220,50 +217,21 @@ def calc_errors(y, pred):
 	return (fp, fn, tp, tn)
 
 
-#def list_problematic_entries():
-
-#	entries = zip(y, pred)
-#	tp = tn = fp = fn = 0
-
-#	for entry in entries:
-#		y, pred = entry
-
-
-#		#TODO
-#		if y == 0 and pred > 0.5 : fp += 1	
-#		if y == 1 and pred < 0.5 : fn += 1	
-
-#	return (fp, fn)
-
-#def random_split_data(X, Y, file_names):
 def random_split_data(data):
 	
 	if not use_random_seed:
 		np.random.seed(seed = 1337)
-	#permutation = np.random.permutation(len(X))
+	
 	permutation = np.random.permutation(len(data))
 
 
-	#data = list(zip(X, Y, file_names))
 	data = list(map(lambda i: data[i], permutation))
 
-	#X = list(map(lambda i: X[i], permutation))
-	#Y = list(map(lambda i: Y[i], permutation))
-	#file_names = list(map(lambda i: file_names[i], permutation))
-
-	
-	#test_offset = round( len(X) * train_ratio )
 	test_offset = round( len(data) * train_ratio )
 
 
 	train = data[0:test_offset]
 	test = data[test_offset:]
-
-	#X_train = np.array(x[0:test_offset])
-	#Y_train = np.array(y[0:test_offset])
-
-	#X_test = np.array(x[test_offset:])
-	#Y_test = np.array(y[test_offset:])
 
 	
 
@@ -390,22 +358,10 @@ def batch_fit_and_test(x, y, file_names, N = 200, kernel='rbf', C=1.0, gamma="au
 		fp, fn, tp, tn = calc_errors(Y_test, Y_pred)
 
 
-		#n_pos = 0
-		#n_neg = 0
-		#for _y in Y_test:
-		#	if _y == 0:
-		#		n_pos += 1
-		#	elif _y == 1:
-		#		n_neg += 1
-		#	else:
-		#		log(_y)
-		#		assert(False)
 		
 		fpr_list.append(fp/(fp+tn))
 		fnr_list.append(fn/(fn+tp))
 
-		#fpr_list.append(fp/(len(Y_test)))
-		#fnr_list.append(fn/(len(Y_test)))
 	
 		pass
 
@@ -447,7 +403,7 @@ def train_and_test(x, y, file_names, C = 1, gamma = 0.001):
 	#X_test = np.array(x[test_offset:])
 	#Y_test = np.array(y[test_offset:])
 
-	# todo ahol hibázik megnézni miért rossz
+	
 	train_data, test_data = random_split_data(zip_list((x, y, file_names)))
 
 	X_train = np.array(list(map(lambda a: a[0], train_data)))

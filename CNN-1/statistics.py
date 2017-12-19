@@ -8,11 +8,11 @@ import win32api
 import argparse
 
 
-#import tkMessageBox
 
 from log import log
 import util
 
+csv_file_name_override = None
 
 
 def get_default_file_name(postfix=""):
@@ -346,6 +346,9 @@ def show_histograms(functions, labels=None):
 	#plt.xlim([0.0, 1.0])
 	plt.xlim([data_min, data_max])
 	plt.ylim([0.0, 1000.0])
+
+	plt.xlabel("Modell kimenet")
+	plt.ylabel("darab")
 	#plt.title('')
 	#plt.legend(loc="lower right")
 	#plt.legend(loc="center")
@@ -394,7 +397,8 @@ def main():
 	
 	return
 
-csv_file_name_override = "results_2017_12_11__11_21_27.predictor.stage2.csv"
+#csv_file_name_override = "results_2017_12_11__11_21_27.predictor.stage2.csv"
+
 
 if __name__ == "__main__":
 	main()
