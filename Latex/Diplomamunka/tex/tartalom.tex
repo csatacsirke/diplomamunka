@@ -186,12 +186,12 @@ Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bem
 % TODO itt lehet, hogy ki lehetne fejteni, hogy x,y ne mfeltétlen vektor hanem akár lista vagy tenzor vagy akármi is lehet, lényeg hogy több van belőlük
 
 \label{sec:kanonikus.feladat}
-A kanonikus gépi tanulási feladat a következőképpen írható fel:
+A \textit{kanonikus gépi tanulási feladat} a következőképpen írható fel:
 \[ 
 %\min\limits_{\theta} L(\theta, x_i, y_i) = \frac{1}{n}  \sumn{i} l(f(\theta, x_i), y_i) + R(\theta)
 \min\limits_{\theta} L(\theta, \underline{x}, \underline{y}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), y_i) + R(\theta)
  \]
-, ahol $ \underline{x} $ a bemenet, $ \underline{y} $ a hozzá tartozó kimenet, $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, $ \theta $ a tanulandó paraméterek.
+,ahol $ \underline{x} $ a bemenetek, $ \underline{y} $ a hozzájuk tartozó elvárt kimenetek, $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, és $ \theta $ a tanulandó paraméterek. Ezekről a következő fejezetekben írunk részletesebben.
 
 
 
@@ -336,55 +336,43 @@ A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 \subsubsubsection{Kernelek:}
 \label{sec:kernelek}
 
+\begin{itemize}
 
+\item 
 Lineáris:
-
 \[  k(\underline{x}, \underline{x}') = \underline{x}^T \cdot \underline{x}'  \]
 
-
+\item 
 Polinomiális:
-
 \[  k(\underline{x}, \underline{x}') = (\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)^d  \]
 
-
+\item 
 Radiális Bázis Függvények (\texttt{rbf}):
-
-
 \[  k(\underline{x}, \underline{x}') = exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2)  \]
 
-
-
+\item 
 Szigmoid: 
-
 \[  
 k(\underline{x}, \underline{x}') = tanh(\gamma \cdot (\underline{x}^T \cdot \underline{x}') + r)  
 \]
 
-
-
-
-
-
-
-%TODO itt mutassunk bázisfüggvényeket
-%ez a megvalósítás részbe került
-% de az rbf ez lehet hogy ide lehetn rakni?...
+\end{itemize}
 
 
 \subsubsection{Mesterséges mély neurális hálózatok}
-% TODO többszörösen összetett fv alakú alapú modell, amiben lévő függvények a rétegek. Ezek paraméteres leképezések, aminek paramétereit gradiens módszerrel számoljuk.
+% többszörösen összetett fv alakú alapú modell, amiben lévő függvények a rétegek. Ezek paraméteres leképezések, aminek paramétereit gradiens módszerrel számoljuk.
 % f(theta,x)=f_K(theta_K, \dots f_2(theta_2, f_1(theta_1,x) ) \dots )
 %egy réteg: f_j(theta_j, z), ennek spec esetei a dense g(W z+b) és konvolúciós g(W * z+b)  rétegek, de lehetne sok más is...
 % g : nemlinearitás / aktivációs függvény, relu, tanh, stb
 % l : költség
 
-% TODO dense+konvolucios rétegről ábra
+% dense+konvolucios rétegről ábra
 
 %dense 2d tenzor -> 2d tenzorra képez, shape: (batch, input) -> (batch, output)
 %konv 4d tenzor -> 4d tenzorra képez, shape: (batch, width, height, rgb) -> (batch, width - filter_w + 1, height - filter_h +1, filter count) (valid)
 %+ potenciális padding (same)  + ábra
 
-% TODO konv azért jü, mert csökkenti a paraméterek számát, ezért kevésbé tanul túl, a pixelek szomszédságát kihasználja, a dense nem
+% konv azért jü, mert csökkenti a paraméterek számát, ezért kevésbé tanul túl, a pixelek szomszédságát kihasználja, a dense nem
 
 
 
@@ -485,6 +473,7 @@ Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backp
 %
 
 
+
 \subsubsection{Optimalizáló algoritmus}
 \label{sec:adam}
 
@@ -510,6 +499,25 @@ $ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
 
 %Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
 
+
+\subsubsection{Autoencoder}
+
+Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
+Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási feladat úgy módosul, hogy $ \underline{x} = \underline{y} $, azaz az elvárt kimenet maga a bemenet:
+\[ 
+\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
+\]
+
+
+%A költségfüggvény a következőképpen alakul:
+
+
+%\[  J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'}  \]
+
+% általános alakra visszavezentni
+%\noindent
+%Általában $ \norm{.} $ alatt az $ L2 $ normát értjük, azaz az átlagos 
+%négyzetes hibát számoljuk (\textit{Mean square error, MSE}).
 
 
 \subsubsection{Rétegek}
@@ -594,7 +602,7 @@ Sűrű rétegről beszélünk, ha a bemenet és kimenet minden pontja között v
 %\paragraph{Aktivációs réteg} 
 \subsubsubsection{Aktivációs réteg}
 
-% TODO relu már nincs definiálva, majd máshol is csekkolni
+% relu már nincs definiálva, majd máshol is csekkolni
 %Aktivációs réteg réteg például a fenti $ Relu() $ függvény, ami 
 %valamilyen nem-linearitást visz a modellbe, ezáltal növelve a háló 
 %kifejezőerejét. 
@@ -644,7 +652,20 @@ A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyo
  
 \[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  \]
 
-% TODO softmax ábra kell? csak mert kicsit csúnyácska
+A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik érték függvényében mutatjuk a függvény eredményét.
+
+\begin{figure} [h!]
+	
+	\centering
+	\includegraphics[scale=0.5]{img/Softmax.pdf}
+	\caption{Softmax függvény}
+	\label{fig:softmax}
+		
+\end{figure}
+
+
+%  softmax ábra kell? csak mert kicsit csúnyácska
+% mostmár van
 
 %\noindent
 %Az előbbit általában osztályozásnál használjuk, az utóbbit pedig 
@@ -656,17 +677,17 @@ A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyo
 %\paragraph{Konvolúciós réteg} 
 \subsubsubsection{Konvolúciós réteg} 
 
-% TODO konvolúció ábra kell? ha igen akkor sima, vagy neuronhálós?
+% konvolúció ábra kell? ha igen akkor sima, vagy neuronhálós?
+% sima lett
 
 Konvolúciós réteget általában kétdimenziós képekre használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
 
 
-$ (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k] $
-
-$ (x*k)[n, m] =  
+\[  (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k]  \]
+\[  (x*k)[n, m] =  
 \sum\limits_{i=-\infty}^{\infty} 
 \sum\limits_{j=-\infty}^{\infty} 
-x[n, m] \cdot k[n-i, m-j] $
+x[n, m] \cdot k[n-i, m-j]  \]
 
 
 %Ekkor $ k $-t kernelnek hívjuk.
@@ -687,6 +708,10 @@ $ \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} 
 ,ahol $ w, h,d $ az előző réteg szélessége, magassága és mélysége, 
 $ n $ pedig a szűrők (a jellemző-vektor elemeinek) száma.
 
+A konvolúciós réteg jellegéből adódóan egy kimeneti pixel a bemeneti rétegnek csak egy meghatározott részhalmazától függ, ellentétben a sűrű rétegekkel. Jól használható arra, hogy csökkentsük a paramétereink számát, és ezzel is elkerüljük a túltanulást.
+
+%csökkentsük a paraméterek számát
+
 
 A konvolúció eredményének méreteiben lehet eltérés módszertől függően. 
 
@@ -704,12 +729,34 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 %Az egyik megközelítés meghagyja az eredeti szélességet és magasságot (\textit{same padding}), a másik 
 
 
-\begin{figure} [h!]
+\begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.3]{img/konv-pelda.pdf}
-	\caption{Kétdimenziós konvolúció valid paddinggal}
-	\label{fig:conv-pelda}
+
+	\begin{minipage}[c]{0.45\linewidth}
+		\centering
+		\includegraphics[scale=0.2]{img/konv-pelda.pdf}
+		\captionsetup{justification=centering}
+		\caption{Kétdimenziós konvolúció \textit{valid paddinggal}}
+		\label{fig:conv-pelda-valid}
+		
+	\end{minipage}\hfill
+	\begin{minipage}[c]{0.45\linewidth}
+		\centering
+		\includegraphics[scale=0.2]{img/konv-pelda-same-padding.pdf}
+		\captionsetup{justification=centering}
+		\caption{Kétdimenziós konvolúció \textit{same paddinggal}}
+		\label{fig:conv-pelda-same}
+		
+	\end{minipage}
+	
 \end{figure}
+
+%\begin{figure} [h!]
+%	\centering
+%	\includegraphics[scale=0.3]{img/konv-pelda.pdf}
+%	\caption{Kétdimenziós konvolúció valid paddinggal}
+%	\label{fig:conv-pelda}
+%\end{figure}
 
 
 %\paragraph{Dekonvolúciós reteg}
@@ -759,26 +806,6 @@ méretét.
 	\label{fig:upsampling-pelda}
 \end{figure}
 
-
-
-\subsubsection{Autoencoder}
-
-Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
-Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási feladat úgy módosul, hogy $ \underline{x} = \underline{y} $, azaz az elvárt kimenet megegyezik az elvárt bemenettel:
-\[ 
-\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
-\]
-
-
-%A költségfüggvény a következőképpen alakul:
-
-
-%\[  J(\underline{w}) = \dfrac{1}{n} \sumn{i}\norm{x_i - x_i'}  \]
-
-% TODO általános alakra visszavezentni
-%\noindent
-%Általában $ \norm{.} $ alatt az $ L2 $ normát értjük, azaz az átlagos 
-%négyzetes hibát számoljuk (\textit{Mean square error, MSE}).
 
 
 
@@ -958,8 +985,7 @@ Az előző két hiba arányát a Vevő működési karakterisztika (\textit{Rece
 
 
 
-\paragraph{Pontosság} (\textit{accuracy})
-
+\paragraph{Pontosság} (\textit{accuracy}) \\
 Azt méri, hogy az osztályozásnál a minták hányad részben
 kerültek jó osztályba.
 Ha $ (y_i, \hat{y_i}) $ az elvárt értékek és a hozzájuk tartozó 
@@ -967,11 +993,11 @@ predikciók, akkor
 
 \[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n}  \]
 
+\noindent
 Bár ez személetes, nem tükrözi igazán jól a hatékonyságot.
 
 
 \paragraph{F1 score} \mbox{} 
-
 
 \[  F_1 = \dfrac{2tp}{2tp + fn + fp}  \]
 
@@ -1152,7 +1178,7 @@ ezek lesznek a modellünk paraméterei.
 
 Az SVN-ünket az \texttt{Sklearn} csomag \texttt{SVC} osztálya segítségével építjük fel. A következőekben ennek paramétereit tárgyaljuk.
 
-% TODO kell ide a kód? vagy fölösleges
+% kell ide a kód? vagy fölösleges
 %
 %\begin{lstlisting}  
 %
@@ -1285,7 +1311,7 @@ miatt lehet problémás.
 
 
 
-% TODO jobb cím?
+% jobb cím?
 \subsubsection{Tulajdonságok}
 
 \noindent
@@ -1330,7 +1356,7 @@ kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a leg
 Mi a \texttt{SVC.C} és a \texttt{SVC.gamma} paramétereket kerestük a [-0.001, 1000] intervallumban,  logaritmikusan egyenletes eloszlást használtunk, és 100 helyen értékeltük ki.
 %
 %Az általunk használt konfiguráció a következő volt:
-%% TODO szinezni
+%% szinezni
 %
 %\begin{lstlisting}
 %
@@ -1395,7 +1421,7 @@ Ezek alapján három tanító módszert tudunk készíteni.:
 %négyzetes tanítási idő, nem működik 100k példára
 %az svm kvázi determinisztikus
 %
-%*TODO valahova beleirni hogy kevés mintán is tud üzemelni
+%* valahova beleirni hogy kevés mintán is tud üzemelni
 %
 % az svm többi paraméterét leírni
 % ? és az az általánosba kell vagy ide? 
@@ -1494,9 +1520,7 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 
 %A végső szerkezet Keras segítségével megvalósítva:
 \textbf{A végső modell}:
-% TODO konv lokális, dense nem
-%TODO WTF az bal oldali szaggatott cucc?
-% TODO convnet architektúra ábra a kód helyett:
+% konv lokális, dense nem
 % tikz, vagy rajz
 % TODO ellenőrizni a nyomtathatóságot
 \begin{figure} [h!]
@@ -1826,7 +1850,9 @@ elvárt maximális első- és másodfajú hibarátától. Tekintsük a kétinter
 Ahogy azt már korábban említettük, a kétféle hibaráta egymás rovására javítható a 
 vágópont különböző megválasztásával. Az ezek közti összefüggést jól mutatja a 
 ROC-görbe, ahol a fals pozitív ráta függvényében láthatjuk a tényleges
-pozitív rátát, ahol $ tp = 1 - fn $. (\ref{fig:roc.pelda}. ábra)
+pozitív rátát.
+%pozitív rátát, ahol $ tp = 1 - fn $. 
+%(\ref{fig:roc.pelda}. ábra)
 
 
 
@@ -1836,7 +1862,7 @@ pozitív rátát, ahol $ tp = 1 - fn $. (\ref{fig:roc.pelda}. ábra)
 %	\caption{ROC-görbe}
 %	\label{fig:roc.pelda}
 %\end{figure}
-% TODO innen ki let szedve egy ábra. Ellenőrizd hogy nem maradt e helyette hülyeség
+%  innen ki let szedve egy ábra. Ellenőrizd hogy nem maradt e helyette hülyeség
 
 Ha az adathalmaz nem tökéletesen szeparálható ( a görbe alatti terület nem 1), akkor
 nem tudunk univerzálisan jó vágópontot mondani, az viszont megállapítható, hogy egy adott ponthoz 
@@ -1850,9 +1876,10 @@ bizonytalanságért. Viszont ez az állapot javítható újbóli mintavételezé
 ez esetben új kép készítésével, vagy esetleg egy másik módszer ajánlásával.
 
 
-Az \ref{fig:hist.pelda}. ábra jól mutatja, hogy egy-egy vágáshoz mekkora hiba fog
-tartozni, hiszen a nála kisebb értékek hamisként, a nagyobbak pedig eredetiként
-lesznek osztályozva. Látható, hogy a bizonytalan halmazt is ez alapján kell meghatároznunk.
+
+%Az \ref{fig:hist.pelda}. ábra jól mutatja, hogy egy-egy vágáshoz mekkora hiba fog
+%tartozni, hiszen a nála kisebb értékek hamisként, a nagyobbak pedig eredetiként
+%lesznek osztályozva. Látható, hogy a bizonytalan halmazt is ez alapján kell meghatároznunk.
 
 
 
@@ -2038,10 +2065,11 @@ Az eredeti, gépi tanulás \textbf{nélküli} algoritmus eredményei, a minták 
 kifejezve:
 
 \begin{figure}[h!]
+	\centering
 	\begin{tabular}{ l l l l l }
 		\underline{Adathalmaz}		& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
-		*\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
-		*\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
+		\texttt{bpas-verdict.csv}\footnotemark 	& 959 			& 206 			& 19	 	& 7			\\
+		\texttt{bpas-merged.csv}\footnotemark[\value{footnote}] 	& 496			& 54 			& 16		& 1			\\
 	\end{tabular}
 
 	\caption{Az eredeti algoritmus eredményei}
@@ -2057,7 +2085,7 @@ Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel öss
 	\centering
 	\begin{tabular}{ l c c c c }
 		\underline{Módszer} 		& Összes minta 	& Bizonytalan	& FP	& FN \\
-		\texttt{bpas-verdict.csv}\footnotemark 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
+		\texttt{bpas-verdict.csv}\footnotemark[\value{footnote}] 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
 		\texttt{bpas-merged.csv}\footnotemark[\value{footnote}] 	& 496			& 0.10			& 0.14545 	& 0.00259   \\
 		
 		\hline
@@ -2394,6 +2422,8 @@ ez még a jövő feladata.
 
 \newpage
 \section{Fejlesztői dokumentáció}
+
+A forráskódok a \url{https://github.com/csatacsirke/diplomamunka/} weboldalon érhetőek el.
 
 
 \textit{Megjegyzés}: Tekintve, hogy a projekt nem egy végfelhasználói alkalmazás, hanem 
