@@ -744,7 +744,7 @@ Ha jellemzővektorokkal dolgozunk, akkor legtipikusabb a \textit{Max pooling} r�
 \end{figure}
 
 
-\paragraph{Felül-mintavételező réteg} (\textit{Upsampling})
+\paragraph{Felül-mintavételező réteg} (\textit{Upsampling, Unpooling})
 
 
 Az alul-mintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg
@@ -1980,7 +1980,7 @@ kimenetekben. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelento
 Az előző fejezet konvolúciós hálójához hasonlóan Konvolúció-Relu-MaxPooling hármasokat
 fűztünk egymás után. Úgy találtuk hogy az általánosítás $ 7 \times 7 $-es kernelméret 
 mellett volt optimális. Ha ennél kisebb volt, akkor túltanult, ha jelentősen nagyobb 
-($ 11  $és felette) már nem volt képes értékelhető eredményt adni.
+($ 11 $ és felette), akkor  már nem volt képes értékelhető eredményt adni.
 
 A háló második fele az első fél tükrözve, figyelve arra, hogy a végső dimenzió pont akkora 
 legyen, mint a bemenet. A \textit{Max poolingok} párja egy-egy \textit{Up sampling} réteg, amely az adott
@@ -2037,23 +2037,28 @@ addig is az átlagos hibarátát tekintettük mérvadó mérőszámnak.
 Az eredeti, gépi tanulás \textbf{nélküli} algoritmus eredményei, a minták \underline{darabszámában} 
 kifejezve:
 
-\begin{tabular}{ l l l l l }
-	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
-	*\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
-	*\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
-\end{tabular}
+\begin{figure}[h!]
+	\begin{tabular}{ l l l l l }
+		\underline{Adathalmaz}		& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
+		*\texttt{bpas-verdict.csv} 	& 959 			& 206 			& 19	 	& 7			\\
+		*\texttt{bpas-merged.csv} 	& 496			& 54 			& 16		& 1			\\
+	\end{tabular}
 
-\mbox{}
+	\caption{Az eredeti algoritmus eredményei}
+\end{figure}
 
-\noindent
+%\mbox{}
+%
+%\noindent
 Ahogy a \ref{sec:dupla.kepes.eljaras} pontban írtuk, három módszer volt a tanításra.
 Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel összehasonlítva:
 
 \begin{figure}[h!]
-	\begin{tabular}{ l l l l l }
-		\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
-		*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
-		*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
+	\centering
+	\begin{tabular}{ l c c c c }
+		\underline{Módszer} 		& Összes minta 	& Bizonytalan	& FP	& FN \\
+		\texttt{bpas-verdict.csv}\footnotemark 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
+		\texttt{bpas-merged.csv}\footnotemark[\value{footnote}] 	& 496			& 0.10			& 0.14545 	& 0.00259   \\
 		
 		\hline
 		(1) verdict+SVM					& 894			& 0				& 0.00297	& 0.00566	\\
@@ -2062,10 +2067,14 @@ Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel öss
 		
 	\end{tabular}
 
-\textit{*Lásd a \ref{sec:adatok} pontot.}
-% TODO caption	
+%	\begin{flushleft}
+%	\textit{*Lásd a \ref{sec:adatok} pontot.}
+%	\end{flushleft}
+	\caption{Az SVM eredményei összehasonlítva az eredeti algoritmusokéval}
+
 \end{figure}
 
+\footnotetext{Lásd a \ref{sec:adatok} pontot.}
 %\mbox{}
 
 
@@ -2096,15 +2105,15 @@ találhatunk hibátlanul működő modellt. Ennek vizsgálata nagyobb és válto
 
 
 %
-%TODO a dunno még csak benne sincs!
+% a dunno még csak benne sincs!
 %
-%TODO eredményeket fenntartással kezelni, minél több mintha annál jobb lesz,
+% eredményeket fenntartással kezelni, minél több mintha annál jobb lesz,
 %de a kölönbözőség a fontos, nem a mennyiség
 %
-%TODO ajnározni hogy ez mennyivel jobb mint az előző és tekintve hogy ez egy 
+% ajnározni hogy ez mennyivel jobb mint az előző és tekintve hogy ez egy 
 %próba projekt ígyéretes az eredmény
 %
-%TODO meg kéne magyarázni mik azok a csv-k, valszeg még a megoldás részben
+% meg kéne magyarázni mik azok a csv-k, valszeg még a megoldás részben
 %ha uj feature kerül be arról is jó eséllyel jó lehet
 
 
@@ -2225,22 +2234,33 @@ logaritmikus skálát használ a jobb láthatóság kedvéért!
 
 Végül nézzük az összehasonlítást az eredeti, gépi tanulást nélkülöző algoritmusokkal:
 
+\begin{figure} [h!]
+	\centering
+	\begin{tabular}{ l c c c c  }
+		\underline{Módszer} 			& Összes minta 	& Bizonytalan	& FP	& FN \\
+		\texttt{bpas-verdict.csv}\footnotemark 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
+		\texttt{bpas-merged.csv}\footnotemark[\value{footnote}]  	& 496			& 0.10			& 0.14545 	& 0.00259   \\
+		
+		\hline
+		Konvolúviós háló redukálva\footnotemark 	& 894			& 0				& 0.02798	& 0.00972	\\
+		Konvolúviós háló újratanítva& 894			& 0				& 0.05555	& 0.00900	\\
+		
+		
+	\end{tabular} 
 
-\begin{tabular}{ l l l l l }
-	\underline{fájl} 			& Összes minta 	& Bizonytalan	& Fals-pozitív	& Fals-negatív \\
-	*\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.1021 	& 0.0090 	\\
-	*\texttt{bpas-merged.csv} 	& 496			& 0.10			& 0.1454 	& 0.0025   \\
-	
-	\hline
-	Konvolúviós háló redukálva**& 894			& 0				& 0.02798	& 0.00972	\\
-	Konvolúviós háló újratanítva& 894			& 0				& 0.05555	& 0.00900	\\
-	
-\end{tabular} \mbox{}
+	\caption{A mély konvolúciós háló eredményei}
+%	\caption{A mély konvolúciós háló eredményei összehasonlítva az eredeti algoritmusokéval}
+\end{figure}
+
+\addtocounter{footnote}{-1}
+\footnotetext{Lásd a \ref{sec:adatok} pontot.}
+\addtocounter{footnote}{1}
+\footnotetext{A fentiek szerint szűrt mintákon.}
 
 
-\textit{*Lásd a \ref{sec:adatok} pontot.}
-
-\textit{**A fentiek szerint szűrt mintákon.}
+%\textit{*Lásd a \ref{sec:adatok} pontot.}
+%
+%\textit{**A fentiek szerint szűrt mintákon.}
 
 
 Összességében azt mondhatjuk, hogy a konvolúciós háló jól teljesített, megállja a helyét 
@@ -2375,26 +2395,15 @@ ez még a jövő feladata.
 \newpage
 \section{Fejlesztői dokumentáció}
 
-%TODO nincs felhasználói dokumentáció, mert ez nem egy alkalmazás, hanem egy prototípus!
-%nem végfelhasználónak készült
 
 \textit{Megjegyzés}: Tekintve, hogy a projekt nem egy végfelhasználói alkalmazás, hanem 
-csak egy prototípus, a kódhoz nem mellékelünk felhasználói dokumentációt.
+egy prototípus, a kódhoz nem mellékelünk felhasználói dokumentációt.
 
 
-A projektet \texttt{python} nyelven készítettük. Ez kiválóan alkalmas prototípusok készítésére,
-melyeket újrafordítás nélkül, akár egy-egy sort futtatva azonnal kipróbálhatunk. Hála  a 
-háttérkönyvtáraknak, amelyek natív kóddá fordítják a kritikus, számításigényes részeket,
-a teljesítmény sem romlik jelentősen. Ezek alapján nem meglepő, hogy a legtöbb 
-gépi tanulással foglalkozó programcsomagnak létezik \texttt{python} interfésze.
+A projektet \texttt{python} nyelven készítettük. Ez kiválóan alkalmas prototípusok készítésére, amelyeket újrafordítás nélkül, akár egy-egy sort futtatva azonnal kipróbálhatunk. A  háttérkönyvtáraknak köszönhetően, amelyek natív kóddá fordítják a kritikus, számításigényes részeket, a  teljesítmény sem romlik jelentősen. Ezek alapján nem meglepő, hogy a legtöbb gépi tanulással foglalkozó programcsomagnak létezik \texttt{python} interfésze.
 
 
-Mi \texttt{WinPython 3.5.4}\footnote{\url{https://winpython.github.io/}} disztribúciót használtunk, de bármelyik másik 
-\texttt{python 3.x} jó lett volna. A szerző személyes tapasztalati miatt Visual Studio IDE-ben
-fejlesztettünk. Emiatt a projekt könyvtárában találunk egy \texttt{.sln} és egy \texttt{.pyproj}
-fájlt. Ez tartalmazza a szükséges konfigurációkat a fejlesztőkörnyezet számára.	Ezeket használva
-a program alapértelmezés szerint a \texttt{./working\_dir/} könyvtárban fut, ott keres
-minden szükséges bemenetet, valamint az a relatív elérési útvonalak alapja.
+Mi \texttt{WinPython 3.5.4}\footnote{\url{https://winpython.github.io/}} disztribúciót használtunk, de bármelyik másik \texttt{python 3.x} jó lett volna. A szerző személyes tapasztalatai miatt Visual Studio IDE-ben fejlesztettünk. Emiatt a projekt könyvtárában található egy \texttt{.sln} és egy \texttt{.pyproj} fájlt, amelyek tartalmazzák a szükséges konfigurációkat a fejlesztőkörnyezet számára. Ezeket használva a program alapértelmezés szerint a \texttt{./working\_dir/} könyvtárban fut, valamint ott keres minden szükséges bemenetet, és ez a relatív elérési útvonalak alapja.
 
 
 A szkriptek platformfüggetlenek, futtatásukhoz a \texttt{pythonon} és annak megfelelő csomagjain 
@@ -2450,7 +2459,7 @@ A konvolúciós hálónkat ezzel készítettük.
 
 \subsubsection{OpenCV}
 
-Számítógépes látáshoz írt képkezelő könyvtár. Lényegében minden meg van benne ami egy
+Számítógépes látáshoz írt képkezelő könyvtár. Lényegében minden meg van benne, ami egy
 átlagos képszerkesztő programban. Ennek segítségével töltjük be a képeket, valamint 
 ezzel számoljuk ki és végezzük el a normalizáláshoz szükséges perspektív transzformációt.
 
@@ -2465,7 +2474,7 @@ de ez csak akkor igaz, ha megelégszünk azzal, hogy a program a CPU-n fut. A GP
 használatba vételéhez további komponensek szükségesek.
 
 
-Először is szükségünk van egy \texttt{CUDA}-t támogató videókártyára. Erre jelenleg csak
+Először is szükségünk van egy \texttt{CUDA}-t támogató videókártyára, erre viszont jelenleg csak
 az Nvidia kártyák képesek. Ezután fel kell telepítenünk a CUDA fejlesztő csomagját (SDK), ami a
 GPU általános célú programozását teszi lehetővé. 
 
@@ -2504,10 +2513,11 @@ A többi fájl csak segédfüggvényeket tartalmaz.
 
 \subsection{cnn.py}
 
-Ez a konvolúciós háló belépési pontja. Ezzel tudunk tanítani és kiértékelni. Tekintve, hogy 
-ez nem egy végfelhasználói alkalmazás, és hogy egy szkriptnyelvvel dolgozunk nincs 
+Ez a konvolúciós háló belépési pontja, ezzel tudunk tanítani és kiértékelni. Tekintve, hogy 
+a programunk nem egy végfelhasználói alkalmazás, és hogy egy szkriptnyelvvel dolgozunk nincs 
 felhasználói felület. A szkript első néhány sorában, a függőségek után találjuk a bemeneti 
-paramétereket. Ezek közül a fontosak a következők:
+paramétereket. Ezek közül a következők fontosak:
+%Ezek közül a fontosak a következők:
 
 \subsubsubsection{use\_autoencoder : bool}
 
@@ -2523,7 +2533,7 @@ már meglévőt amit betölthet és használhat.
 
 \subsubsubsection{stage : int $ \in \{1, 2\} $}
 
-A program két fázisból áll, egy tanítási és egy kiértékelési. Ha ez a paraméter
+A program két fázisból áll, egy tanításiból és egy kiértékelésiből. Ha ez a paraméter
 $ 2 $, akkor átugorjuk a tanítási fázist. Ekkor a \texttt{recalculate} paraméternek
 hamisnak kell lennie, és léteznie kell egy korábban elmentett modellnek, amit be
 tudunk tölteni.
@@ -2540,7 +2550,8 @@ kell lennie.
 
 \subsubsubsection{weight\_file : String?}
 
-A program, amikor egy előző modellt próbál betölteni megkeresi a dátum szerint utolsó
+%A program, amikor egy előző modellt próbál betölteni megkeresi a dátum szerint utolsó
+Amikor a program egy előző modellt próbál betölteni, megkeresi a dátum szerinti utolsó
 fájlt, és azzal próbál dolgozni. Lehetőségünk van ezt felülbírálni, és a modell elérési
 útvonalát explicit megadni. Ha nem szeretnénk használni, állítsuk az értékét \texttt{None}-ra.
 
@@ -2548,7 +2559,7 @@ fájlt, és azzal próbál dolgozni. Lehetőségünk van ezt felülbírálni, é
 \subsubsubsection{default\_input\_file\_name: String}
 
 Egy olyan \texttt{.csv} fájlra kell mutatnia, amelynek első oszlopa képek elérési útvonala,
-a második pedig egy azonosító, hogy az adott kép eredeti~(0) vagy hamis~(1) nyomatról készült.
+a második pedig egy azonosító arról, hogy az adott kép eredeti~(0) vagy hamis~(1) nyomatról készült.
 Ezt csak az első futtatáskor használjuk, amikor a tanító-, validációs- és teszthalmazokat 
 generáljuk. Amint ezek elkészültek elmentjük őket egy külön fájlba, amit minden futtatás elején
 betöltünk. Ezt a \texttt{dataset\_handler.py} modul \texttt{load\_dataset\_or\_create\_new} 
@@ -2570,21 +2581,25 @@ modellünket. A fenti paraméterek alapján kiválasztjuk milyen sémát haszná
 modelljének építését. Ha a modell elkészült, akkor készen állunk a munkára.
 
 
-Ha az első fázisban vagyunk, akkor a \texttt{model.fit\_generator} függvényét hívjuk meg
-a tanítás elkezdéséhez. A tanulás és a megállás a \ref{sec:cnn}. fejezetben ismertetettek 
-szerint történik.
+%Ha az első fázisban vagyunk, akkor a \texttt{model.fit\_generator} függvényét hívjuk meg
+Az első fázisban a \texttt{model.fit\_generator} függvényét hívjuk meg
+%a tanítás elkezdéséhez. A tanulás és a megállás a \ref{sec:cnn}. fejezetben ismertetettek 
+a tanítás elkezdéséhez, amely a \ref{sec:cnn}. fejezetben ismertetettek szerint történik.
 
 
 A második fázisban a modellt a \texttt{Scheme.eval} függvény értékeli ki. A teszthalmaz 
-minden elemére elvégzi az osztályozást, majd az eredményt egy \texttt{.csv} fájlba írja.
-Ezután ez a háló további használata nélkül is vizsgálható statisztikai szempontok alapján.
+minden elemére elvégzi az osztályozást, majd az eredményt egy \texttt{.csv} fájlba írja, így ezután a statisztikai vizsgálat a háló használata nélkül is elvégezhető.
+%Ezután ez a háló további használata nélkül is vizsgálható statisztikai szempontok alapján.
+
 
 
 \subsection{statistics.py}
 
-A \texttt{cnn.py} szkript kimenetét elemezi és vizualizálja. A bemenete egy \texttt{.csv} 
-fájl, amit vagy parancssori paraméterként kap, vagy amennyiben ez hiányzik, az időben utolsó,
-\texttt{.stage2.csv}-re végződő fájl a futtatási könyvtárban.
+A \texttt{cnn.py} szkript kimenetét elemezi és vizualizálja. 
+A parancssori bemenete egy \texttt{.csv} fájl, amelyet elemezni fog. Amennyiben ez hiányzik, úgy az időben utolsó, \texttt{.stage2.csv}-re végződő fájlt tölti be a futtatási könyvtárból.
+%A bemenete egy \texttt{.csv} 
+%fájl, amit vagy parancssori paraméterként kap, vagy amennyiben ez hiányzik, az időben utolsó,
+%\texttt{.stage2.csv}-re végződő fájl a futtatási könyvtárban.
 
 
 Futtatás során bemenethez kiszámolja a hozzá tartozó ROC-görbét, legkisebb hibarátát,
@@ -2613,7 +2628,7 @@ lássuk a lényegeseket:
 \item 
 	\texttt{mode\_fit\_and\_test}: Az input alapján betanít egy SVM-et és értékeli azt.
 \item
-	 mode\_batch\_fit\_and\_test: Az input alapján több SVM-et tanít és eredményeiket átlagolja.
+	 \texttt{mode\_batch\_fit\_and\_test}: Az input alapján több SVM-et tanít és az eredményeiket átlagolja.
 	 Ennek szükségességét az eredmények fejezetben tárgyaltuk.
 \item 
 	\texttt{mode\_hyperopt}: Az input alapján megkeresi a legjobb hiperparamétereket. 
@@ -2623,7 +2638,8 @@ lássuk a lényegeseket:
 
 \subsubsubsection{use\_two\_images : bool}
 
-Ha ez a paraméter be van kapcsolva, akkor megkíséreljük a szomszédos képek összefűzését, ahogy azt
+%Ha ez a paraméter be van kapcsolva, akkor megkíséreljük a szomszédos képek összefűzését, ahogy azt
+Ha ez \texttt{True}, akkor megkíséreljük a szomszédos képek összefűzését, ahogy azt
 a \ref{sec:dupla.kepes.eljaras}. pontban részleteztük.
 
 
@@ -2633,7 +2649,7 @@ Ahogy azt korábban írtuk, a képeket a célzókörök alapján normalizáltuk,
 erőforrás-igényes lett volna futási időben, ezért ezt már tanítás előtt lefuttattuk minden
 mintára. Ennek megvalósítására szolgál ez a szkript. A bemenetként kapott \texttt{.csv} 
 fájl által hivatkozott minden képhez elkészíti annak normalizált változatát, majd elmenti
-az eredetik mellé, egy \texttt{"normalized\_"} előtaggal.
+az eredetiek mellé, egy \texttt{"normalized\_"} előtaggal.
 
 Amennyiben a célzókörök koordinátái nem álltak rendelkezésre egy-egy képhez, úgy azok nem
 lettek figyelembe véve.
