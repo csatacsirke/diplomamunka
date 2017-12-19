@@ -187,9 +187,10 @@ Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bem
 
 \label{sec:kanonikus.feladat}
 A \textit{kanonikus gépi tanulási feladat} a következőképpen írható fel:
+%\min\limits_{\theta} L(\theta, x_1, \dots, x_n, y_1, \dots, y_n) = \frac{1}{n}  \sumn{i} l(f(\theta, x_i), y_i) + R(\theta)
+
 \[ 
-%\min\limits_{\theta} L(\theta, x_i, y_i) = \frac{1}{n}  \sumn{i} l(f(\theta, x_i), y_i) + R(\theta)
-\min\limits_{\theta} L(\theta, \underline{x}, \underline{y}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), y_i) + R(\theta)
+\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n) = \frac{1}{n}  \sumn i l(f(\underline{\theta}, \underline{x}_i), \underline{y}_i) + R(\underline{\theta})
  \]
 ,ahol $ \underline{x} $ a bemenetek, $ \underline{y} $ a hozzájuk tartozó elvárt kimenetek, $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, és $ \theta $ a tanulandó paraméterek. Ezekről a következő fejezetekben írunk részletesebben.
 
@@ -504,8 +505,13 @@ $ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
 
 Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
 Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási feladat úgy módosul, hogy $ \underline{x} = \underline{y} $, azaz az elvárt kimenet maga a bemenet:
+%\[ 
+%\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
+%\]
+
+
 \[ 
-\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
+\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n) = \frac{1}{n}  \sumn i l(f(\underline{\theta}, \underline{x}_i), \underline{x}_i) + R(\underline{\theta})
 \]
 
 
