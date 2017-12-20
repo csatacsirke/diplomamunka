@@ -180,7 +180,7 @@ aggregál, és ezek alapján egy döntést hoz: \textit{Eredeti, Hamis, Nem tudj
 %R : regularizáció
 % f: többszörösen összetett ( mély hálóknál legalábbis)fv - ezt meg lehet mutatni az egyes specializációknal
 
-Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bemenet-kimenet tanító példapárokon valamilyen célfüggvényt minimalizálásával hangolunk be. A célfüggvény általában valamilyen predikciós hiba: a bemeneteket leképezve a kimenetet szeretnénk megbecsülni, lehetőleg úgy, hogy a becslés új, még nem látott példapárokon is pontos legyen.
+Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bemenet-kimenet tanító példapárokon valamilyen célfüggvény minimalizálásával hangolunk be. A célfüggvény általában valamilyen predikciós hiba: a bemeneteket leképezve a kimenetet szeretnénk megbecsülni, lehetőleg úgy, hogy a becslés új, még nem látott példapárokon is pontos legyen.
 
 
 % TODO itt lehet, hogy ki lehetne fejteni, hogy x,y ne mfeltétlen vektor hanem akár lista vagy tenzor vagy akármi is lehet, lényeg hogy több van belőlük
@@ -201,7 +201,7 @@ Manapság egyre több területen használják automatizálásra, például kép-
 
 Alapvetően két nagy csoportja létezik: felügyelt és felügyeletlen tanulás.
 Az előbbi esetben rendelkezésre áll a bemenetekhez tartozó elvárt kimenet (\textit{ground truth}); utóbbi esetben viszont nem, ekkor jobb híján a bemenetet szükséges kimenetként is használni, és meg lehet próbálni információt kompresszálni, zajt szűrni.  %A felügyeletlen tanulás célja, hogy a modell magától találjon új összefüggéseket.
-Mi a mindkét témakörrel foglalkozunk: rendelkezésre állnak a tanító példák és a hozzájuk
+Mi mindkét témakörrel foglalkozunk: rendelkezésre állnak a tanító példák és a hozzájuk
 tartozó elvárt kimenetek; emellett vizsgáljuk a valódi bemeneteken tanított felügyeletlen rendszer becslési képességét is, ekkor azt várjuk, hogy a hamis mintákat csak rosszul tudja rekonstruálni. Modellként Támasztóvektor Gépeket és Mély Konvolúciós hálókat
 fogunk alkalmazni.
 
@@ -384,7 +384,7 @@ amíg a dimenziója el nem éri a várt kimenetét.
 
 
 % TODO ez picit szóismétlés így?
-Egy mély háló modellje egy többszörösen összetett függvény, melynek függvényei a rétegek. Ezek paraméteres leképzések, melyek paramétereit gradiens módszerrel számoljuk. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
+Egy mély háló modellje egy többszörösen összetett függvény, melynek függvényei a rétegek. Ezek paraméteres leképezések, melyek paramétereit gradiens módszerrel számoljuk. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
 %Egy mély háló modellje a következő alakban írható fel:
 
 \[ 
@@ -702,7 +702,7 @@ Ekkor $ k $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós
 
 Konvolúciós hálóknál ilyen kerneleket rendelünk egy-egy réteghez.
 Tanításnál minden kernellel elkészítjük a kép konvolúcióját,
-majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tárolunk.
+majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tároljuk.
 Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
 
 \noindent
@@ -766,7 +766,7 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 
 
 %\paragraph{Dekonvolúciós reteg}
-\subsubsubsection{Dekonvolúciós reteg}
+\subsubsubsection{Dekonvolúciós réteg}
 
 
 A konvolúciós réteg inverze.
@@ -839,7 +839,7 @@ Az autoencodernél ezt használjuk.
 Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
 ahol az 1 helye a hozzá tartozó osztály indexe.
 
-Bináris esetben $ \underline{y}=(0, 1) $ ha a mintha az egyik, és
+Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az egyik, és
 $ \underline{y}=(1, 0) $ ha a másik csoportba tartozik.
 
 \[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T \cdot log(\underline{\hat{y}})  \]
@@ -884,8 +884,8 @@ modellt (\textit{tanító halmaz, training set}), a másikkal ellenőrizzük, ho
 Ha csak ez a két halmazunk lenne, akkor előfordulhatna, hogy a hiperparaméterekkel
 addig-addig kísérletezünk amíg egyszer csak elfogadható validációs hibát kapunk. 
 Lehetséges azonban, hogy ez az éppen kiválasztott adat sajátossága, azaz véletlen,
-ezért bevezetünk egy harmadik, a \textit{teszt halmazt}. Ennek célja, hogy ellenőrizni
-tudjuk a modell helyességét hiperparaméterek véglegesítése után.
+ezért bevezetünk egy harmadik halmazt, a \textit{teszt halmazt}. Ennek célja, hogy ellenőrizni
+tudjuk a modell helyességét a hiperparaméterek véglegesítése után.
 
 
 %, melynek célja, hogy
@@ -939,11 +939,11 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 
 Valódi-pozitív (\textit{true positive, tp}), 
 Valódi-negatív (\textit{true negative, tn}): \\
-Amikor egy példát a megfelelően osztályozunk.
+Amikor egy példát megfelelően osztályozunk.
 
 Fals pozitív / Elsőfajú hiba (\textit{fp}) 
 és Fals negatív / Másodfajú hiba(\textit{fn}): \\
-A mi kontextusunkban az elsőfajú a hiba, ha egy hamisítványt eredetinek
+A mi kontextusunkban elsőfajú a hiba, ha egy hamisítványt eredetinek
 osztályozunk, a másodfajú ennek fordítottja.
 
 Azért fontos ezek kettéválasztása, mert ez a két hiba egymás rovására 
@@ -1000,7 +1000,7 @@ predikciók, akkor
 \[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n}  \]
 
 \noindent
-Bár ez személetes, nem tükrözi igazán jól a hatékonyságot.
+Bár ez szemléletes, nem tükrözi igazán jól a hatékonyságot.
 
 
 \paragraph{F1 score} \mbox{} 
@@ -1119,7 +1119,7 @@ fejezetben írunk. Erre a programra a továbbiakban nem támaszkodtunk.
 
 \subsection{Döntéshozás SVM-mel}
 
-Az kiinduló ötletünk az volt, hogy alkalmazzunk gépi tanulást egy már meglévő projektben,
+A kiinduló ötletünk az volt, hogy alkalmazzunk gépi tanulást egy már meglévő projektben,
 és nézzük meg, hogy ezzel tudunk-e javítani rajta. Ez a meglévő projekt, bár több 
 alkalmazás készült egy-egy ipari megoldáshoz, lényegében egy képet elemez 
 különböző szempontok szerint, ez alapján fix darab számszerű jellemzőt készít, 
@@ -1151,7 +1151,7 @@ Mindezek mellett kevesebb a hiperparamétere.
 \subsubsection{Adatok}
 \label{sec:adatok}
 
-Az adatainkat egy \texttt{csv} fájlból olvassuk ki, amit ez előzőekben említett program 
+Az adatainkat egy \texttt{csv} fájlból olvassuk ki, amit az előzőekben említett program 
 generált. Egy-egy sor tartalmazza az adott fájl elérési útját, a \textit{ground truth}-t,
 a Jurás program predikcióját, néhány metaadatot, és végül a számunkra érdekes jellemzőket.
 Körülbelül 1000 mintánk állt rendelkezésre.
@@ -1280,7 +1280,7 @@ Mi a dolgozatban végül \texttt{RBF} kernelt használtunk.
 \subsubsubsection{SVC.class\_weight}
 
 Amennyiben az adatunk kiegyensúlyozatlan (márpedig nekünk az), ezzel adhatjuk meg
-az egy-egy osztály súlyát, amely általános esetben fordítottan arányos az elemszámmal.
+ egy-egy osztály súlyát, amely általános esetben fordítottan arányos az elemszámmal.
 
 Ehhez használtuk a csomag \texttt{compute\_class\_weight} függvényét, ami éppen ezt csinálja.
 Paramétere  kívánt osztályok, és \textit{ground truth}-ok.
@@ -1310,7 +1310,7 @@ Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 %jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
 %miatt lehet problémás.
 
-Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára a \ref{sec:svm}. fejezetben, akkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
+Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségfüggvényének alakjára a \ref{sec:svm}. fejezetben, akkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
 Ha $ C $ kicsi, akkor simább a döntési felület és egyszerűbb modell, ha nagyobb, akkor 
 jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
 miatt lehet problémás.
@@ -1343,7 +1343,7 @@ Az alapvető probléma az volt, hogy ha 1000 elemű a teljes mintahalmaz , akkor
 halmaz ennél mindenképp kisebb. 
 
 Az alapvető probléma az volt, nem volt elég nagy a teljes mintahalmaz, és ezáltal a validációs halmaz.
-Az hibás klasszifikációk rátája kb. $ 0.01 $ volt az alapértelmezett paraméterek mellett, ami azt
+A hibás klasszifikációk rátája kb. $ 0.01 $ volt az alapértelmezett paraméterek mellett, ami azt
 jelenti, hogy kb. 10 darab hiba volt egy validációs halmazban. Ennek a számnak a szórását mérve véletlenszerű
 tanító-tesztelő halmaz szeparációk mellett azt találtuk, hogy nem megbízható statisztika a 
 hiba ilyen módon történő mérése.
@@ -1356,7 +1356,7 @@ eredmény eloszlását.
 
 A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt} \footnote{\url{https://github.com/hyperopt/hyperopt}} csomagot vettük
 igénybe. Használatához meg kell adjuk, hogy milyen változókat milyen valószínűségi eloszlás szerint
-mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdni véletlenszerűen
+mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdi véletlenszerűen
 kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 
 
 Mi a \texttt{SVC.C} és a \texttt{SVC.gamma} paramétereket kerestük a [-0.001, 1000] intervallumban,  logaritmikusan egyenletes eloszlást használtunk, és 100 helyen értékeltük ki.
@@ -1402,7 +1402,7 @@ beépített paraméterei ($ C=1 , \gamma =\dfrac{1}{len(samples)} $) ehhez nagys
 \label{sec:dupla.kepes.eljaras}
 
 A dolgozat alapjául szolgáló alkalmazás úgy működött, hogy a nagyobb biztonságért két képet készített
-egymás után, hogy ha az egyik valami miatt rossz minőségű lett, akkor ki tudjunk választani a jobbat, 
+egymás után, hogy ha az egyik valami miatt rossz minőségű lett, akkor ki tudjuk választani a jobbat, 
 és azt elemezni. Ezt mi is megpróbáltuk kihasználni. A \texttt{csv} fájlban az egymás után készült képek adatait
 összefűztük. Két ilyen fájlt onnan ismerünk meg, hogy csak egy \texttt{\_0.png} és \texttt{\_1.png}
 posztfixben térnek el.
@@ -2019,7 +2019,7 @@ A háló második fele az első fél tükrözve, figyelve arra, hogy a végső d
 legyen, mint a bemenet. A \textit{Max poolingok} párja egy-egy \textit{Up sampling} réteg, amely az adott
 pixelt egy $ 2 \times 2 $-es ablakban megtöbbszörözi.
 
-Költségfüggvények átlagos hiba-négyzetet (\textit{MSE}) használunk, hiszen arra vagyunk 
+Költségfüggvénynek átlagos hiba-négyzetet (\textit{MSE}) használunk, hiszen arra vagyunk 
 kíváncsiak, hogy fizikailag mennyire voltunk közel az eredeti képhez.
 
 
@@ -2179,7 +2179,7 @@ módszer, így számszerű adatot nem is közlünk. A projekt szempontjából eg
  ezért fontosnak tartottuk írni róla.
 
 \label{sec:eredmenyek.100}
-Amikor a fent említett hamis mintákat kivettük az tanító halmazból, a predikciós elkezdett konvergálni,
+Amikor a fent említett hamis mintákat kivettük az tanító halmazból, a predikció elkezdett konvergálni,
 ennek eredményeit láthatjuk a \ref{fig:roc-test}. és a \ref{fig:roc-full}. ábrán. A teszthalmaz szerencsésen
 lett megválasztva, ami így 100\% os hatékonyságúnak bizonyult, ám mivel a tanító halmazon 
 futtatva a modell mégsem tökéletes, fontosnak tartottuk azt is közölni. 
