@@ -187,17 +187,17 @@ Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bem
 % TODO itt lehet, hogy ki lehetne fejteni, hogy x,y ne mfeltétlen vektor hanem akár lista vagy tenzor vagy akármi is lehet, lényeg hogy több van belőlük
 
 \label{sec:kanonikus.feladat}
-A \textit{kanonikus gépi tanulási feladat} a következőképpen írható fel:
+A \textit{kanonikus gépi tanulási feladat}\cite{james2013introduction} a következőképpen írható fel:
 %\min\limits_{\theta} L(\theta, x_1, \dots, x_n, y_1, \dots, y_n) = \frac{1}{n}  \sumn{i} l(f(\theta, x_i), y_i) + R(\theta)
-% TODO bigg, L célfüggvény, Teta aláhúzás, x_i
+%  bigg, L célfüggvény, Teta aláhúzás, x_i
 \[ 
 \min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n) = \frac{1}{n}  \sumn i l\big(f(\underline{\theta}, \underline{x}_i), \underline{y}_i\big) + R(\underline{\theta})
 , \]
-ahol $ \underline{x}_i $ a bemenetek, $ \underline{y}_i $ a hozzájuk tartozó elvárt kimenetek ($ i = 1 \dots n $), $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, $ \underline{\theta} $ a tanulandó paraméterek, és $ L $ a célfüggvény. Ezekről a következő fejezetekben írunk részletesebben.
+ahol $ \underline{x}_i $ a bemenetek, $ \underline{y}_i $ a hozzájuk tartozó elvárt kimenetek ($ i = 1, \dots, n $), $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, $ \underline{\theta} $ a tanulandó paraméterek, és $ L $ a célfüggvény. Ezekről a következő fejezetekben írunk részletesebben.
 
 
 
-Manapság egyre több területen használják automatizálásra, például kép-, hang- és nyelvfeldolgozásban, gráf adatokon, Megerősítéses Tanulásban.% és egyéb automatizálásban mintafelismerésre: gyógyászat, önvezető autók, nyomtatott szöveg felismerése; klaszterezésre: adatbányászat, szociális hálók; vagy 
+Manapság egyre több területen használják automatizálásra, például kép-\cite{krizhevsky2012imagenet}\cite{redmon2016you}, hang-\cite{oord2016wavenet} és nyelvfeldolgozásban\cite{mikolov2010recurrent}, gráf adatokon\cite{kipf2016semi}, Megerősítéses Tanulásban\cite{mnih2013playing}\cite{silver2016mastering}.% és egyéb automatizálásban mintafelismerésre: gyógyászat, önvezető autók, nyomtatott szöveg felismerése; klaszterezésre: adatbányászat, szociális hálók; vagy 
 %mesterséges intelligenciák készítésére: ajánló rendszerek, csevegő robotok, játékok (például Go vagy Sakk).
 
 Alapvetően két nagy csoportja létezik: felügyelt és felügyeletlen tanulás.
@@ -210,7 +210,7 @@ fogunk alkalmazni.
 \subsubsection{Támasztóvektor Gép}
 \label{sec:svm}
 
-A Támasztóvektor Gép (Support Vector Machine, SVM) egy bináris osztályozási feladat. 
+A Támasztóvektor Gép\cite{cortes1995support} (Support Vector Machine, SVM) egy bináris osztályozási feladat. 
 A teret egy hipersíkkal két részre osztjuk úgy, hogy a két osztály előjeles távolsága ($ d_1, d_2 $) az elválasztó hipersíktól maximális legyen. 
 Egy osztály és sík távolsága alatt a sík és az ahhoz legközelebbi, az adott osztályba tartozó bemenet távolságát értjük. 
 A két távolság összegét hívjuk \textit{margónak}: 
@@ -316,7 +316,7 @@ Egy minta osztályozása ekkor:
 
 A feature-tér nagy, akár végtelen dimenziós is lehet. Mercer tételének teljesülése esetén a fenti képletben lévő
 $ \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatokat ki tudjuk számolni anélkül, hogy a transzformációt 
-elvégeznénk.
+elvégeznénk.\cite{hofmann2008kernel}
 Ehhez vezessük be a \textit{kernel függvényeket}, melyek szimmetrikus, pozitív szemidefinit függvények, és éppen a skalárszorzatot adják meg explicit képlettel:
 \[
 k(\underline{x}_i, \underline{x}_j) = \varphi(\underline{x}_i)^T \varphi(\underline{x}_j).
@@ -385,7 +385,7 @@ amíg a dimenziója el nem éri a várt kimenetét.
 
 
 % TODO ez picit szóismétlés így?
-Egy mély háló modellje egy többszörösen összetett függvény, melynek függvényei a rétegek. Ezek paraméteres leképezések, melyek paramétereit gradiens módszerrel számoljuk. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
+Egy mély háló modellje egy többszörösen összetett függvény, melynek függvényei a rétegek. Ezek paraméteres leképezések, melyek paramétereit gradiens módszerrel számoljuk\cite{lecun2015deep}\cite{krizhevsky2012imagenet}. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
 %Egy mély háló modellje a következő alakban írható fel:
 
 \[ 
@@ -504,7 +504,7 @@ $ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
 
 \subsubsection{Autoencoder}
 
-Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
+Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot\cite{autoencoder1}\cite{autoencoder2}. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
 Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási feladat úgy módosul, hogy $ \underline{x} = \underline{y} $, azaz az elvárt kimenet maga a bemenet:
 %\[ 
 %\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
@@ -871,22 +871,18 @@ Ennek kiküszöbölésére tekintsünk néhány módszert!
 \subsubsubsection{Hiperparaméterek}
 
 Gépi tanulásnál megkülönböztetjük a modell belső változóit, amit 
-a tanítás során az algoritmus maga állít, és a modell minden más tulajdonságát
-amit a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}.
-Ide tartozik például egy kernel mérete, vagy a rétegek szerkezete.
+a tanítás során az algoritmus maga állít, és a modell minden más tulajdonságát, amit a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}. Ezek kiválasztása történhet próbágatással, vagy egy olyan algoritmussal, amely minimalizálni próbálja a validációs hibát\cite{bergstra2013hyperopt}.  
+Hiperparaméter például egy kernel mérete, vagy a rétegek szerkezete.
+
 
 
 \subsubsubsection{Adat szeparálás}
 %\paragraph{Adat szeparálás}
 
-Bevett szokás, hogy ketté osztjuk az adathalmazt, az egyik részén tanítjuk a
-modellt (\textit{tanító halmaz, training set}), a másikkal ellenőrizzük, hogy mennyire teljesít jól a predikció (\textit{validációs halmaz, validation set}).
+Bevett szokás, hogy ketté osztjuk az adathalmazt, az egyik részén tanítjuk a modellt (\textit{tanító halmaz, training set}), a másikkal ellenőrizzük, hogy mennyire teljesít jól a predikció (\textit{validációs halmaz, validation set}).
 
-Ha csak ez a két halmazunk lenne, akkor előfordulhatna, hogy a hiperparaméterekkel
-addig-addig kísérletezünk amíg egyszer csak elfogadható validációs hibát kapunk. 
-Lehetséges azonban, hogy ez az éppen kiválasztott adat sajátossága, azaz véletlen,
-ezért bevezetünk egy harmadik halmazt, a \textit{teszt halmazt}. Ennek célja, hogy ellenőrizni
-tudjuk a modell helyességét a hiperparaméterek véglegesítése után.
+Ha csak ez a két halmazunk lenne, akkor előfordulhatna, hogy a hiperparaméterekkel addig-addig kísérletezünk amíg egyszer csak elfogadható validációs hibát kapunk. 
+Lehetséges azonban, hogy ez az éppen kiválasztott adat sajátossága, azaz véletlen, ezért bevezetünk egy harmadik halmazt, a \textit{teszt halmazt}. Ennek célja, hogy ellenőrizni tudjuk a modell helyességét a hiperparaméterek véglegesítése után\cite{earlystopping}.
 
 
 %, melynek célja, hogy
@@ -901,10 +897,7 @@ Ideális esetben a validációs és a teszt hiba közel megegyező.
 \paragraph{Kiejtés} (\textit{dropout})
 
 
-A kiejtés célja, hogy a tanuló adatot szándékosan elrontsuk valamennyire, ezáltal 
-növeljük az általánosítást.
-Tartozik hozzá egy valószínűségi érték, amekkora eséllyel
-egy adatértéket kinullázunk mielőtt tovább adjuk a következő rétegnek.
+A kiejtés célja, hogy a tanuló adatot szándékosan elrontsuk valamennyire, ezáltal növeljük az általánosítást és elkerüljük a túltanulást\cite{earlystopping}. Tartozik hozzá egy valószínűségi érték, amekkora eséllyelegy adatértéket kinullázunk mielőtt tovább adjuk a következő rétegnek.
 
 
 %\paragraph{Kiegyensúlyozás}
@@ -923,7 +916,7 @@ az adott algoritmus figyelembe venni az adott példát. Az utóbbit több progra
 Amennyiben nem áll rendelkezésünkre elég adat, és ez a képeknél 
 különösen gyakori probléma, úgy tudjuk növelni a tanító halmaz
 elemszámát, hogy valós időben új adatokat generálunk a már
-meglévők alapján. Például egy képet affin transzformálunk,
+meglévők alapján\cite{krizhevsky2012imagenet}. Például egy képet affin transzformálunk,
 vagy valamilyen hisztogram transzformációt alkalmazunk.
 
 
@@ -966,7 +959,7 @@ Egy eloszlás megjelenítésére a legjobb módszer egy hisztogram készítése,
 \subsubsubsection{ROC-görbe}
 
 
-Az előző két hiba arányát a Vevő működési karakterisztika (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
+Az előző két hiba arányát a Vevő működési karakterisztika\cite{rocanalysis} (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
 
 % TODO kicsit elcsúszott
 
@@ -1055,7 +1048,7 @@ A megállási feltétel lehet explicit, például ha a validációs hiba egy el�
 megadott érték alá csökken. Értelemszerűen megállunk, ha a tanulási hiba már nem csökken tovább.
 Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba
 viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett
-túltanulni, ilyenkor megállunk (\textit{early-stopping}).
+túltanulni, ilyenkor megállunk (\textit{early-stopping})\cite{earlystopping}.
 
 
 %\paragraph{Regularizáció}
@@ -1064,7 +1057,7 @@ túltanulni, ilyenkor megállunk (\textit{early-stopping}).
 %Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
 %költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
 
-Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\theta) $ függvény volt a regularizáció. Például az SVM feladatnál:
+Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást\cite{regularizacio}. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\theta) $ függvény volt a regularizáció. Például az SVM feladatnál:
 
 %Például, ahogy az SVM-nél láthattuk:
 
@@ -1091,7 +1084,7 @@ a nyers adatból, a képből meghozni.
 \subsection{Eszközök}
 
 A megvalósítás nyelvének python-t választottunk.
-A gépi tanuláshoz a \texttt{Keras} \footnote{\url{https://keras.io/}} és \texttt{Sklearn} \footnote{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}} könyvtárakat 
+A gépi tanuláshoz a \texttt{Keras}\footnote{\url{https://keras.io/}} \cite{chollet2015keras} és \texttt{Sklearn} \footnote{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}} könyvtárakat 
 használtuk. Ezek a \texttt{Tensorflow} \footnote{\url{https://www.tensorflow.org/}} csomag segítségével képesek a
 GPU-n futni, ezáltal gyorsítva a tanítás folyamatát. Ez különösképpen a 
 képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
