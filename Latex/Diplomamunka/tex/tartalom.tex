@@ -609,7 +609,7 @@ f(\underline{\theta}, \underline{x}) = g(W \underline{x} + \underline{b}) .
 	\end{tikzpicture}
 	
 	
-	\caption{Két sűrű réteg. Figyeljük meg a rétegek közti teljes konnektivitást.}
+	\caption{Két sűrű réteg. Figyeljük meg a rétegek teljes konnektivitását.}
 	\label{fig:suru.reteg}
 	
 	
@@ -701,18 +701,28 @@ A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két param
 % sima lett
 
 %Konvolúciós réteget általában kétdimenziós képek feldolgozásakor használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
-Konvolúciós réteget általában kétdimenziós képek feldolgozásakor használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk több csatornával is rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
+%Konvolúciós réteget általában kétdimenziós képek feldolgozásakor használnak, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk több csatornával is rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
+
+Konvolúciós réteget általában egy $ N $ dimenziós tenzor feldogozásánál használnak.
+Matematikailag két tenzor konvolúciója egy- és kétdimenziós esetben:
 
 
-\[  (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k]  \]
-\[  (x*k)[n, m] =  
-\sum\limits_{i=-\infty}^{\infty} 
+%\[  (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k] , \]
+%\[  (x*k)[n, m] =  
+%\sum\limits_{i=-\infty}^{\infty} 
+%\sum\limits_{j=-\infty}^{\infty} 
+%x[n, m] \cdot k[n-i, m-j] . \]
+
+\[  (\underline{x}*\underline{k})_{n} =  \sum\limits_{k=-\infty}^{\infty} x_{k} \cdot k_{n-k} , \]
+\[  (X*K)_{n, m} =  
+\sum\limits_{i=-\infty}^{\infty}  
 \sum\limits_{j=-\infty}^{\infty} 
-x[n, m] \cdot k[n-i, m-j]  \]
+X_{n, m} \cdot K_{n-i, m-j} . \]
+
 
 
 %Ekkor $ k $-t kernelnek hívjuk.
-Ekkor $ k $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
+Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
 
 
 Konvolúciós hálóknál ilyen kerneleket rendelünk egy-egy réteghez.
