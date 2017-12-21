@@ -1037,9 +1037,49 @@ az adott algoritmus figyelembe venni az osztályba tartozó példák hibáit. Az
 Amennyiben nem áll rendelkezésünkre elég adat, és ez képeknél 
 különösen gyakori probléma, úgy tudjuk növelni a tanító halmaz
 elemszámát, hogy valós időben új adatokat generálunk a már
-meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képre affin, vagy hisztogram-transzformációt alkalmazhatunk.
+meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képre affin, vagy hisztogram transzformációt alkalmazhatunk.
 %,
 %vagy valamilyen hisztogram transzformációt alkalmazhatunk.
+
+
+%\paragraph{Megállás}
+\subsubsubsection{Megállás}
+
+A gradiens módszer leállási feltétele lehet explicit, például ha a validációs hiba egy előre megadott érték alá csökken. Értelemszerűen megállunk, ha a tanító halmazon mért hiba már nem csökken tovább.
+Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett túltanulni, ezért leállítjuk az optimalizációt (\textit{early-stopping}) \cite{earlystopping}.
+
+
+%\paragraph{Regularizáció}
+\subsubsubsection{Regularizáció}
+
+%Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
+%költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
+
+Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást \cite{regularizacio}. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\underline{\theta}) $ függvény volt a regularizáció. Tipikus példák regularizációra:
+
+\begin{itemize}
+	\item 
+$ 	\norm{\underline{\theta}}_1  $
+	
+	\item 
+	$ \dfrac{1}{2} \norm{\underline{\theta}}_2^2  $
+\end{itemize}
+
+
+
+
+% Például az SVM feladatnál:
+
+%Például, ahogy az SVM-nél láthattuk:
+%\underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n
+%
+%\[  L(\underline{w},b, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+%max(0, 1 - y_i(\underline{w}^T \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
+%
+%\noindent
+%$  \lambda \norm{\underline{w}} $ a regularizációs tag, $ \lambda $ pedig egy hiperparaméter.
+
+
 
 
 \subsubsection{A teljesítmény mérése}
@@ -1056,16 +1096,16 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 
 \begin{itemize}
 	\item 
-	Tényleges pozitív (\textit{true positive, tp}): Ha egy eredeti mintát megfelelően osztályoztunk.
+	Tényleges pozitív (\textit{true positive, tp}): Ha egy pozitív mintát megfelelően osztályoztunk.
 	
 	\item 
-	Tényleges negatív (\textit{true negative, tn}): Ha egy hamis mintát megfelelően osztályoztunk.
+	Tényleges negatív (\textit{true negative, tn}): Ha egy negatív mintát megfelelően osztályoztunk.
 
 	\item 
-	Fals pozitív / Elsőfajú hiba (\textit{fp}): Ha egy hamis mintát eredetinek osztályozunk.
+	Fals pozitív / Elsőfajú hiba (\textit{fp}): Ha egy negatív mintát pozitív osztályozunk.
 	
 	\item 
-	Fals negatív / Másodfajú hiba (\textit{fn}): Ha egy eredeti mintát hamisnak osztályozunk.
+	Fals negatív / Másodfajú hiba (\textit{fn}): Ha egy pozitív mintát negatívnak osztályozunk.
 	
 	\item 
 	Pontosság (\textit{accuracy}):
@@ -1074,10 +1114,11 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 	Ha $ (y_i, \hat{y_i}) $ az elvárt értékek és a hozzájuk tartozó 
 	predikciók, akkor
 	
-	\[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n}  \]
+	\[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n} , \]
 	
-	\noindent
-	Bár ez szemléletes, nem tükrözi igazán jól a hatékonyságot.
+	ahol $ \chi $ az indikátorfüggvény.
+	
+	Bár ez szemléletes, nem tükrözi igazán jól a hatékonyságot, hiszen kiegyensúlyozatlan osztályok torzul az eredmény.
 	
 	\item 
 	F1 score:
@@ -1089,15 +1130,15 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 	
 	
 	\item 
-	ROC görbe alatti terület (\textit{ROC-AUC score})
+	ROC görbe alatti terület (\textit{ROC-AUC score}):
 	
 	
-	A kétféle hiba arányát a Vevő működési karakterisztika \cite{rocanalysis} (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
+	Az első- és másodfajú hiba arányát a Vevő működési karakterisztika \cite{rocanalysis} (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
 	
-	A ROC-görbe alatti terület azt mutatja meg, hogy mennyire jól szeparálható a két adathalmaz. 
-	Ha az értéke 1, akkor tökéletesen elkülönül a két eloszlás, 
-	minél kisebb, annál rosszabb. Ha $ \frac{1}{2} $-nél kisebb számot kapunk,
-	akkor gyanakodhatunk, hogy felcseréltük a két osztályt.
+	A ROC-görbe alatti terület azt mutatja meg, hogy a modell mennyire jól szeparálja a pozitív és negatív példákat egymástól. 
+	Ha az értéke 1, akkor tökéletesen elkülönítjük a két osztályt, 
+	minél kisebb, annál rosszabb a teljesítmény.
+%	 Ha $ \frac{1}{2} $-nél kisebb számot kapunk, akkor gyanakodhatunk, hogy felcseréltük a két osztályt.
 	
 \end{itemize}
 
@@ -1111,13 +1152,17 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 %A mi kontextusunkban elsőfajú a hiba, ha egy hamisítványt eredetinek
 %osztályozunk, a másodfajú ennek fordítottja.
 
-A Fals pozitív és negatív megegyezik a statisztikában használt első és másodfajú hibával.
+%A Fals pozitív és negatív megegyezik a statisztikában használt első és másodfajú hibával.
 
-Azért fontos ezek kettéválasztása, mert ez a két hiba egymás rovására 
-javítható. Egy adott feladatnál preferálhatjuk, hogy melyik az elfogadhatóbb.
-Egészségügyben például kisebb kárt okozhat a fals pozitív, mint egy fals negatív;
-mi viszont szívesebben engedünk át egy hamisítványt, mint mondjuk  azt egy eredetire, hogy hamis,
+Biztonsági nyomatoknál a pozitív példák alatt az eredetieket, negatívok alatt a hamisakat értjük.
+Esetünkben szívesebben engedünk át egy hamisítványt, mint mondjuk  azt egy eredetire, hogy hamis,
 különben megrendülne a bankjegybe vetett bizalom.
+
+%Azért fontos ezek kettéválasztása, mert ez a két hiba egymás rovására 
+%javítható. Egy adott feladatnál preferálhatjuk, hogy melyik az elfogadhatóbb.
+%Egészségügyben például kisebb kárt okozhat a fals pozitív, mint egy fals negatív;
+%mi viszont szívesebben engedünk át egy hamisítványt, mint mondjuk  azt egy eredetire, hogy hamis,
+%különben megrendülne a bankjegybe vetett bizalom.
 
 % vagy emékezzünk a meghurcolt emberre, akinek a bkv bérletéről azt hitték hamis, pedig nem is
 
@@ -1186,34 +1231,34 @@ Bevált technika, hogy készítünk egy véletlen permutációt a tanító adatb
 az egész halmaz egyszer feldolgozásra kerül, \textit{eposz}nak hívjuk.
 Eposzonként új permutációt használunk, ezekkel biztosítjuk, hogy minden
 példa azonos valószínűséggel szerepeljen.
-
-%\paragraph{Megállás}
-\subsubsubsection{Megállás}
-
-A megállási feltétel lehet explicit, például ha a validációs hiba egy előre
-megadott érték alá csökken. Értelemszerűen megállunk, ha a tanulási hiba már nem csökken tovább.
-Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba
-viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett
-túltanulni, ilyenkor megállunk (\textit{early-stopping}) \cite{earlystopping}.
-
-
-%\paragraph{Regularizáció}
-\subsubsubsection{Regularizáció}
-
-%Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
-%költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
-
-Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást \cite{regularizacio}. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\theta) $ függvény volt a regularizáció. Például az SVM feladatnál:
-
-%Például, ahogy az SVM-nél láthattuk:
-%\underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n
-
-\[  L(\underline{w},b, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
-max(0, 1 - y_i(\underline{w}^T \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
-
-\noindent
-$  \lambda \norm{\underline{w}} $ a regularizációs tag, $ \lambda $ pedig egy hiperparaméter.
-
+%
+%%\paragraph{Megállás}
+%\subsubsubsection{Megállás}
+%
+%A megállási feltétel lehet explicit, például ha a validációs hiba egy előre
+%megadott érték alá csökken. Értelemszerűen megállunk, ha a tanulási hiba már nem csökken tovább.
+%Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba
+%viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett
+%túltanulni, ilyenkor megállunk (\textit{early-stopping}) \cite{earlystopping}.
+%
+%
+%%\paragraph{Regularizáció}
+%\subsubsubsection{Regularizáció}
+%
+%%Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét. Általában beleépítünk a 
+%%költségfüggvénybe  egy tagot, ami ezért felel. Például, ahogy az SVM-nél láthattuk:
+%
+%Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást \cite{regularizacio}. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\theta) $ függvény volt a regularizáció. Például az SVM feladatnál:
+%
+%%Például, ahogy az SVM-nél láthattuk:
+%%\underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n
+%
+%\[  L(\underline{w},b, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+%max(0, 1 - y_i(\underline{w}^T \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
+%
+%\noindent
+%$  \lambda \norm{\underline{w}} $ a regularizációs tag, $ \lambda $ pedig egy hiperparaméter.
+%
 
 
 
