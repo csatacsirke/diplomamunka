@@ -725,10 +725,12 @@ X_{n, m} \cdot K_{n-i, m-j} . \]
 Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
 
 
-Konvolúciós hálóknál ilyen kerneleket rendelünk egy-egy réteghez.
-Tanításnál minden kernellel elkészítjük a kép konvolúcióját,
-majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tároljuk.
-Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
+Konvolúciós hálóknál több ilyen kernelt rendelünk egy-egy réteghez.
+Iterációnként minden egyes kernellel konvolváljuk a bemeneti képeinket, majd azokat a csatorna dimenzió mentén összegezzük.
+Tanításnál ezeket az kerneleket javítjuk minden iterációban.
+% TODO
+%Tanításnál minden kernellel elkészítjük a kép konvolúcióját, majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tároljuk.
+%Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
 
 \noindent
 Egy konvolúciós réteg alakja tehát:
@@ -736,8 +738,8 @@ Egy konvolúciós réteg alakja tehát:
 \[  \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} , \]
 
 \noindent
-ahol $ w, h,d $ az előző réteg szélessége, magassága és mélysége, 
-$ n $ pedig a szűrők (a jellemző-vektor elemeinek) száma.
+ahol $ w, h,d $ az előző réteg szélessége, magassága és csatornáinak száma, 
+$ n $ pedig a kernelek száma. 
 
 A konvolúciós réteg jellegéből adódóan egy kimeneti pixel a bemeneti rétegnek csak egy meghatározott részhalmazától függ, ellentétben a sűrű rétegekkel. Jól használható arra, hogy csökkentsük a paramétereink számát, és ezzel is elkerüljük a túltanulást.
 
