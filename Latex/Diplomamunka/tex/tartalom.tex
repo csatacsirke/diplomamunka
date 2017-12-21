@@ -549,7 +549,7 @@ Az alábbiakban áttekintjük, hogy a dolgozatban szereplő mély hálók milyen
 \paragraph{Sűrű réteg} (\textit{dense layer}) 
 
 
-Sűrű rétegről beszélünk, ha a bemenet és kimenet minden komponense között van kapcsolat. Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \underline{\theta} = \{W, \underline{b}\} $ a réteg súlyai, és $ g $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
+Sűrű rétegről beszélünk, ha a bemenet és kimenet minden komponense között van kapcsolat (\ref{fig:suru.reteg}. ábra). Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \underline{\theta} = \{W, \underline{b}\} $ a réteg súlyai, és $ g $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
 
 
 \[  
@@ -561,9 +561,8 @@ f(\underline{\theta}, \underline{x}) = g(W \underline{x} + \underline{b}) .
 
 \begin{figure} [h!]
 	\centering
-	\label{fig:suru.reteg}
 	
-	\def\layersep{2.5cm}
+	\def\layersep{3.5cm}
 	\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
 		\tikzstyle{every pin edge}=[<-,shorten <=1pt]
 		\tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
@@ -604,13 +603,15 @@ f(\underline{\theta}, \underline{x}) = g(W \underline{x} + \underline{b}) .
 				\path (H-\source) edge (O-\dest);
 		
 		% Annotate the layers
-		\node[annot,above of=H-1, node distance=1cm] (hl) {Sűrű réteg};
+		\node[annot,above of=H-1, node distance=1.5cm] (hl) {Első sűrű réteg kimenete};
 		\node[annot,left of=hl] {Bemenet};
-		\node[annot,right of=hl] {Kimenet};
+		\node[annot,right of=hl] {Második sűrű réteg kimenete};
 	\end{tikzpicture}
 	
 	
-	\caption{Sűrű réteg}
+	\caption{Két sűrű réteg. Figyeljük meg a rétegek közti teljes konnektivitást.}
+	\label{fig:suru.reteg}
+	
 	
 \end{figure}
 
@@ -625,7 +626,7 @@ f(\underline{\theta}, \underline{x}) = g(W \underline{x} + \underline{b}) .
 %kifejezőerejét. 
 
 Egy aktivációs réteg feladata, hogy valamilyen nemlinearitást vigyen a modellbe, és ezáltal növelje a háló 
-kifejezőerejét. Általában valamilyen más rétegel együtt használjuk, ahogy például a sűrű rétegnél láthattuk.
+kifejezőerejét. Általában valamilyen más réteggel együtt használjuk, ahogy például a sűrű rétegnél láthattuk.
 
 %Ha ez nem lenne $ W_1 \cdot W_2 \cdot W_3 $ a szorzást 
 %elvégezve összevonható lenne egy közös $ W $ mátrixba, tehát redundáns 
@@ -633,18 +634,19 @@ kifejezőerejét. Általában valamilyen más rétegel együtt használjuk, ahog
 
 % Ilyen tipikus függvény még a \textit{softmax} és a \textit{sigmoid}:
 
-Két tipikus nemlinearitás a $ Relu $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
+Két tipikus nemlinearitás a $ ReLU $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
 
-\[  Relu(x) =  
+\[  ReLU(x) =  
  \begin{cases}
-x, & \text{ha}\ x > 0 \\
-0, & \text{különben}
+x, & \text{ha}\ x > 0, \\
+0, & \text{különben},
 \end{cases} 
  \]
 
 
-\[  sigmoid(x) = \dfrac{e^x}{e^x + 1}  \]
+\[  sigmoid(x) = \dfrac{1}{1 + e^{-x}}  . \]
 
+Ezek a \ref{fig:relu}. és a \ref{fig:sigmoid}. ábrán láthatók.
 
 
 \begin{figure} [h!]
@@ -652,22 +654,22 @@ x, & \text{ha}\ x > 0 \\
 	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includegraphics[width=\textwidth]{img/relu.pdf}
-		\caption{Relu aktivációs függvény}
+		\caption{Relu aktivációs függvény.}
 		\label{fig:relu}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includegraphics[width=\textwidth]{img/sigmoid.pdf}
-		\caption{Szigmoid aktivációs függvény}
+		\caption{Szigmoid aktivációs függvény.}
 		\label{fig:sigmoid}
 		
 	\end{minipage}
 \end{figure}
 
-A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyobb inputhoz 1 körüli outputot rendel, a többihez nullához közelit. Az eredmények összege pontosan 1.
+A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyobb inputhoz 1 körüli outputot rendel, a többihez nullához közelit. Az eredmények összege pontosan 1. A függvény alakja a következő:
  
-\[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  \]
+\[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  .\]
 
 A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik változó függvényében mutatjuk a függvény értékeit.
 %érték , eredményét.
@@ -676,7 +678,7 @@ A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két param
 	
 	\centering
 	\includegraphics[scale=0.5]{img/Softmax.pdf}
-	\caption{Softmax függvény}
+	\caption{Softmax aktivációs függvény.}
 	\label{fig:softmax}
 		
 \end{figure}
