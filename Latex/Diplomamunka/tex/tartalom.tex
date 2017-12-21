@@ -423,7 +423,7 @@ Ennek megoldására ugyan több algoritmus is létezik, de lényegében mindegyi
 A különbség a konvergencia sebességében és a nyeregpontokkal szembeni hibatűrő képességükben van.
 
 Ehhez rétegenként visszafelé haladva visszaterjeszti a hibát (\textit{backpropagation}),
-és a gradienssel ellentétes irányba módosítja $ \underline{\theta} $-t, így csökkentve a költségfüggvény értékét.
+és a gradienssel ellentétes irányba módosítja $ \underline{\theta} $-t, így csökkentve a költségfüggvény értékét:
 
 \[ 
  \underline{\theta}_{t+1} = \underline{\theta}_t - \gamma \cdot \frac{\partial L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n)}{\partial \underline{\theta}}\bigg\rvert_{\underline{\theta}=\underline{\theta}_t}, 
@@ -433,6 +433,25 @@ Ehhez rétegenként visszafelé haladva visszaterjeszti a hibát (\textit{backpr
 
 \noindent
 ahol $ \gamma \ll 1 $ a tanulási együttható. 
+
+
+%\subsubsection{A tanítás menete}
+
+%Neuronháló tanításakor példákat mutatunk a modellnek, majd a kimenet hibája alapján korrigálunk a súlyokon. 
+%minden minta után végezzük el, 
+Az iterációkat nem a teljes tanító halmazra végezzük el, 
+hanem kötegeket (\textit{mini batch}) 
+készítünk, és ezek átlagos hibájával számolunk. 
+Megfelelő kötegméret-választással el tudjuk érni, hogy beleférjünk a rendelkezésre álló memóriába.
+
+%Így ügyelünk arra, hogy beleférjünk a memóriába. Ez megfelelő kötegméret-választással elérhető.
+
+
+%Bevált technika, hogy készítünk egy véletlen permutációt a tanító adatból, és ebben a sorrendben adjuk be a példákat. 
+Bevált technika, a kötegeket egy véletlen permutáció szeleteiből állítjuk elő.
+Azt a periódus, ami alatt a teljes tanító halmaz egyszer feldolgozásra kerül, \textit{epoch}-nak hívjuk.
+
+%Epochonként új permutációt használunk, ezekkel biztosítjuk, hogy minden példa azonos valószínűséggel szerepeljen.
 
 
 %\noindent
@@ -1043,7 +1062,7 @@ meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képre affin, v
 
 
 %\paragraph{Megállás}
-\subsubsubsection{Megállás}
+\subsubsubsection{Korai megállás}
 
 A gradiens módszer leállási feltétele lehet explicit, például ha a validációs hiba egy előre megadott érték alá csökken. Értelemszerűen megállunk, ha a tanító halmazon mért hiba már nem csökken tovább.
 Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett túltanulni, ezért leállítjuk az optimalizációt (\textit{early-stopping}) \cite{earlystopping}.
@@ -1102,10 +1121,10 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 	Tényleges negatív (\textit{true negative, tn}): Ha egy negatív mintát megfelelően osztályoztunk.
 
 	\item 
-	Fals pozitív / Elsőfajú hiba (\textit{fp}): Ha egy negatív mintát pozitív osztályozunk.
+	Fals pozitív / Elsőfajú hiba (\textit{fp}): Ha egy negatív mintát pozitívként osztályozunk.
 	
 	\item 
-	Fals negatív / Másodfajú hiba (\textit{fn}): Ha egy pozitív mintát negatívnak osztályozunk.
+	Fals negatív / Másodfajú hiba (\textit{fn}): Ha egy pozitív mintát negatívként osztályozunk.
 	
 	\item 
 	Pontosság (\textit{accuracy}):
@@ -1168,7 +1187,7 @@ különben megrendülne a bankjegybe vetett bizalom.
 
 \subsubsubsection{Hisztogram}
 
-Egy eloszlás megjelenítésére a legjobb módszer egy hisztogram készítése, amely véges számú, általában egyenközű intervallumra osztja az ábrázolandó halmazt, majd egy-egy intervallumhoz hozzárendeli, hogy hány minta esett bele. Közös hisztogramon tudunk ábrázolni több eloszlást is, ez kiváló arra, ha szemmel szeretnénk eldönteni, hogy szeparálható-e két adathalmaz. Erre láthatunk példát a \ref{fig:hist.pelda}. ábrán.
+A kimenetek megjelenítésére egy lehetséges módszer egy hisztogram készítése, amely véges számú, általában egyenközű intervallumra osztja az ábrázolandó halmazt, majd egy-egy intervallumhoz hozzárendeli, hogy hány minta esett bele. Közös hisztogramon tudunk ábrázolni több eloszlást is, ez kiváló arra, ha szemmel szeretnénk eldönteni, hogy szeparálható-e két osztály. Erre láthatunk példát a \ref{fig:hist.pelda}. ábrán.
 
 %Eloszlások vizualizációjára az egyik legjobb módszer
 
@@ -1202,35 +1221,19 @@ Egy eloszlás megjelenítésére a legjobb módszer egy hisztogram készítése,
 \end{figure}
 
 
+%
+%
+%\paragraph{Validációs hiba} (\textit{validation loss})
+%
+%A korábban részletezett költségfüggvények eredménye. Ezt használjuk
+%tanítás közben annak mérésére, hogy a modell konvergál-e még,
+%és ha igen milyen sebességgel. Nem igazán szemléletes, végső kiértékelésnél
+%nem használjuk. Jó tulajdonsága, hogy nem csak azt méri, hogy jól
+%osztályozunk-e, hanem azt is hogy mennyire volt egyértelmű a döntés,
+%valamint félreosztályozásnál figyelembe veszi, hogy mekkorát hibáztunk.
 
 
-\paragraph{Validációs hiba} (\textit{validation loss})
 
-A korábban részletezett költségfüggvények eredménye. Ezt használjuk
-tanítás közben annak mérésére, hogy a modell konvergál-e még,
-és ha igen milyen sebességgel. Nem igazán szemléletes, végső kiértékelésnél
-nem használjuk. Jó tulajdonsága, hogy nem csak azt méri, hogy jól
-osztályozunk-e, hanem azt is hogy mennyire volt egyértelmű a döntés,
-valamint félreosztályozásnál figyelembe veszi, hogy mekkorát hibáztunk.
-
-
-
-\subsubsection{A tanítás menete}
-
-Neuronháló tanításakor példákat mutatunk a modellnek, majd a kimenet
-hibája alapján korrigálunk a súlyokon. Ezt a korrigálást viszont nem
-minden minta után végezzük el, hanem kötegeket (\textit{mini batch}) 
-készítünk, és ezek átlagos hibájával számolunk, ezáltal 
-növelve a hatékonyságot és az általánosítást. Ügyelni kell azonban, hogy
-akkora kötegméretet válasszunk, hogy beleférjünk a memóriába, ugyanis 
-képeknél ez könnyen probléma lehet.
-
-
-Bevált technika, hogy készítünk egy véletlen permutációt a tanító adatból,
-és ebben a sorrendben adjuk be a példákat. Azt a ciklust, ami alatt 
-az egész halmaz egyszer feldolgozásra kerül, \textit{eposz}nak hívjuk.
-Eposzonként új permutációt használunk, ezekkel biztosítjuk, hogy minden
-példa azonos valószínűséggel szerepeljen.
 %
 %%\paragraph{Megállás}
 %\subsubsubsection{Megállás}
@@ -1803,7 +1806,7 @@ Ekkor matematikailag is magabiztosabb a konvergencia egy határig,
 valamint a GPU-RAM átviteli sávszélessége hiába nagy, de jelentős a konstans késleltetés, 
 ami abból adódik, hogy a videókártya vezérlőszoftver nem azonnal hajtja végre az adatmozgatást,
 hanem csak ha elég sok összegyűlt, vagy némi idő eltelt, ezzel javítva az teljesítményt teljes 
-kihasználtság esetén. Egy eposz feldolgozása akár tízszer lassabb is lehet, ha a példákat
+kihasználtság esetén. Egy periódus feldolgozása akár tízszer lassabb is lehet, ha a példákat
 egyesével tápláljuk be.
 
 
@@ -1990,7 +1993,7 @@ történik.
 Ennek a paramétereiként meg kell adnunk a tanító és a validációs halmazokat \texttt{python} 
 generátorok formájában. Ezek olyan \texttt{numpy} tömbökkel térnek vissza, amely megfelelnek 
 egy-egy kötegnek, és egy-egy eleme egy kép. A \texttt{steps\_per\_epoch} paraméter segítségével azt adjuk
-meg, hogy egy \textit{eposz} hány köteg. A \texttt{callbacks} paraméterrel függvényeket
+meg, hogy egy \textit{periódus} hány köteg. A \texttt{callbacks} paraméterrel függvényeket
 adunk a modellnek, amelyek bizonyos események bekövetkeztével meghívódnak. Tipikusan a
 \texttt{on\_epoch\_end} callbacket használtuk.
 
@@ -2002,14 +2005,14 @@ A következőket definiáltuk:
 Nem a \texttt{Keras} beépített függvényét használtuk, hanem sajátot írtunk a
 nagyobb szabadság miatt. A feladata, hogy ha a validációs hiba már nem csökken, akkor 
 szakítsa meg a tanítást. Viszont azt tapasztaltuk, hogy előfordul, hogy néha
-egy-egy eposz erejéig a hiba nő, ámde a következőben újra stabilan csökken.
-Ezért csak akkor állunk meg ha a validációs hiba három egymást követő eposzban
+egy-egy periódus erejéig a hiba nő, ámde a következőben újra stabilan csökken.
+Ezért csak akkor állunk meg ha a validációs hiba három egymást követő periódusban
 nem csökkent.
 
 \texttt{Kerasban} a validációs hibát a \texttt{on\_epoch\_end(self, epoch, logs=\{\})} 
 callback függvényben a \texttt{logs.get(self.monitor)} utasítással kapjuk meg.
 
-Megadhatunk explicit legtöbb eposz-számot is, és validációs hibahatárt, ami alá ha
+Megadhatunk explicit legtöbb periódus-számot is, és validációs hibahatárt, ami alá ha
 elérünk akkor elvégezettnek tekintjük a feladatot, de ezt a gyakorlatban nem használtuk.
 Addig tanítottuk, ameddig csak lehetett.
 
@@ -2019,8 +2022,8 @@ Addig tanítottuk, ameddig csak lehetett.
 Mivel a tanítás hosszú folyamat, eközben akár össze is omolhat a rendszer, vagy
 a modell elkezdhet egy idő után \textit{túltanulni}. Többek között ezek miatt fontos,
 hogy rendszeres időközönként elmentsük a jelenlegi állapotot. Ehhez egy 
-\textit{Checkpoint~Callbacket} implementáltunk, amely a jelenlegi verzióban minden ötödik
-eposz után a lemezre menti a modellt, ellátva egy időbélyegzővel.
+\textit{Checkpoint~Callbacket} implementáltunk, amely a jelenlegi verzióban minden harmadik
+periódus után a lemezre menti a modellt, ellátva egy időbélyegzővel.
 
 
 
