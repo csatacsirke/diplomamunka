@@ -1056,17 +1056,51 @@ Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalm
 
 \begin{itemize}
 	\item 
-	Tényleges-pozitív (\textit{true positive, tp}): Ha egy eredeti mintát megfelelően osztályoztunk.
+	Tényleges pozitív (\textit{true positive, tp}): Ha egy eredeti mintát megfelelően osztályoztunk.
 	
 	\item 
-	Tényleges-negatív (\textit{true negative, tn}): Ha egy hamis mintát megfelelően osztályoztunk.
+	Tényleges negatív (\textit{true negative, tn}): Ha egy hamis mintát megfelelően osztályoztunk.
 
 	\item 
 	Fals pozitív / Elsőfajú hiba (\textit{fp}): Ha egy hamis mintát eredetinek osztályozunk.
 	
 	\item 
 	Fals negatív / Másodfajú hiba (\textit{fn}): Ha egy eredeti mintát hamisnak osztályozunk.
+	
+	\item 
+	Pontosság (\textit{accuracy}):
+	Azt méri, hogy az osztályozásnál a minták hányad részben
+	kerültek jó osztályba.
+	Ha $ (y_i, \hat{y_i}) $ az elvárt értékek és a hozzájuk tartozó 
+	predikciók, akkor
+	
+	\[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n}  \]
+	
+	\noindent
+	Bár ez szemléletes, nem tükrözi igazán jól a hatékonyságot.
+	
+	\item 
+	F1 score:
+	
+	\[  F_1 = \dfrac{2tp}{2tp + fn + fp}  \]
+	
+	\noindent
+	Hasonló a pontossághoz, de jobb mérőszám, ha az osztályok kiegyenlítetlenek.
+	
+	
+	\item 
+	ROC görbe alatti terület (\textit{ROC-AUC score})
+	
+	
+	A kétféle hiba arányát a Vevő működési karakterisztika \cite{rocanalysis} (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
+	
+	A ROC-görbe alatti terület azt mutatja meg, hogy mennyire jól szeparálható a két adathalmaz. 
+	Ha az értéke 1, akkor tökéletesen elkülönül a két eloszlás, 
+	minél kisebb, annál rosszabb. Ha $ \frac{1}{2} $-nél kisebb számot kapunk,
+	akkor gyanakodhatunk, hogy felcseréltük a két osztályt.
+	
 \end{itemize}
+
 
 %Valódi-pozitív (\textit{true positive, tp}), 
 %Valódi-negatív (\textit{true negative, tn}): \\
@@ -1095,10 +1129,10 @@ Egy eloszlás megjelenítésére a legjobb módszer egy hisztogram készítése,
 
 
 %\paragraph{ROC-görbe}
-\subsubsubsection{ROC-görbe}
-
-
-Az előző két hiba arányát a Vevő működési karakterisztika \cite{rocanalysis} (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
+%\subsubsubsection{ROC-görbe}
+%
+%
+%Az előző két hiba arányát a Vevő működési karakterisztika \cite{rocanalysis} (\textit{Receiver operating characteristic}) görbével szoktuk jellemezni. A két tengelyen az egyes hibák rátája található, és azt mutatja meg, hogy egy adott nagyságú elsőfajú hiba-rátához mekkora másodfajú tartozik. ROC-görbére a \ref{fig:roc.pelda}. ábrán láthatunk példát.
 
 % TODO kicsit elcsúszott
 
@@ -1124,33 +1158,6 @@ Az előző két hiba arányát a Vevő működési karakterisztika \cite{rocanal
 
 
 
-\paragraph{Pontosság} (\textit{accuracy}) \\
-Azt méri, hogy az osztályozásnál a minták hányad részben
-kerültek jó osztályba.
-Ha $ (y_i, \hat{y_i}) $ az elvárt értékek és a hozzájuk tartozó 
-predikciók, akkor
-
-\[  acc = \dfrac{\sumn{i} \chi\{y_i = \hat{y_i}\}}{n}  \]
-
-\noindent
-Bár ez szemléletes, nem tükrözi igazán jól a hatékonyságot.
-
-
-\paragraph{F1 score} \mbox{} 
-
-\[  F_1 = \dfrac{2tp}{2tp + fn + fp}  \]
-
-\noindent
-Hasonló a pontossághoz, de jobb mérőszám, ha az osztályok kiegyenlítetlenek.
-
-
-
-\paragraph{ROC görbe alatti terület} (\textit{ROC-AUC score})
-
-Azt mutatja meg, hogy mennyire jól szeparálható a két adathalmaz. 
-Ha az értéke 1, akkor tökéletesen elkülönül a két eloszlás, 
-minél kisebb, annál rosszabb. Ha $ \frac{1}{2} $-nél kisebb számot kapunk,
-akkor gyanakodhatunk, hogy felcseréltük a két osztályt.
 
 \paragraph{Validációs hiba} (\textit{validation loss})
 
