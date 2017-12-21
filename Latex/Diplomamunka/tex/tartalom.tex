@@ -189,11 +189,11 @@ Gépi tanulásról beszélünk, amikor egy paraméteres modell paramétereit bem
 \label{sec:kanonikus.feladat}
 A \textit{kanonikus gépi tanulási feladat} a következőképpen írható fel:
 %\min\limits_{\theta} L(\theta, x_1, \dots, x_n, y_1, \dots, y_n) = \frac{1}{n}  \sumn{i} l(f(\theta, x_i), y_i) + R(\theta)
-
+% TODO bigg, L célfüggvény, Teta aláhúzás, x_i
 \[ 
-\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n) = \frac{1}{n}  \sumn i l(f(\underline{\theta}, \underline{x}_i), \underline{y}_i) + R(\underline{\theta})
+\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n) = \frac{1}{n}  \sumn i l\big(f(\underline{\theta}, \underline{x}_i), \underline{y}_i\big) + R(\underline{\theta})
 , \]
-ahol $ \underline{x} $ a bemenetek, $ \underline{y} $ a hozzájuk tartozó elvárt kimenetek, $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, és $ \theta $ a tanulandó paraméterek. Ezekről a következő fejezetekben írunk részletesebben.
+ahol $ \underline{x}_i $ a bemenetek, $ \underline{y}_i $ a hozzájuk tartozó elvárt kimenetek ($ i = 1 \dots n $), $ f $ a modell, $ l $ a költségfüggvény, $ R $ a regularizáció, $ \underline{\theta} $ a tanulandó paraméterek, és $ L $ a célfüggvény. Ezekről a következő fejezetekben írunk részletesebben.
 
 
 
