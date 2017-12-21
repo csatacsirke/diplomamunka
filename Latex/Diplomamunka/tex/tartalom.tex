@@ -491,12 +491,12 @@ Mi az optimalizálás során a gradiens módszerek közül az Adam módszert (\t
 \noindent
 Az algoritmus röviden:
 
-\[  \underline{m}^{t+1} = \beta_1 \cdot \underline{m}^{t} + (1-\beta_1) \derivative{ L(\underline{\theta})}{\underline{\theta}} \bigg\rvert_{\underline{\theta}=\underline{\theta}_t}  \]
+\[  \underline{m}^{t+1} = \beta_1 \cdot \underline{m}^{t} + (1-\beta_1) \derivative{ L(\underline{\theta})}{\underline{\theta}} \bigg\rvert_{\underline{\theta}=\underline{\theta}_t} , \]
 
-\[  \underline{v}^{t+1} = \beta_2 \cdot \underline{v}^{t} + (1-\beta_1)\bigg( \derivative{  L(\underline{\theta})}{ \underline{\theta}} \bigg\rvert_{\underline{\theta}=\underline{\theta}_t} \bigg)^2  \]
+\[  \underline{v}^{t+1} = \beta_2 \cdot \underline{v}^{t} + (1-\beta_1)\bigg( \derivative{  L(\underline{\theta})}{ \underline{\theta}} \bigg\rvert_{\underline{\theta}=\underline{\theta}_t} \bigg)^2  ,\]
 
-\[  \hat{\underline{m}} = \dfrac{\underline{m}^{t+1}}{1 - \beta_1}  \]
-\[  \hat{\underline{v}} = \dfrac{\underline{v}^{t+1}}{1 - \beta_2}  \]
+\[  \hat{\underline{m}} = \dfrac{\underline{m}^{t+1}}{1 - \beta_1} , \]
+\[  \hat{\underline{v}} = \dfrac{\underline{v}^{t+1}}{1 - \beta_2}  ,\]
 \[ \underline{\theta}^{t+1} = \underline{\theta}^{t} - \gamma \dfrac{\hat{\underline{m}}}{\hat{\underline{v}} + \epsilon}   ,\]
 
 \noindent
@@ -504,8 +504,8 @@ ahol $ \beta_1, \beta_2 $ a felejtési együtthatók, $ \gamma $ a tanulási egy
 $ \underline{\theta} $ az optimalizálandó paraméter, és $ L $ a költségfüggvény.
 
 \noindent
-Az paraméterek alapbeállításai: 
-$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 .$
+A paraméterek alapbeállításai: 
+$ \beta_1=0.9, \beta_2=0.999, \epsilon=10^{-8}, \gamma=0.001 .$
 
 %Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
 
