@@ -393,7 +393,7 @@ Egy mély háló modellje egy többszörösen összetett függvény, melynek ele
 %Egy mély háló modellje a következő alakban írható fel:
 
 \[ 
-f(\underline{\theta},\underline{x})=f_K\bigg(\underline{\theta}_K, \dots f_2\big(\underline{\theta}_2, f_1(\underline{\theta}_1, \underline{x}) \big) \dots \bigg) ,
+f(\underline{\theta},\underline{x})=f_K\Big(\underline{\theta}_K, \dots f_2\big(\underline{\theta}_2, f_1(\underline{\theta}_1, \underline{x}) \big) \dots \Big) ,
  \]
  \[ \underline{\theta} = \{\underline{\theta}_1, \dots, \underline{\theta}_K\} . \]
 
@@ -432,7 +432,7 @@ Ehhez rétegenként visszafelé haladva visszaterjeszti a hibát (\textit{backpr
 % L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n)
 
 \noindent
-ahol $ \gamma < 1 $ a tanulási együttható.
+ahol $ \gamma \ll 1 $ a tanulási együttható. 
 
 
 %\noindent
@@ -485,24 +485,27 @@ ahol $ \gamma < 1 $ a tanulási együttható.
 \label{sec:adam}
 
 % TODO ez csúnya lett így
-Mi az Adaptív Momentum Becslés (\textit{Adaptive Moment Estimation, Adam~\cite{kingma2014adam} }) módszert használtuk, mely a gradiens módszeren alapul.
+%(\textit{Adaptive Moment Estimation, Adam~\cite{kingma2014adam} })
+Mi az optimalizálás során a gradiens módszerek közül az Adam módszert (\textit{Adaptive Moment Estimation}) \cite{kingma2014adam}  használtuk. Ez egy kvázi-Newton módszer, ami adaptívan állítja a tanulási rátát, így garantált, hogy minden paraméterben azonos mértékű javulást érünk el. Ez segít kijutni a nyeregpontokból.
 
 \noindent
 Az algoritmus röviden:
 
-\[  m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w L(w_t)  \]
-\[  v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w L(w_t))^2  \]
-\[  \hat{m}_w = \dfrac{m_w^{t+1}}{1 - \beta_1}  \]
-\[  \hat{v}_w = \dfrac{v_w^{t+1}}{1 - \beta_2}  \]
-\[ w^{t+1} = w^{t} - \gamma \dfrac{\hat{m}_w}{\hat{v}_w + \epsilon}   ,\]
+\[  \underline{m}^{t+1} = \beta_1 \cdot \underline{m}^{t} + (1-\beta_1) \derivative{ L(\underline{\theta})}{\underline{\theta}} \bigg\rvert_{\underline{\theta}=\underline{\theta}_t}  \]
+
+\[  \underline{v}^{t+1} = \beta_2 \cdot \underline{v}^{t} + (1-\beta_1)\bigg( \derivative{  L(\underline{\theta})}{ \underline{\theta}} \bigg\rvert_{\underline{\theta}=\underline{\theta}_t} \bigg)^2  \]
+
+\[  \hat{\underline{m}} = \dfrac{\underline{m}^{t+1}}{1 - \beta_1}  \]
+\[  \hat{\underline{v}} = \dfrac{\underline{v}^{t+1}}{1 - \beta_2}  \]
+\[ \underline{\theta}^{t+1} = \underline{\theta}^{t} - \gamma \dfrac{\hat{\underline{m}}}{\hat{\underline{v}} + \epsilon}   ,\]
 
 \noindent
-ahol $ \beta_{1,2} $ a felejtési együtthatók, $ \gamma $ a tanulási együttható,
-$ w $ az optimalizálandó paraméter, és $ J $ a költségfüggvény.
+ahol $ \beta_1, \beta_2 $ a felejtési együtthatók, $ \gamma $ a tanulási együttható,
+$ \underline{\theta} $ az optimalizálandó paraméter, és $ L $ a költségfüggvény.
 
 \noindent
-\texttt{Kerasban} az alapbeállítások: 
-$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 $
+Az paraméterek alapbeállításai: 
+$ \beta_1=0.9, \beta_2=0.999, \epsilon=1e-08, \gamma=0.001 .$
 
 %Keras: lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0.
 
