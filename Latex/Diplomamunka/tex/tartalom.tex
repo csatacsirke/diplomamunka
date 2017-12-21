@@ -338,27 +338,27 @@ A predikció is csak kicsit módosul egy $ \underline{x} $ mintára:
 \hat{y} = \sign\big(\underline{w}^T \varphi(\underline{x}) - b\big) = \sign\big(\sumn{i} c_i y_i k(\underline{x}_i, \underline{x}) - b\big).
 \]
 
-\subsubsubsection{Néhány példa kernel függvényekre}
+\subsubsubsection{Néhány példa kernel függvényekre:}
 \label{sec:kernelek}
 
 \begin{itemize}
 
 \item 
 Lineáris:
-\[  k(\underline{x}, \underline{x}') = \underline{x}^T  \underline{x}'  \]
+\[  k(\underline{x}, \underline{x}') = \underline{x}^T  \underline{x}'  ,\]
 
 \item 
 Polinomiális:
-\[  k(\underline{x}, \underline{x}') = (\gamma \cdot (\underline{x}^T  \underline{x}') + r)^d  \]
+\[  k(\underline{x}, \underline{x}') = \big(\gamma \cdot (\underline{x}^T  \underline{x}') + r\big)^d  ,\]
 
 \item 
 Radiális Bázis Függvények (\texttt{rbf}):
-\[  k(\underline{x}, \underline{x}') = \exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2)  \]
+\[  k(\underline{x}, \underline{x}') = \exp( - \gamma \cdot \norm{\underline{x} - \underline{x}'}^2)  ,\]
 
 \item 
 Szigmoid: 
 \[  
-k(\underline{x}, \underline{x}') = \tanh(\gamma \cdot (\underline{x}^T  \underline{x}') + r)  
+k(\underline{x}, \underline{x}') = \tanh\big(\gamma \cdot (\underline{x}^T  \underline{x}') + r\big)  .
 \]
 
 \end{itemize}
