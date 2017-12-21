@@ -380,7 +380,7 @@ k(\underline{x}, \underline{x}') = tanh(\gamma \cdot (\underline{x}^T \cdot \und
 
 Általánosságban egy mély háló egy nagy bemenetet (a mi esetünkben képet) úgy képez
 a kimenetre, hogy több, kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
-amíg a dimenziója el nem éri a várt kimenetét. 
+amíg annak dimenziója el nem éri a várt kimenetét. 
 (Nálunk ez egy 0 és 1 közti szám, ahol 1 az eredeti, 0 a hamis.)
 
 
@@ -389,9 +389,9 @@ Egy mély háló modellje egy többszörösen összetett függvény, melynek fü
 %Egy mély háló modellje a következő alakban írható fel:
 
 \[ 
-f(\theta,\underline{x})=f_K(\theta_K, \dots f_2(\theta_2, f_1(\theta_1, \underline{x}) ) \dots )
+f(\underline{\theta},\underline{x})=f_K(\underline{\theta}_K, \dots f_2(\underline{\theta}_2, f_1(\underline{\theta}_1, \underline{x}) ) \dots )
  \]
- \[ \theta = \{\theta_1, \dots, \theta_K\} \]
+ \[ \underline{\theta} = \{\underline{\theta}_1, \dots, \underline{\theta}_K\} \]
 
 
 
@@ -415,8 +415,8 @@ Ha rendelkezünk az inputhoz tartozó elvárt outputtal, a \textit{ground truth}
 Látható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános minimalizációs feladat specializációja.
 %Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
 %a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
-Ennek megoldására ugyan több algoritmus is létezik, lényegében mindegyik a gradiens módszer egy változata.
-A különbség a konvergencia sebessége és a lokális szélsőértékkel szembeni 
+Ennek megoldására ugyan több algoritmus is létezik, de lényegében mindegyik a gradiens módszer egy változata.
+A különbség a konvergencia sebességében és a lokális szélsőértékkel szembeni 
 hibatűrő képességükben van.
 
 Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backpropagation}),
@@ -540,11 +540,11 @@ Az alábbiakban áttekintjük, hogy a dolgozatban szereplő mély hálók milyen
 \paragraph{Sűrű réteg} (\textit{dense layer}) 
 
 
-Sűrű rétegről beszélünk, ha a bemenet és kimenet minden pontja között van kapcsolat. Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \theta = \{W, \underline{b}\} $ a réteg súlyai, és $ f $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
+Sűrű rétegről beszélünk, ha a bemenet és kimenet minden pontja között van kapcsolat. Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \underline{\theta} = \{W, \underline{b}\} $ a réteg súlyai, és $ f $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
 
 
 \[  
-\hat{y} = f(W \cdot x + b)
+\hat{y} = f(W \cdot \underline{x} + \underline{b})
 \]
 
 % http://www.texample.net/tikz/examples/neural-network/
@@ -614,7 +614,7 @@ Sűrű rétegről beszélünk, ha a bemenet és kimenet minden pontja között v
 %valamilyen nem-linearitást visz a modellbe, ezáltal növelve a háló 
 %kifejezőerejét. 
 
-Aktivációs réteg feladata, hogy valamilyen nem-linearitást vigyen a modellbe, ezáltal növelve a háló 
+Egy aktivációs réteg feladata, hogy valamilyen nemlinearitást vigyen a modellbe, és ezáltal növelje a háló 
 kifejezőerejét. Általában valamilyen más rétegel együtt használjuk, ahogy például a sűrű rétegnél láthattuk.
 
 %Ha ez nem lenne $ W_1 \cdot W_2 \cdot W_3 $ a szorzást 
@@ -659,7 +659,8 @@ A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyo
  
 \[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  \]
 
-A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik érték függvényében mutatjuk a függvény eredményét.
+A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik változó függvényében mutatjuk a függvény értékeit.
+%érték , eredményét.
 
 \begin{figure} [h!]
 	
@@ -687,7 +688,8 @@ A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két param
 % konvolúció ábra kell? ha igen akkor sima, vagy neuronhálós?
 % sima lett
 
-Konvolúciós réteget általában kétdimenziós képekre használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
+%Konvolúciós réteget általában kétdimenziós képek feldolgozásakor használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk nem szürkeárnyalatos, hanem több színcsatornával rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
+Konvolúciós réteget általában kétdimenziós képek feldolgozásakor használják, de létezik tetszőleges dimenziós változata is. Erre akkor is szükség van, ha a képünk több csatornával is rendelkezik. Matematikailag két diszkrét jel konvolúciója egy- és kétdimenziós esetben:
 
 
 \[  (x*k)[n] =  \sum\limits_{k=-\infty}^{\infty} x[k] \cdot k[n-k]  \]
@@ -730,7 +732,7 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 	\textbf{Valid Padding}: A konvolúciót csak olyan helyeken számoljuk ki, ahol a művelet elvégzéséhez minden szükséges adat rendelkezésre áll, azaz nem indexelünk ki a képből. Ha a kernel $ k \times k $ méretű volt, akkor a kimenet mérete $ (k-1) \times (k-1) $-el csökken.
 	
 	\item 
-	\textbf{Full Padding}: Ha a két bemenetünk $ w_1 \times h_1 $ és $ w_2 \times h_2 $ méretű volt, akkor az eredmény ebben a módban $ (w_1 + w_2 - 1) \times (h_1 + h_2 - 1) $ méretű lesz. Ekkor minden ismeretlen adatot nullával helyettesítünk. Ebben a témakörben ezt jellemzően nem használjuk.
+	\textbf{Full Padding}: Ha a két bemenetünk $ w_1 \times h_1 $ és $ w_2 \times h_2 $ méretű volt, akkor az eredmény ebben a módban $ (w_1 + w_2 - 1) \times (h_1 + h_2 - 1) $ méretű lesz. Minden ismeretlen adatot nullával helyettesítünk. Ebben a témakörben ezt jellemzően nem használjuk.
 	
 \end{itemize}
 %Az egyik megközelítés meghagyja az eredeti szélességet és magasságot (\textit{same padding}), a másik 
@@ -782,11 +784,11 @@ a különbség csak az eredmény dimenziójában van.
 %Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára* csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
 %(\textit{* Lehet n-ed részére is csökkenteni a képet, nem csak a felére})
 
-Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára\footnote{Gyakorlatban általában felezzük a képet, de lehet bármilyen más, egész számú hányados is.} csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
+Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára\footnote{Gyakorlatban általában felezzük a képet, de használható bármilyen más, egész számú hányados is.} csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
 
 
 
-Ha jellemzővektorokkal dolgozunk, akkor legtipikusabb a \textit{Max pooling} réteg, ami a négy pixel maximumát veszi, de használatos még az \textit{Average pooling} is, amely az értékeket átlagolja. Ennek akkor van jelentősége, ha színértékekből álló képet szeretnénk alul mintavételezni.
+Ha jellemzővektorokkal dolgozunk, akkor legtipikusabb a \textit{Max pooling} réteg, ami a négy pixel maximumát veszi (\ref{fig:maxpooling-pelda}. ábra), de használatos még az \textit{Average pooling} is, amely az értékeket átlagolja. Ennek akkor van jelentősége, ha színértékekből álló képet szeretnénk alul mintavételezni.
 
 % TODO ez a két ábra elrendezése egyszer már rossz volt az oldaltörés miatt! lecsekkolni hogy nem romlott e el
 
@@ -818,7 +820,7 @@ méretét.
 
 \subsubsection{Költségfüggvények}
 
-Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanulási feladatot, említettük, hogy az $ l(\underline{\hat{y}}, \underline{y}) $ függvényt költségfüggvénynek nevezzük. Nézzük most, hogy a dolgozatban miket használunk.
+Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanulási feladatot, említettük, hogy az $ l(\underline{\hat{y}}, \underline{y}) $ függvényt költségfüggvénynek nevezzük. Nézzük most, hogy a dolgozatban milyeneket használunk.
 
 %Általános alakban ha $ y $ az elvárt eredmény, és $ \hat{y} $ a háló
 %outputja, akkor a hibafüggvény a következő:
@@ -832,7 +834,7 @@ Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanul�
 \[  l(\underline{\hat{y}}, \underline{y}) = \norm{\underline{\hat{y}} - \underline{y}}_2^2  \]
 
 \noindent
-Az autoencodernél ezt használjuk.
+Akkor célszerű használni, ha tudjuk, hogy az eredmény nem lesz tökéletes, de szeretnénk mérni hibát. Az autoencodernél ezt használjuk.
 
 
 \paragraph{Keresztentrópia} (\textit{Cross-entropy})
@@ -840,8 +842,8 @@ Az autoencodernél ezt használjuk.
 Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
 ahol az 1 helye a hozzá tartozó osztály indexe.
 
-Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az egyik, és
-$ \underline{y}=(1, 0) $ ha a másik csoportba tartozik.
+Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az első, és
+$ \underline{y}=(1, 0) $ ha a második csoportba tartozik.
 
 \[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T \cdot log(\underline{\hat{y}})  \]
 
@@ -856,23 +858,34 @@ Osztályozásnál ezt használjuk.
 
 %Egy modell akkor jó, ha a tanító példák mellett akkor is jól működik,
 %ha olyan inputot kap, amilyet eddig még "nem látott". 
+%
+%Egy modell akkor jó, ha a tanító példák mellett új, még "nem látott"
+%inputra is jól működik. Túltanulásnak nevezzük
+%azt az állapotot, mikor az új adaton jelentősen romlik a teljesítmény.
+%Ennek több oka is lehet. Például, ha az egyik osztályból nem kapott 
+%(elég) mintaadatot a modell tanuláskor, vagy ha kapott is, a minták túlságosan 
+%hasonlítottak egymásra, miközben a valóságban változatosabbak.
+%Ennek kiküszöbölésére tekintsünk néhány módszert!
+
 
 Egy modell akkor jó, ha a tanító példák mellett új, még "nem látott"
 inputra is jól működik. Túltanulásnak nevezzük
 azt az állapotot, mikor az új adaton jelentősen romlik a teljesítmény.
-Ennek több oka is lehet. Például, ha az egyik osztályból nem kapott 
-(elég) minta adatot a modell tanuláskor, vagy ha kapott is, a minták túlságosan 
-hasonlítottak egymásra, miközben a valóságban változatosabbak.
-Ennek kiküszöbölésére tekintsünk néhány módszert!
+Ennek több oka is lehet. 
 
+A legáltalánosabb, hogy a modellnek túl sok paramétere volt, és a tanító példákat tökéletesen megtanulta ahelyett, hogy összefüggéseket talált volna.
+
+Túltanulást tapasztalhatunk akkor is, ha az egyik osztály sokkal több elemű volt mint a többi, ezáltal tanuláskor elnyomta a kisebbeket.
+
+Ennek kiküszöbölésére tekintsünk néhány módszert!
 
 %\paragraph{Hiperparaméterek}
 
 \subsubsubsection{Hiperparaméterek}
 
 Gépi tanulásnál megkülönböztetjük a modell belső változóit, amit 
-a tanítás során az algoritmus maga állít, és a modell minden más tulajdonságát, amit a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}. Ezek kiválasztása történhet próbágatással, vagy egy olyan algoritmussal, amely minimalizálni próbálja a validációs hibát \cite{bergstra2013hyperopt}.  
-Hiperparaméter például egy kernel mérete, vagy a rétegek szerkezete.
+a tanítás során az algoritmus maga számol, és a modell minden más tulajdonságát, amit a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}. Ezek kiválasztása történhet próbágatással, vagy egy olyan algoritmussal, amely minimalizálni próbálja a validációs hibát \cite{bergstra2013hyperopt}.  
+Hiperparaméter például egy kernel mérete, a tanulási együttható, vagy a rétegek szerkezete.
 
 
 
@@ -897,7 +910,7 @@ Ideális esetben a validációs és a teszt hiba közel megegyező.
 \paragraph{Kiejtés} (\textit{dropout})
 
 
-A kiejtés célja, hogy a tanuló adatot szándékosan elrontsuk valamennyire, ezáltal növeljük az általánosítást és elkerüljük a túltanulást \cite{earlystopping}. Tartozik hozzá egy valószínűségi érték, amekkora eséllyelegy adatértéket kinullázunk mielőtt tovább adjuk a következő rétegnek.
+A kiejtés célja, hogy a tanuló adatot szándékosan elrontsuk valamennyire, ezáltal növeljük az általánosítást és elkerüljük a túltanulást \cite{earlystopping}. Tartozik hozzá egy valószínűségi érték, amekkora eséllyel egy adatértéket kinullázunk mielőtt továbbadjuk a következő rétegnek.
 
 
 %\paragraph{Kiegyensúlyozás}
@@ -908,12 +921,12 @@ nagy a relatív elemszámkülönbség: ezt nevezzük kiegyensúlyozatlanságnak.
 Ennek kiküszöbölésére az egyik módszer, hogy minden halmazból 
 megpróbálunk közel egyenlő eséllyel válogatni tanításnál. A másik megoldás, hogy az 
 osztályoknak súlyokat adunk,
-ami alapján paraméter állításnál jobban vagy kevésbé fogja
+ami alapján paraméter állításnál jobban, vagy kevésbé fogja
 az adott algoritmus figyelembe venni az adott példát. Az utóbbit több programcsomag is támogatja.
 
 \paragraph{Adatgenerálás} (\textit{data augmentation})
 
-Amennyiben nem áll rendelkezésünkre elég adat, és ez a képeknél 
+Amennyiben nem áll rendelkezésünkre elég adat, és ez képeknél 
 különösen gyakori probléma, úgy tudjuk növelni a tanító halmaz
 elemszámát, hogy valós időben új adatokat generálunk a már
 meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képet affin transzformálunk,
