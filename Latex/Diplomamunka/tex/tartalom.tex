@@ -927,7 +927,7 @@ Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanul�
 	\textbf{Átlagos négyzetes hiba} (\textit{Mean squared error, MSE}):
 	
 	
-	\[  l(\underline{\hat{y}}, \underline{y}) = \frac{1}{2 \dim{(\underline{y})}} \norm{\underline{\hat{y}} - \underline{y}}_2^2  . \]
+	\[  l(\underline{\hat{y}}, \underline{y}) = \frac{1}{2 \cdot \dim{(\underline{y})}} \norm{\underline{\hat{y}} - \underline{y}}_2^2  . \]
 	
 	Regressziós feladatoknál ezt használják.
 
@@ -938,7 +938,7 @@ Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanul�
 	
 	\[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T log(\underline{\hat{y}}) , \]
 	
-	ahol $ \underline{y} $ egy olyan bináris vektor, amiben pontosan egy darab $ 1 $-es van, a többi komponense $ 0 $. Ezt osztályozási feladatoknál használjuk, ahol az $ 1 $-es index jelöli az adott minta osztályát.
+	ahol $ \underline{y} $ egy olyan bináris vektor, amiben pontosan egy darab $ 1 $-es van, a többi komponense $ 0 $. Ezt osztályozási feladatoknál használjuk, ahol az $ 1 $-es indexe jelöli az adott minta osztályát.
 	
 %	Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
 %	ahol az 1 helye a hozzá tartozó osztály indexe.
@@ -954,7 +954,7 @@ Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanul�
 	
 \end{itemize}
 
-\subsubsection{További kapcsolódó fogalmak}
+\subsubsection{Túltanulással kapcsolatos fogalmak}
 
 
 \paragraph{Túltanulás} (\textit{overfitting})
@@ -972,27 +972,30 @@ Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanul�
 
 
 Egy modell akkor jó, ha a tanító példák mellett új, még "nem látott"
-inputra is jól működik. Túltanulásnak nevezzük
+példapárokra is jól működik. Túltanulásnak nevezzük
 azt az állapotot, mikor az új adaton jelentősen romlik a teljesítmény.
 Ennek több oka is lehet. 
 
-A legáltalánosabb, hogy a modellnek túl sok paramétere volt, és a tanító példákat tökéletesen megtanulta ahelyett, hogy összefüggéseket talált volna.
+A legáltalánosabb, hogy a modellnek túl sok paramétere volt, és a tanító példákat tökéletesen megtanulta. Ekkor csak a tanító halmaz sajátosságait tanulja meg a rendszer, így értelem szerűen nem általánosít elég jól.
+% ahelyett, hogy összefüggéseket talált volna.
 
-Túltanulást tapasztalhatunk akkor is, ha az egyik osztály sokkal több elemű volt mint a többi, ezáltal tanuláskor elnyomta a kisebbeket.
+Túltanulást tapasztalhatunk osztályozáskor is, ha az egyik osztály sokkal több elemű volt mint a többi, ezáltal tanuláskor elnyomta a kisebbeket.
 
-Ennek kiküszöbölésére tekintsünk néhány módszert!
+A továbbiakban a túltanulás kiküszöbölésére tekintünk át néhány módszert.
+%Ennek kiküszöbölésére tekintsünk néhány módszert!
 
 %\paragraph{Hiperparaméterek}
 
 \subsubsubsection{Hiperparaméterek}
 
-Gépi tanulásnál megkülönböztetjük a modell belső változóit, amit 
-a tanítás során az algoritmus maga számol, és a modell minden más tulajdonságát, amit a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}. Ezek kiválasztása történhet próbágatással, vagy egy olyan algoritmussal, amely minimalizálni próbálja a validációs hibát \cite{bergstra2013hyperopt}.  
-Hiperparaméter például egy kernel mérete, a tanulási együttható, vagy a rétegek szerkezete.
+Gépi tanulásnál megkülönböztetjük a modell belső paramétereit, amiket
+a tanítás során az algoritmus maga állít be, és a modell egyéb paramétereit, amelyeket a tervező ad meg. Utóbbiakat hívjuk \textit{hiperparamétereknek}. Ezek kiválasztása történhet próbágatással, vagy egy olyan algoritmussal, amely minimalizálni próbálja a validációs hibát \cite{bergstra2013hyperopt}.  
+%Hiperparaméter például egy kernel mérete, a tanulási együttható, vagy a rétegek szerkezete.
+A rétegek száma, típusa, a rétegen belüli paraméterek száma, vagy a tanulási együttható.
 
 
 
-\subsubsubsection{Adat szeparálás}
+\subsubsubsection{Validációs halmaz bevezetése}
 %\paragraph{Adat szeparálás}
 
 Bevett szokás, hogy ketté osztjuk az adathalmazt, az egyik részén tanítjuk a modellt (\textit{tanító halmaz, training set}), a másikkal ellenőrizzük, hogy mennyire teljesít jól a predikció (\textit{validációs halmaz, validation set}).
@@ -1013,48 +1016,68 @@ Ideális esetben a validációs és a teszt hiba közel megegyező.
 \paragraph{Kiejtés} (\textit{dropout})
 
 
-A kiejtés célja, hogy a tanuló adatot szándékosan elrontsuk valamennyire, ezáltal növeljük az általánosítást és elkerüljük a túltanulást \cite{earlystopping}. Tartozik hozzá egy valószínűségi érték, amekkora eséllyel egy adatértéket kinullázunk mielőtt továbbadjuk a következő rétegnek.
+%A kiejtés célja, hogy a rétegek bemeneteit szándékosan elzajosítsuk valamennyire, ezáltal növeljük az általánosítást és elkerüljük a túltanulást \cite{earlystopping}. Tartozik hozzá egy valószínűségi érték, amekkora eséllyel egy adatértéket kinullázunk mielőtt továbbadjuk a következő rétegnek.
+A kiejtés célja, hogy a rétegek bemeneteit szándékosan elzajosítjuk valamennyire, ezáltal a halónak meg kell tanulnia a zajtalanítást.
+Ez növeli az általánosítást és segít elkerülni a túltanulást \cite{earlystopping}. Tartozik hozzá egy valószínűségi érték, amekkora eséllyel egy adatértéket kinullázunk mielőtt továbbadjuk a következő rétegnek.
 
 
 %\paragraph{Kiegyensúlyozás}
 \subsubsubsection{Kiegyensúlyozás}
 
-Az eredményt torzíthatja, ha a tanító adatok között
-nagy a relatív elemszámkülönbség: ezt nevezzük kiegyensúlyozatlanságnak.
+Osztályozás esetén az eredményt torzíthatja, ha a tanító halmazban az osztályok méretei között
+nagy eltérések vannak: ezt nevezzük kiegyensúlyozatlanságnak.
 Ennek kiküszöbölésére az egyik módszer, hogy minden halmazból 
 megpróbálunk közel egyenlő eséllyel válogatni tanításnál. A másik megoldás, hogy az 
 osztályoknak súlyokat adunk,
-ami alapján paraméter állításnál jobban, vagy kevésbé fogja
-az adott algoritmus figyelembe venni az adott példát. Az utóbbit több programcsomag is támogatja.
+ami alapján optimalizáláskor erősebben, vagy kevésbé fogja
+az adott algoritmus figyelembe venni az osztályba tartozó példák hibáit. Az utóbbit több programcsomag is támogatja.
 
 \paragraph{Adatgenerálás} (\textit{data augmentation})
 
 Amennyiben nem áll rendelkezésünkre elég adat, és ez képeknél 
 különösen gyakori probléma, úgy tudjuk növelni a tanító halmaz
 elemszámát, hogy valós időben új adatokat generálunk a már
-meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képet affin transzformálunk,
-vagy valamilyen hisztogram transzformációt alkalmazunk.
+meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képre affin, vagy hisztogram-transzformációt alkalmazhatunk.
+%,
+%vagy valamilyen hisztogram transzformációt alkalmazhatunk.
 
 
 \subsubsection{A teljesítmény mérése}
 
 Egy neuronháló tanítása általában hosszú folyamat. Ennek során valamilyen módszerrel meg kell
 tudnunk állapítani, ha már elértük a kívánt eredményt és megállhatunk. Továbbá figyelnünk kell, 
-hogy az optimalizálás abbahagyta-e a konvergálást, azaz elért egy 
-lokális minimumot.
+hogy az optimalizálás konvergált-e.
+%hogy az optimalizálás abbahagyta-e a konvergálást, azaz elért egy 
+%lokális minimumot.
 Ezen kívül mérni szeretnénk, hogy mennyire teljesítünk jól. 
-Ezekre többféle metrika is létezik, ezek közül tekintünk néhányat.
+Ezekre többféle mérőszám is létezik, ezek közül tekintsünk néhányat.
 Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalmakat:
 
 
-Valódi-pozitív (\textit{true positive, tp}), 
-Valódi-negatív (\textit{true negative, tn}): \\
-Amikor egy példát megfelelően osztályozunk.
+\begin{itemize}
+	\item 
+	Tényleges-pozitív (\textit{true positive, tp}): Ha egy eredeti mintát megfelelően osztályoztunk.
+	
+	\item 
+	Tényleges-negatív (\textit{true negative, tn}): Ha egy hamis mintát megfelelően osztályoztunk.
 
-Fals pozitív / Elsőfajú hiba (\textit{fp}) 
-és Fals negatív / Másodfajú hiba(\textit{fn}): \\
-A mi kontextusunkban elsőfajú a hiba, ha egy hamisítványt eredetinek
-osztályozunk, a másodfajú ennek fordítottja.
+	\item 
+	Fals pozitív / Elsőfajú hiba (\textit{fp}): Ha egy hamis mintát eredetinek osztályozunk.
+	
+	\item 
+	Fals negatív / Másodfajú hiba (\textit{fn}): Ha egy eredeti mintát hamisnak osztályozunk.
+\end{itemize}
+
+%Valódi-pozitív (\textit{true positive, tp}), 
+%Valódi-negatív (\textit{true negative, tn}): \\
+%Amikor egy példát megfelelően osztályozunk.
+%
+%Fals pozitív / Elsőfajú hiba (\textit{fp}) 
+%és Fals negatív / Másodfajú hiba(\textit{fn}): \\
+%A mi kontextusunkban elsőfajú a hiba, ha egy hamisítványt eredetinek
+%osztályozunk, a másodfajú ennek fordítottja.
+
+A Fals pozitív és negatív megegyezik a statisztikában használt első és másodfajú hibával.
 
 Azért fontos ezek kettéválasztása, mert ez a két hiba egymás rovására 
 javítható. Egy adott feladatnál preferálhatjuk, hogy melyik az elfogadhatóbb.
