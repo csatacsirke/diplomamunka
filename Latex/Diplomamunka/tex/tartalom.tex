@@ -638,7 +638,7 @@ kifejezőerejét. Általában valamilyen más réteggel együtt használjuk, aho
 %	Két tipikus nemlinearitás a $ ReLU $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
 
 	\item
-	A $ ReLU $ (\textit{Rectified Linear Unit}, \ref{fig:relu}. ábra) :
+	A $ ReLU $ (\textit{Rectified Linear Unit}, \ref{fig:relu}. ábra):
 	
 	\[  ReLU(x) =  
 	\begin{cases}
@@ -675,7 +675,7 @@ kifejezőerejét. Általában valamilyen más réteggel együtt használjuk, aho
 %	\end{figure}
 	\begin{figure} [h!]
 		
-		\begin{minipage}[c]{0.30\linewidth}
+		\begin{minipage}[c]{0.33\linewidth}
 			\centering
 			\includegraphics[width=\textwidth]{img/relu.pdf}
 					\captionsetup{justification=centering}
@@ -683,15 +683,15 @@ kifejezőerejét. Általában valamilyen más réteggel együtt használjuk, aho
 			\label{fig:relu}
 			
 		\end{minipage}\hfill
-		\begin{minipage}[c]{0.30\linewidth}
+		\begin{minipage}[c]{0.33\linewidth}
 			\centering
 			\includegraphics[width=\textwidth]{img/sigmoid.pdf}
 					\captionsetup{justification=centering}
 			\caption{Szigmoid aktivációs függvény.}
 			\label{fig:sigmoid}
 			
-		\end{minipage}
-		\begin{minipage}[c]{0.30\linewidth}
+		\end{minipage}\hfill
+		\begin{minipage}[c]{0.33\linewidth}
 			
 			\centering
 			\includegraphics[width=\textwidth]{img/Softmax.pdf}
@@ -924,32 +924,37 @@ Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanul�
 \begin{itemize}
 	
 	\item 
-	\textbf{Átlagos négyzetes hiba} (\textit{Mean square error, MSE})
+	\textbf{Átlagos négyzetes hiba} (\textit{Mean squared error, MSE}):
 	
 	
-	\[  l(\underline{\hat{y}}, \underline{y}) = \norm{\underline{\hat{y}} - \underline{y}}_2^2  \]
+	\[  l(\underline{\hat{y}}, \underline{y}) = \frac{1}{2 \dim{(\underline{y})}} \norm{\underline{\hat{y}} - \underline{y}}_2^2  . \]
 	
-	\noindent
-	Akkor célszerű használni, ha tudjuk, hogy az eredmény nem lesz tökéletes, de szeretnénk mérni hibát. Az autoencodernél ezt használjuk.
+	Regressziós feladatoknál ezt használják.
+
+%	Akkor célszerű használni, ha tudjuk, hogy az eredmény nem lesz tökéletes, de szeretnénk mérni hibát. Az autoencodernél ezt használjuk.
 	
 	\item 
-	\textbf{Keresztentrópia} (\textit{Cross-entropy})
+	\textbf{Keresztentrópia} (\textit{Cross-entropy}):
 	
-	Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
-	ahol az 1 helye a hozzá tartozó osztály indexe.
+	\[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T log(\underline{\hat{y}}) , \]
 	
-	Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az első, és
-	$ \underline{y}=(1, 0) $ ha a második csoportba tartozik.
+	ahol $ \underline{y} $ egy olyan bináris vektor, amiben pontosan egy darab $ 1 $-es van, a többi komponense $ 0 $. Ezt osztályozási feladatoknál használjuk, ahol az $ 1 $-es index jelöli az adott minta osztályát.
 	
-	\[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T \cdot log(\underline{\hat{y}})  \]
-	
-	\noindent
-	Osztályozásnál ezt használjuk.
+%	Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
+%	ahol az 1 helye a hozzá tartozó osztály indexe.
+%	
+%	Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az első, és
+%	$ \underline{y}=(1, 0) $ ha a második csoportba tartozik.
+%	
+%
+%	
+%	\noindent
+%	Osztályozásnál ezt használjuk.
 	
 	
 \end{itemize}
 
-\subsubsection{Kapcsolódó fogalmak}
+\subsubsection{További kapcsolódó fogalmak}
 
 
 \paragraph{Túltanulás} (\textit{overfitting})
