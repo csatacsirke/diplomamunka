@@ -633,55 +633,125 @@ kifejezőerejét. Általában valamilyen más réteggel együtt használjuk, aho
 %lenne.
 
 % Ilyen tipikus függvény még a \textit{softmax} és a \textit{sigmoid}:
-
-Két tipikus nemlinearitás a $ ReLU $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
-
-\[  ReLU(x) =  
- \begin{cases}
-x, & \text{ha}\ x > 0, \\
-0, & \text{különben},
-\end{cases} 
- \]
-
-
-\[  sigmoid(x) = \dfrac{1}{1 + e^{-x}}  . \]
-
-Ezek a \ref{fig:relu}. és a \ref{fig:sigmoid}. ábrán láthatók.
-
-
-\begin{figure} [h!]
+\begin{itemize}
 	
-	\begin{minipage}[c]{0.5\linewidth}
-		\centering
-		\includegraphics[width=\textwidth]{img/relu.pdf}
-		\caption{Relu aktivációs függvény.}
-		\label{fig:relu}
-		
-	\end{minipage}\hfill
-	\begin{minipage}[c]{0.5\linewidth}
-		\centering
-		\includegraphics[width=\textwidth]{img/sigmoid.pdf}
-		\caption{Szigmoid aktivációs függvény.}
-		\label{fig:sigmoid}
-		
-	\end{minipage}
-\end{figure}
+%	Két tipikus nemlinearitás a $ ReLU $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
 
-A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyobb inputhoz 1 körüli outputot rendel, a többihez nullához közelit. Az eredmények összege pontosan 1. A függvény alakja a következő:
- 
-\[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  .\]
-
-A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik változó függvényében mutatjuk a függvény értékeit.
-%érték , eredményét.
-
-\begin{figure} [h!]
+	\item
+	A $ ReLU $ (\textit{Rectified Linear Unit}, \ref{fig:relu}. ábra) :
 	
-	\centering
-	\includegraphics[scale=0.5]{img/Softmax.pdf}
-	\caption{Softmax aktivációs függvény.}
-	\label{fig:softmax}
+	\[  ReLU(x) =  
+	\begin{cases}
+	x, & \text{ha}\ x > 0, \\
+	0, & \text{különben}.
+	\end{cases} 
+	\]
+	
+	\item
+	A $ szigmoid $ függvény (\ref{fig:sigmoid}. ábra):
 		
-\end{figure}
+	\[  sigmoid(x) = \dfrac{1}{1 + e^{-x}}  . \]
+	
+%	Ezek a \ref{fig:relu}. és a \ref{fig:sigmoid}. ábrán láthatók.
+	
+	
+
+	
+	\item
+	A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyobb inputhoz 1 körüli outputot rendel, a többihez nullához közelit. Az eredmények összege pontosan 1. A függvény alakja a következő:
+	
+	\[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  .\]
+	
+	A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik változó függvényében mutatjuk a függvény értékeit.
+	%érték , eredményét.
+	
+%	\begin{figure} [h!]
+%		
+%		\centering
+%		\includegraphics[scale=0.5]{img/Softmax.pdf}
+%		\caption{Softmax aktivációs függvény.}
+%		\label{fig:softmax}
+%		
+%	\end{figure}
+	\begin{figure} [h!]
+		
+		\begin{minipage}[c]{0.30\linewidth}
+			\centering
+			\includegraphics[width=\textwidth]{img/relu.pdf}
+					\captionsetup{justification=centering}
+			\caption{Relu aktivációs függvény.}
+			\label{fig:relu}
+			
+		\end{minipage}\hfill
+		\begin{minipage}[c]{0.30\linewidth}
+			\centering
+			\includegraphics[width=\textwidth]{img/sigmoid.pdf}
+					\captionsetup{justification=centering}
+			\caption{Szigmoid aktivációs függvény.}
+			\label{fig:sigmoid}
+			
+		\end{minipage}
+		\begin{minipage}[c]{0.30\linewidth}
+			
+			\centering
+			\includegraphics[width=\textwidth]{img/Softmax.pdf}
+					\captionsetup{justification=centering}
+			\caption{Softmax aktivációs függvény.}
+			\label{fig:softmax}
+			
+			
+		\end{minipage}
+	\end{figure}
+\end{itemize}
+%
+%Két tipikus nemlinearitás a $ ReLU $ (\textit{Rectified Linear Unit}) és a $ szigmoid $ függvény:
+%
+%\[  ReLU(x) =  
+% \begin{cases}
+%x, & \text{ha}\ x > 0, \\
+%0, & \text{különben},
+%\end{cases} 
+% \]
+%
+%
+%\[  sigmoid(x) = \dfrac{1}{1 + e^{-x}}  . \]
+%
+%Ezek a \ref{fig:relu}. és a \ref{fig:sigmoid}. ábrán láthatók.
+%
+%
+%\begin{figure} [h!]
+%	
+%	\begin{minipage}[c]{0.5\linewidth}
+%		\centering
+%		\includegraphics[width=\textwidth]{img/relu.pdf}
+%		\caption{Relu aktivációs függvény.}
+%		\label{fig:relu}
+%		
+%	\end{minipage}\hfill
+%	\begin{minipage}[c]{0.5\linewidth}
+%		\centering
+%		\includegraphics[width=\textwidth]{img/sigmoid.pdf}
+%		\caption{Szigmoid aktivációs függvény.}
+%		\label{fig:sigmoid}
+%		
+%	\end{minipage}
+%\end{figure}
+%
+%A $ softmax $ aktivációs függvényt osztályozásnál használjuk. A legnagyobb inputhoz 1 körüli outputot rendel, a többihez nullához közelit. Az eredmények összege pontosan 1. A függvény alakja a következő:
+% 
+%\[  softmax(\underline{x})_j = \dfrac{e^{x_j}}{\sumn{i}e^{x_i}}  .\]
+%
+%A \ref{fig:softmax}. ábrán szemléltetjük a Softmax működését. Két paramétert konstansnak választottunk: $ y=1 $ és $ z=2 $, és a harmadik változó függvényében mutatjuk a függvény értékeit.
+%%érték , eredményét.
+%
+%\begin{figure} [h!]
+%	
+%	\centering
+%	\includegraphics[scale=0.5]{img/Softmax.pdf}
+%	\caption{Softmax aktivációs függvény.}
+%	\label{fig:softmax}
+%		
+%\end{figure}
 
 
 %  softmax ábra kell? csak mert kicsit csúnyácska
@@ -722,18 +792,18 @@ X_{n, m} \cdot K_{n-i, m-j} . \]
 
 
 %Ekkor $ k $-t kernelnek hívjuk.
-Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ .
+Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ . A továbbiakban kétdimenziós konvolúciókkal foglalkozunk.
 
 
 Konvolúciós hálóknál több ilyen kernelt rendelünk egy-egy réteghez.
-Iterációnként minden egyes kernellel konvolváljuk a bemeneti képeinket, majd azokat a csatorna dimenzió mentén összegezzük.
-Tanításnál ezeket az kerneleket javítjuk minden iterációban.
+Iterációnként minden egyes kernellel konvolváljuk a bemeneti képünk csatornáit, majd az eredményt a csatorna dimenzió mentén összegezzük.
+Tanításnál ezeket a kerneleket javítjuk minden iterációban.
 % TODO
 %Tanításnál minden kernellel elkészítjük a kép konvolúcióját, majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tároljuk.
 %Visszaterjesztésnél ezeket az kerneleket javítjuk minden iterációban.
 
 \noindent
-Egy konvolúciós réteg alakja tehát:
+Egy kétdimenziós konvolúciós réteg alakja tehát:
 
 \[  \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} , \]
 
@@ -741,7 +811,7 @@ Egy konvolúciós réteg alakja tehát:
 ahol $ w, h,d $ az előző réteg szélessége, magassága és csatornáinak száma, 
 $ n $ pedig a kernelek száma. 
 
-A konvolúciós réteg jellegéből adódóan egy kimeneti pixel a bemeneti rétegnek csak egy meghatározott részhalmazától függ, ellentétben a sűrű rétegekkel. Jól használható arra, hogy csökkentsük a paramétereink számát, és ezzel is elkerüljük a túltanulást.
+A konvolúciós réteg jellegéből adódóan egy kimeneti pixel a bemeneti rétegnek csak egy meghatározott részhalmazától függ, ellentétben a sűrű rétegekkel. A konnektivitás tehát nem teljes, hanem csak lokális. Ez, jól használható arra, hogy csökkentsük a paramétereink számát, és ezzel is elkerüljük a túltanulást.
 
 %csökkentsük a paraméterek számát
 
@@ -750,10 +820,10 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 
 \begin{itemize}
 	\item 
-	\textbf{Same Padding}: Az eredeti adatot a határokon kiegészítjük nullákkal úgy, hogy a konvolúciót elvégezve akkora kimenetet kapjunk, mint amekkora a bemenet volt.
+	\textbf{Same Padding}: Az eredeti adatot a határokon kiegészítjük nullákkal úgy, hogy a konvolúciót elvégezve akkora kimenetet kapjunk, mint amekkora a bemenet volt (\ref{fig:conv-pelda-same}. ábra).
 	
 	\item 
-	\textbf{Valid Padding}: A konvolúciót csak olyan helyeken számoljuk ki, ahol a művelet elvégzéséhez minden szükséges adat rendelkezésre áll, azaz nem indexelünk ki a képből. Ha a kernel $ k \times k $ méretű volt, akkor a kimenet mérete $ (k-1) \times (k-1) $-el csökken.
+	\textbf{Valid Padding}: A konvolúciót csak olyan helyeken számoljuk ki, ahol a művelet elvégzéséhez minden szükséges adat rendelkezésre áll, azaz nem indexelünk ki a képből. Ha a kernel $ k \times k $ méretű volt, akkor a kimenet mérete $ (k-1) \times (k-1) $-el csökken (\ref{fig:conv-pelda-valid}. ábra).
 	
 	\item 
 	\textbf{Full Padding}: Ha a két bemenetünk $ w_1 \times h_1 $ és $ w_2 \times h_2 $ méretű volt, akkor az eredmény ebben a módban $ (w_1 + w_2 - 1) \times (h_1 + h_2 - 1) $ méretű lesz. Minden ismeretlen adatot nullával helyettesítünk. Ebben a témakörben ezt jellemzően nem használjuk.
@@ -764,23 +834,24 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 
 \begin{figure}[h!]
 	\centering
+	\begin{minipage}[c]{0.45\linewidth}
+		\centering
+		\includegraphics[scale=0.2]{img/konv-pelda-same-padding.pdf}
+		\captionsetup{justification=centering}
+		\caption{Kétdimenziós konvolúció \textit{same paddinggal}.}
+		\label{fig:conv-pelda-same}
+		
+	\end{minipage}
 
 	\begin{minipage}[c]{0.45\linewidth}
 		\centering
 		\includegraphics[scale=0.2]{img/konv-pelda.pdf}
 		\captionsetup{justification=centering}
-		\caption{Kétdimenziós konvolúció \textit{valid paddinggal}}
+		\caption{Kétdimenziós konvolúció \textit{valid paddinggal}.}
 		\label{fig:conv-pelda-valid}
 		
 	\end{minipage}\hfill
-	\begin{minipage}[c]{0.45\linewidth}
-		\centering
-		\includegraphics[scale=0.2]{img/konv-pelda-same-padding.pdf}
-		\captionsetup{justification=centering}
-		\caption{Kétdimenziós konvolúció \textit{same paddinggal}}
-		\label{fig:conv-pelda-same}
-		
-	\end{minipage}
+
 	
 \end{figure}
 
@@ -796,10 +867,9 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 \subsubsubsection{Dekonvolúciós réteg}
 
 
-A konvolúciós réteg inverze.
-Autoencoder modellnél használjuk, mikor vissza szeretnénk állítani
-a tömörített képet. Matematikailag ugyanaz mint a konvolúció,
-a különbség csak az eredmény dimenziójában van.
+A dekonvolúciós réteg a konvolúciós réteg inverze a kép-méreteket tekintve.
+Általában autoencoder modellnél használjuk, mikor vissza szeretnénk állítani
+a tömörített képet. Matematikailag ez is egy konvolúció.
 
 
 \paragraph{Alul-mintavételező réteg} (\textit{Pooling, subsampling})
@@ -808,7 +878,7 @@ a különbség csak az eredmény dimenziójában van.
 %Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára* csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
 %(\textit{* Lehet n-ed részére is csökkenteni a képet, nem csak a felére})
 
-Mély hálóknál az a célunk, hogy a dimenzió folyamatosan csökkenjen. Erre jó módszer, hogy a képet feleakkorára\footnote{Gyakorlatban általában felezzük a képet, de használható bármilyen más, egész számú hányados is.} csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
+Mély hálóknál az a célunk, hogy a tenzor méreteit kordában tartsuk. Erre jó módszer, hogy a kép méreteit feleakkorára csökkentjük, azaz négyesével összevonjuk a pixeleket, és valamilyen függvény segítségével kiszámoljuk belőlük az új értékeket.
 
 
 
@@ -819,7 +889,7 @@ Ha jellemzővektorokkal dolgozunk, akkor legtipikusabb a \textit{Max pooling} r�
 \begin{figure} [h!]
 	\centering
 	\includegraphics[scale=1.2]{img/max-pooling-pelda.pdf}
-	\caption{Max pooling}
+	\caption{Max pooling.}
 	\label{fig:maxpooling-pelda}
 \end{figure}
 
@@ -827,15 +897,14 @@ Ha jellemzővektorokkal dolgozunk, akkor legtipikusabb a \textit{Max pooling} r�
 \paragraph{Felül-mintavételező réteg} (\textit{Upsampling, Unpooling})
 
 
-Az alul-mintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg
-méretét.
+Az alul-mintavételezés ellentéte. Célja, hogy megtöbbszörözzük a réteg méretét. Általában autoencodernél használjuk, amikor visszaállítjuk az adatot.
 
 
 
 \begin{figure} [h!]
 	\centering
 	\includegraphics[scale=1.2]{img/upsamping-pelda.pdf}
-	\caption{Felül-mintavételezés}
+	\caption{Felül-mintavételezés.}
 	\label{fig:upsampling-pelda}
 \end{figure}
 
@@ -844,36 +913,41 @@ méretét.
 
 \subsubsection{Költségfüggvények}
 
-Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanulási feladatot, említettük, hogy az $ l(\underline{\hat{y}}, \underline{y}) $ függvényt költségfüggvénynek nevezzük. Nézzük most, hogy a dolgozatban milyeneket használunk.
+Amikor a \ref{sec:kanonikus.feladat}. fejezetben definiáltuk a kanonikus tanulási feladatot, említettük, hogy az $ l(\underline{\hat{y}}, \underline{y}) $ függvényt költségfüggvénynek nevezzük. A továbbiakban áttekintjük, hogy a dolgozatban melyeket használjuk.
+%Nézzük most, hogy a dolgozatban milyeneket használunk.
 
 %Általános alakban ha $ y $ az elvárt eredmény, és $ \hat{y} $ a háló
 %outputja, akkor a hibafüggvény a következő:
 %
 %$ J(\underline{w}) = \dfrac{1}{n} \sumn{i} f(\underline{y}, \hat{\underline{y}}) $
 
-
-\paragraph{Átlagos négyzetes hiba} (\textit{Mean square error, MSE})
-
-
-\[  l(\underline{\hat{y}}, \underline{y}) = \norm{\underline{\hat{y}} - \underline{y}}_2^2  \]
-
-\noindent
-Akkor célszerű használni, ha tudjuk, hogy az eredmény nem lesz tökéletes, de szeretnénk mérni hibát. Az autoencodernél ezt használjuk.
-
-
-\paragraph{Keresztentrópia} (\textit{Cross-entropy})
-
-Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
-ahol az 1 helye a hozzá tartozó osztály indexe.
-
-Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az első, és
-$ \underline{y}=(1, 0) $ ha a második csoportba tartozik.
-
-\[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T \cdot log(\underline{\hat{y}})  \]
-
-\noindent
-Osztályozásnál ezt használjuk.
-
+\begin{itemize}
+	
+	\item 
+	\textbf{Átlagos négyzetes hiba} (\textit{Mean square error, MSE})
+	
+	
+	\[  l(\underline{\hat{y}}, \underline{y}) = \norm{\underline{\hat{y}} - \underline{y}}_2^2  \]
+	
+	\noindent
+	Akkor célszerű használni, ha tudjuk, hogy az eredmény nem lesz tökéletes, de szeretnénk mérni hibát. Az autoencodernél ezt használjuk.
+	
+	\item 
+	\textbf{Keresztentrópia} (\textit{Cross-entropy})
+	
+	Legyen $ \underline{y} = (0, 0, \dots 1 \dots 0, 0)^T, $ 
+	ahol az 1 helye a hozzá tartozó osztály indexe.
+	
+	Bináris esetben $ \underline{y}=(0, 1) $ ha a minta az első, és
+	$ \underline{y}=(1, 0) $ ha a második csoportba tartozik.
+	
+	\[  l(\underline{y}, \underline{\hat{y}}) = - \underline{y}^T \cdot log(\underline{\hat{y}})  \]
+	
+	\noindent
+	Osztályozásnál ezt használjuk.
+	
+	
+\end{itemize}
 
 \subsubsection{Kapcsolódó fogalmak}
 
@@ -1006,14 +1080,14 @@ Az előző két hiba arányát a Vevő működési karakterisztika \cite{rocanal
 	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includesvg[scale=0.5]{img/rocexample.svg}
-		\caption{Egy ROC-görbe}
+		\caption{Egy ROC-görbe.}
 		\label{fig:roc.pelda}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-test.svg}
-		\caption{2 osztály hisztogramja}
+		\caption{2 osztály együttes hisztogramja.}
 		\label{fig:hist.pelda}
 		
 	\end{minipage}
@@ -1487,14 +1561,14 @@ Ezek alapján három tanító módszert tudunk készíteni.:
 	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includegraphics[width=\textwidth]{img/eredeti-pelda.png}
-		\caption{Eredeti nyomat}
+		\caption{Egy eredeti nyomat.}
 		\label{fig:eredeti.pelda}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includegraphics[width=\textwidth]{img/copy-pelda.png}
-		\caption{Színes fénymásolat}
+		\caption{Egy színes fénymásolat.}
 		\label{fig:copy.pelda}
 		
 	\end{minipage}
@@ -1515,14 +1589,14 @@ választottunk. Az \ref{fig:normalized-eredeti.pelda}. és a \ref{fig:normalized
 	\begin{minipage}[r]{0.5\linewidth}
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/normalized-eredeti-pelda.png}
-		\caption{Normalizált eredeti nyomat}
+		\caption{Egy normalizált eredeti nyomat.}
 		\label{fig:normalized-eredeti.pelda}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[l]{0.5\linewidth}
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/normalized-copy-pelda.png}
-		\caption{Normalizált színes fénymásolat}
+		\caption{Egy normalizált színes fénymásolat.}
 		\label{fig:normalized-copy.pelda}
 		
 	\end{minipage}
@@ -1564,7 +1638,7 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 	\label{fig:predictor-halo-modell}
 	\centering
 	\includegraphics[scale=0.3]{img/predictor-network-modell.pdf}
-	\caption{A háló modellje}
+	\caption{A háló modellje.}
 \end{figure}
 
 %
@@ -1987,7 +2061,7 @@ kimenetekben. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelento
 	\label{fig:autoencoder-halo-modell}
 	\centering
 	\includegraphics[scale=0.3]{img/autoencoder-network-modell.pdf}
-	\caption{A háló modellje}
+	\caption{A autoencoder háló modellje.}
 \end{figure}
 
 
@@ -2109,7 +2183,7 @@ kifejezve:
 		\texttt{bpas-merged.csv}\footnotemark[\value{footnote}] 	& 496			& 54 			& 16		& 1			\\
 	\end{tabular}
 
-	\caption{Az eredeti algoritmus eredményei}
+	\caption{Az eredeti algoritmus eredményei.}
 \end{figure}
 
 %\mbox{}
@@ -2135,7 +2209,7 @@ Ezen algoritmusok eredményei hiba rátával kifejezve, és az eredetiekkel öss
 %	\begin{flushleft}
 %	\textit{*Lásd a \ref{sec:adatok} pontot.}
 %	\end{flushleft}
-	\caption{Az SVM eredményei összehasonlítva az eredeti algoritmusokéval}
+	\caption{Az SVM eredményei összehasonlítva az eredeti algoritmusokéval.}
 
 \end{figure}
 
@@ -2223,14 +2297,14 @@ futtatva a modell mégsem tökéletes, fontosnak tartottuk azt is közölni.
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/ruc-curve-test.svg}
 %		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Teszt halmaz}
+		\caption{Teszt halmaz.}
 		\label{fig:roc-test}
 
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/roc-curve-full-dataset.svg}
 %		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Tanító+Teszt adathalmaz}
+		\caption{Tanító+Teszt adathalmaz.}
 		\label{fig:roc-full}
 		
 	\end{minipage}
@@ -2260,14 +2334,14 @@ logaritmikus skálát használ a jobb láthatóság kedvéért!
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/ruc-curve-test-ujratanitva.svg}
 		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Teszt halmaz}
+		\caption{Teszt halmaz.}
 		\label{fig:roc-test-re}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/roc-curve-full-dataset-ujratanitva.svg}
 		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Tanító+Teszt adathalmaz}
+		\caption{Tanító+Teszt adathalmaz.}
 		\label{fig:roc-full-re}
 		
 	\end{minipage}
@@ -2283,13 +2357,14 @@ logaritmikus skálát használ a jobb láthatóság kedvéért!
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-test.svg}
 		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Teszt halmaz}\label{fig:hist-test}
+		\caption{Teszt halmaz.}
+		\label{fig:hist-test}
 		
 	\end{minipage}\hfill
 	\begin{minipage}[c]{0.5\linewidth}
 		\includesvg[scale=0.5]{img/histogram-ujratanitott-log-skala-full.svg}
 		%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-		\caption{Tanító+Teszt adathalmaz}\label{fig:hist-full}
+		\caption{Tanító+Teszt adathalmaz.}\label{fig:hist-full}
 		
 	\end{minipage}
 %	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
@@ -2313,7 +2388,7 @@ Végül nézzük az összehasonlítást az eredeti, gépi tanulást nélkülöz�
 		
 	\end{tabular} 
 
-	\caption{A mély konvolúciós háló eredményei}
+	\caption{A mély konvolúciós háló eredményei.}
 %	\caption{A mély konvolúciós háló eredményei összehasonlítva az eredeti algoritmusokéval}
 \end{figure}
 
