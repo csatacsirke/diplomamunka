@@ -240,7 +240,7 @@ $ d $-t szeretnénk maximalizálni, ami ekvivalens reciprokának minimalizálás
 Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
 vezessünk be egy puha-margón alapuló költségfüggvényt, ami megenged rossz oldalon lévő elemeket is, de bünteti is azokat:
 \[
-L(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 %\max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 \max\big(0, 1 - y_i(\underline{w}^T \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 \]
@@ -309,7 +309,7 @@ b = \underline{w}^T \varphi(\underline{x}_i)  - y_i.
 \]
 Egy minta osztályozása ekkor:
 \[
-\hat{y} = \sign(\underline{w}^T \varphi(\underline{x}) - b).
+\hat{y} = \sign \big(\underline{w}^T \varphi(\underline{x}) - b\big).
 \]
 
 
@@ -426,11 +426,13 @@ Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backp
 és a gradienssel ellentétes irányba módosítja $ \underline{\theta} $-t, így csökkentve a költségfüggvény értékét.
 
 \[ 
- \underline{\theta}_{t+1} = \underline{\theta}_t - \gamma \cdot \frac{\partial L(\underline{\theta}, x_i, y_i)}{\partial \underline{\theta}}\bigg\rvert_{\underline{\theta}=\underline{\theta}_t}
+ \underline{\theta}_{t+1} = \underline{\theta}_t - \gamma \cdot \frac{\partial L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n)}{\partial \underline{\theta}}\bigg\rvert_{\underline{\theta}=\underline{\theta}_t}, 
  \]
+ 
+% L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n)
 
 \noindent
-,ahol $ \gamma < 1 $ a tanulási együttható.
+ahol $ \gamma < 1 $ a tanulási együttható.
 
 
 %\noindent
@@ -1076,9 +1078,9 @@ túltanulni, ilyenkor megállunk (\textit{early-stopping}) \cite{earlystopping}.
 Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és mérsékelje a túltanulást \cite{regularizacio}. A \ref{sec:kanonikus.feladat} fejezetbeli általános feladatban a $ R(\theta) $ függvény volt a regularizáció. Például az SVM feladatnál:
 
 %Például, ahogy az SVM-nél láthattuk:
+%\underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n
 
-
-\[  L(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+\[  L(\underline{w},b, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
 max(0, 1 - y_i(\underline{w}^T \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
 
 \noindent
