@@ -381,20 +381,21 @@ k(\underline{x}, \underline{x}') = \tanh\big(\gamma \cdot (\underline{x}^T  \und
 
 
 
-Általánosságban egy mély háló egy nagy bemenetet (a mi esetünkben képet) úgy képez
+Általánosságban egy mély háló egy bemenetet (a mi esetünkben képet) úgy képez
 a kimenetre, hogy több, kisebb lépésben tömöríti az inputot rejtett rétegek segítségével,
-amíg annak dimenziója el nem éri a várt kimenetét. 
-(Nálunk ez egy 0 és 1 közti szám, ahol 1 az eredeti, 0 a hamis.)
+amíg annak dimenziója el nem éri a várt kimenetét. Nálunk a kimenet egy 0 és 1 közötti szám.
+
+%(Nálunk ez egy 0 és 1 közti szám, ahol 1 az eredeti, 0 a hamis.)
 
 
 % TODO ez picit szóismétlés így?
-Egy mély háló modellje egy többszörösen összetett függvény, melynek függvényei a rétegek. Ezek paraméteres leképezések, melyek paramétereit gradiens módszerrel számoljuk \cite{lecun2015deep, krizhevsky2012imagenet}. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
+Egy mély háló modellje egy többszörösen összetett függvény, melynek elemi függvényei a rétegek. Ezek paraméteres leképezések, melyek paramétereit gradiens módszerrel számoljuk \cite{lecun2015deep, krizhevsky2012imagenet}. Általánosan, egy $ K $ rétegű modell a következőképpen írható fel:
 %Egy mély háló modellje a következő alakban írható fel:
 
 \[ 
-f(\underline{\theta},\underline{x})=f_K(\underline{\theta}_K, \dots f_2(\underline{\theta}_2, f_1(\underline{\theta}_1, \underline{x}) ) \dots )
+f(\underline{\theta},\underline{x})=f_K\bigg(\underline{\theta}_K, \dots f_2\big(\underline{\theta}_2, f_1(\underline{\theta}_1, \underline{x}) \big) \dots \bigg) ,
  \]
- \[ \underline{\theta} = \{\underline{\theta}_1, \dots, \underline{\theta}_K\} \]
+ \[ \underline{\theta} = \{\underline{\theta}_1, \dots, \underline{\theta}_K\} . \]
 
 
 
@@ -419,10 +420,9 @@ Látható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános min
 %Bár többféle algoritmus létezik, lényegében mindegyik ennek a hibafüggvénynek
 %a minimalizálására törekszik, és általában a Gradiens módszeren alapulnak.
 Ennek megoldására ugyan több algoritmus is létezik, de lényegében mindegyik a gradiens módszer egy változata.
-A különbség a konvergencia sebességében és a lokális szélsőértékkel szembeni 
-hibatűrő képességükben van.
+A különbség a konvergencia sebességében és a nyeregpontokkal szembeni hibatűrő képességükben van.
 
-Ehhez visszafelé haladva, rétegenként visszaterjeszti a hibát (\textit{backpropagation}),
+Ehhez rétegenként visszafelé haladva visszaterjeszti a hibát (\textit{backpropagation}),
 és a gradienssel ellentétes irányba módosítja $ \underline{\theta} $-t, így csökkentve a költségfüggvény értékét.
 
 \[ 
