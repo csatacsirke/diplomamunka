@@ -1,0 +1,19 @@
+\begin{thebibliography}{1}
+
+\bibitem{okostelefonnal}
+Gyenes András.
+\newblock Okostelefonnal a csomagolás védelméért.
+\newblock {\em Magyar Grafika 2016/2}, 2016.
+
+\bibitem{kingma2014adam}
+Diederik Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock {\em arXiv preprint arXiv:1412.6980}, 2014.
+
+\bibitem{yeh2011employing}
+Chi-Yuan Yeh, Wen-Pin Su, and Shie-Jue Lee.
+\newblock Employing multiple-kernel support vector machines for counterfeit
+  banknote recognition.
+\newblock {\em Applied Soft Computing}, 11(1):1439--1447, 2011.
+
+\end{thebibliography}
