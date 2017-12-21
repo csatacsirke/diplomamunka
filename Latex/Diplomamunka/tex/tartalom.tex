@@ -449,7 +449,7 @@ Megfelelő kötegméret-választással el tudjuk érni, hogy beleférjünk a ren
 
 %Bevált technika, hogy készítünk egy véletlen permutációt a tanító adatból, és ebben a sorrendben adjuk be a példákat. 
 Bevált technika, a kötegeket egy véletlen permutáció szeleteiből állítjuk elő.
-Azt a periódus, ami alatt a teljes tanító halmaz egyszer feldolgozásra kerül, \textit{epoch}-nak hívjuk.
+Azt a periódust, ami alatt a teljes tanító halmaz egyszer feldolgozásra kerül, \textit{epoch}-nak hívjuk.
 
 %Epochonként új permutációt használunk, ezekkel biztosítjuk, hogy minden példa azonos valószínűséggel szerepeljen.
 
@@ -1041,7 +1041,7 @@ Ez növeli az általánosítást és segít elkerülni a túltanulást \cite{ear
 
 
 %\paragraph{Kiegyensúlyozás}
-\subsubsubsection{Kiegyensúlyozás}
+\paragraph{Kiegyensúlyozás} (\textit{balancing})
 
 Osztályozás esetén az eredményt torzíthatja, ha a tanító halmazban az osztályok méretei között
 nagy eltérések vannak: ezt nevezzük kiegyensúlyozatlanságnak.
@@ -1062,10 +1062,10 @@ meglévők alapján \cite{krizhevsky2012imagenet}. Például egy képre affin, v
 
 
 %\paragraph{Megállás}
-\subsubsubsection{Korai megállás}
+\paragraph{Korai megállás} (\textit{early-stopping})
 
 A gradiens módszer leállási feltétele lehet explicit, például ha a validációs hiba egy előre megadott érték alá csökken. Értelemszerűen megállunk, ha a tanító halmazon mért hiba már nem csökken tovább.
-Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett túltanulni, ezért leállítjuk az optimalizációt (\textit{early-stopping}) \cite{earlystopping}.
+Azonban könnyen előfordulhat, hogy az ugyan még egyre kisebb, a validációs hiba viszont el kezd nőni! Ilyenkor biztosak lehetünk benne, hogy a modell elkezdett túltanulni, ezért leállítjuk az optimalizációt  \cite{earlystopping}.
 
 
 %\paragraph{Regularizáció}
@@ -1110,7 +1110,7 @@ hogy az optimalizálás konvergált-e.
 %lokális minimumot.
 Ezen kívül mérni szeretnénk, hogy mennyire teljesítünk jól. 
 Ezekre többféle mérőszám is létezik, ezek közül tekintsünk néhányat.
-Ezekhez vezessük be a következő bináris osztályozáshoz kapcsolódó fogalmakat:
+Vezessük be a következő bináris osztályozáshoz kapcsolódó fogalmakat:
 
 
 \begin{itemize}
