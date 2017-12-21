@@ -512,7 +512,7 @@ $ \beta_1=0.9, \beta_2=0.999, \epsilon=10^{-8}, \gamma=0.001 .$
 
 \subsubsection{Autoencoder}
 
-Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot \cite{autoencoder1, autoencoder2}. Itt nincsenek címkéink, tehát ez egy nem felügyelt tanulás.
+Az autoencoder egy olyan speciális háló, amelynél a cél, hogy a bemenetet veszteségesen egy belső reprezentációra képezzük, majd ebből megpróbáljuk visszaállítani az eredeti adatot \cite{autoencoder1, autoencoder2}. Itt nincsenek címkéink, tehát ez egy felügyeletlen tanulás.
 Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási feladat úgy módosul, hogy $ \underline{x} = \underline{y} $, azaz az elvárt kimenet maga a bemenet:
 %\[ 
 %\min\limits_{\theta} L(\theta, \underline{x}) = \frac{1}{n}  \sumn i l(f(\theta, x_i), x_i) + R(\theta)
@@ -520,8 +520,9 @@ Tehát a \ref{sec:kanonikus.feladat}. pontban definiált általános tanulási f
 
 
 \[ 
-\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n) = \frac{1}{n}  \sumn i l(f(\underline{\theta}, \underline{x}_i), \underline{x}_i) + R(\underline{\theta})
+\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n) = \frac{1}{n}  \sumn i l\big(f(\underline{\theta}, \underline{x}_i), \underline{x}_i\big) + R(\underline{\theta}) .
 \]
+
 
 
 %A költségfüggvény a következőképpen alakul:
@@ -548,11 +549,12 @@ Az alábbiakban áttekintjük, hogy a dolgozatban szereplő mély hálók milyen
 \paragraph{Sűrű réteg} (\textit{dense layer}) 
 
 
-Sűrű rétegről beszélünk, ha a bemenet és kimenet minden pontja között van kapcsolat. Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \underline{\theta} = \{W, \underline{b}\} $ a réteg súlyai, és $ f $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
+Sűrű rétegről beszélünk, ha a bemenet és kimenet minden komponense között van kapcsolat. Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \underline{\theta} = \{W, \underline{b}\} $ a réteg súlyai, és $ g $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
 
 
 \[  
-\hat{y} = f(W \cdot \underline{x} + \underline{b})
+%\hat{y} = f(W \underline{x} + \underline{b}) .
+f(\underline{\theta}, \underline{x}) = g(W \underline{x} + \underline{b}) .
 \]
 
 % http://www.texample.net/tikz/examples/neural-network/
