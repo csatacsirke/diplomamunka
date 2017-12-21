@@ -240,11 +240,14 @@ $ d $-t szeretnénk maximalizálni, ami ekvivalens reciprokának minimalizálás
 Ez azonban csak akkor működik, ha az adat lineárisan szeparálható. Ellenkező esetben
 vezessünk be egy puha-margón alapuló költségfüggvényt, ami megenged rossz oldalon lévő elemeket is, de bünteti is azokat:
 \[
-J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
-\max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
+L(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+%\max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
+\max\big(0, 1 - y_i(\underline{w}^T \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 \]
 
-Belátható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános feladat specializációja, ahol a modell: $  y_i(\underline{w} \cdot \underline{x}_i - b) $; a paraméterek: $ \theta = \{\underline{w}, b\} $ ; a költség: $ \max\big(0, 1 - \hat{y}) $; a regularizáció: $ \lambda \norm{\underline{w}}_2^2 $
+%Belátható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános feladat specializációja, ahol a modell: $  y_i(\underline{w} \cdot \underline{x}_i - b) $; a paraméterek: $ \theta = \{\underline{w}, b\} $ ; a költség: $ \max\big(0, 1 - \hat{y}) $; a regularizáció: $ \lambda \norm{\underline{w}}_2^2 $
+
+Belátható, hogy ez a \ref{sec:kanonikus.feladat}. pontban leírt általános feladat specializációja, ahol a modell: $ f(\underline{\theta}, \underline{x}_i) = \underline{w}^T \underline{x}_i - b $; a paraméterek: $ \underline{\theta} = \{\underline{w}, b\} $; a költség: $ \max\big(0, 1 - y \cdot\hat{y}) $; a regularizáció: $ \lambda \norm{\underline{w}}_2^2 $.
 
 % TODO ez a jelölés lehet, hogy zavaros, rákérdezni
 
@@ -485,8 +488,8 @@ Mi az Adaptív Momentum Becslés (\textit{Adaptive Moment Estimation, Adam~\cite
 \noindent
 Az algoritmus röviden:
 
-\[  m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w J(w_t)  \]
-\[  v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w J(w_t))^2  \]
+\[  m_w^{t+1} = \beta_1 \cdot m_w^{t} + (1-\beta_1) \triangledown_w L(w_t)  \]
+\[  v_w^{t+1} = \beta_2 \cdot v_w^{t} + (1-\beta_1) (\triangledown_w L(w_t))^2  \]
 \[  \hat{m}_w = \dfrac{m_w^{t+1}}{1 - \beta_1}  \]
 \[  \hat{v}_w = \dfrac{v_w^{t+1}}{1 - \beta_2}  \]
 \[ w^{t+1} = w^{t} - \gamma \dfrac{\hat{m}_w}{\hat{v}_w + \epsilon}   ,\]
@@ -936,7 +939,7 @@ vagy valamilyen hisztogram transzformációt alkalmazunk.
 \subsubsection{A teljesítmény mérése}
 
 Egy neuronháló tanítása általában hosszú folyamat. Ennek során valamilyen módszerrel meg kell
-tudnunk állapítani, ha elértük a kívánt eredményt és megállhatunk. Továbbá figyelnünk kell, 
+tudnunk állapítani, ha már elértük a kívánt eredményt és megállhatunk. Továbbá figyelnünk kell, 
 hogy az optimalizálás abbahagyta-e a konvergálást, azaz elért egy 
 lokális minimumot.
 Ezen kívül mérni szeretnénk, hogy mennyire teljesítünk jól. 
@@ -1075,8 +1078,8 @@ Ez a módszer arra való, hogy szabályozza a súlyok maximális méretét, és 
 %Például, ahogy az SVM-nél láthattuk:
 
 
-\[  J(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
-max(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
+\[  L(\underline{w},b)  = \frac{1}{n} \sum\limits_{i=1}^{n} 
+max(0, 1 - y_i(\underline{w}^T \underline{x}_i - b) + \lambda \norm{\underline{w}}  \]
 
 \noindent
 $  \lambda \norm{\underline{w}} $ a regularizációs tag, $ \lambda $ pedig egy hiperparaméter.
