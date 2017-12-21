@@ -1084,8 +1084,8 @@ a nyers adatból, a képből meghozni.
 \subsection{Eszközök}
 
 A megvalósítás nyelvének python-t választottunk.
-A gépi tanuláshoz a \texttt{Keras}\footnote{\url{https://keras.io/}} \cite{chollet2015keras} és \texttt{Sklearn} \footnote{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}} könyvtárakat 
-használtuk. Ezek a \texttt{Tensorflow} \footnote{\url{https://www.tensorflow.org/}} csomag segítségével képesek a
+A gépi tanuláshoz a \texttt{Keras}\footnote{\url{https://keras.io/}} \cite{chollet2015keras} és \texttt{Sklearn}\footnote{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}} \cite{pedregosa2011scikit} könyvtárakat 
+használtuk. Ezek a \texttt{Tensorflow}\footnote{\url{https://www.tensorflow.org/}} \cite{abadi2016tensorflow} csomag segítségével képesek a
 GPU-n futni, ezáltal gyorsítva a tanítás folyamatát. Ez különösképpen a 
 képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
 százszoros sebességnövekedést mértünk.
@@ -1100,7 +1100,7 @@ ugyanis azok nem visszafelé kompatibilisek.
 Az említett csomagok az előző fejezetben leírt módszereket használva egy
 keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíteni,
 és azokat azonnal kipróbálni. Ezen kívül jól illeszkednek a python többi könyvtárához,
-például a \texttt{numpy}\footnote{\url{http://www.numpy.org}} (általános aritmetikai könyvtár) és \texttt{opencv} \footnote{\url{https://opencv.org/}}
+például a \texttt{numpy}\footnote{\url{http://www.numpy.org}} (általános aritmetikai könyvtár) és \texttt{opencv}\footnote{\url{https://opencv.org/}}
 (computer vision, képfeldolgozás) csomagokhoz.
 
 
@@ -1290,7 +1290,7 @@ Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 %surface. A low C makes the decision surface smooth, while a high C aims at classifying all training
 %examples correctly by giving the model freedom to select more samples as support vectors
 
-\subsubsubsection{SVC.C \footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}}}  
+\subsubsubsection{SVC.C\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html}}}  
 
 %Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségvényének alakjára:
 %% TODO lehet hogy elég egy visszautalás, a megvalósításban már ne legyen képlet
@@ -1348,7 +1348,7 @@ konfidencia mellett mondhatjuk, hogy ha egy hiperparaméter halmaz ilyen módon 
 produkál, akkor nem fogja jelentősen befolyásolni a tanító halmaz megválasztása a validációs 
 eredmény eloszlását.
 
-A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt} \footnote{\url{https://github.com/hyperopt/hyperopt}} csomagot vettük
+A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt}\footnote{\url{https://github.com/hyperopt/hyperopt}} csomagot vettük
 igénybe. Használatához meg kell adjuk, hogy milyen változókat milyen valószínűségi eloszlás szerint
 mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdi véletlenszerűen
 kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 

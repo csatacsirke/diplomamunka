@@ -1,5 +1,12 @@
 \begin{thebibliography}{10}
 
+\bibitem{abadi2016tensorflow}
+Mart{\'\i}n Abadi, Ashish Agarwal, Paul Barham, Eugene Brevdo, Zhifeng Chen,
+  Craig Citro, Greg~S Corrado, Andy Davis, Jeffrey Dean, Matthieu Devin, et~al.
+\newblock Tensorflow: Large-scale machine learning on heterogeneous distributed
+  systems.
+\newblock {\em arXiv preprint arXiv:1603.04467}, 2016.
+
 \bibitem{okostelefonnal}
 Gyenes András.
 \newblock Okostelefonnal a csomagolás védelméért.
@@ -87,6 +94,13 @@ Aaron van~den Oord, Sander Dieleman, Heiga Zen, Karen Simonyan, Oriol Vinyals,
   Alex Graves, Nal Kalchbrenner, Andrew Senior, and Koray Kavukcuoglu.
 \newblock Wavenet: A generative model for raw audio.
 \newblock {\em arXiv preprint arXiv:1609.03499}, 2016.
+
+\bibitem{pedregosa2011scikit}
+Fabian Pedregosa, Ga{\"e}l Varoquaux, Alexandre Gramfort, Vincent Michel,
+  Bertrand Thirion, Olivier Grisel, Mathieu Blondel, Peter Prettenhofer, Ron
+  Weiss, Vincent Dubourg, et~al.
+\newblock Scikit-learn: Machine learning in python.
+\newblock {\em Journal of Machine Learning Research}, 12(Oct):2825--2830, 2011.
 
 \bibitem{earlystopping}
 Lutz Prechelt.
