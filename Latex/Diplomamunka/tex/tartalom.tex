@@ -1647,7 +1647,7 @@ Ezek alapján három tanító módszert tudtunk készíteni\footnotemark:
 
 
 %\newpage
-\subsection{Képelemzés Konvolúciós Hálóval}
+\subsection{Döntéshozás Mély Konvolúciós Hálóval}
 \label{sec:cnn}
 
 
@@ -1674,27 +1674,29 @@ Ezek alapján három tanító módszert tudtunk készíteni\footnotemark:
 	
 \end{figure}
 
-Ennél a megközelítésnél maguk a képek voltak a tanító adatok. Ezekre láthatunk példát a  \ref{fig:eredeti.pelda}. és a \ref{fig:copy.pelda}. ábrán.
+Ennél a megközelítésnél maguk a képek voltak a bemenetek. Ezekre láthatunk példát a  \ref{fig:eredeti.pelda}. és a \ref{fig:copy.pelda}. ábrán.
 Mivel a képek érkezhetnek különböző felbontású forrásokból, célszerű volt
 egyformára méreteznünk őket. Ennél tovább mentünk, és a célzó körök koordinátáival,
 és az \texttt{opencv} könyvtár inverz perspektivikus transzformációja segítségével 
 normalizáltuk a képeket. Végeredménynek egységesen $ 1000 \times 1000 $ pixeles képeket
-választottunk. Az \ref{fig:normalized-eredeti.pelda}. és a \ref{fig:normalized-copy.pelda}. 
+választottunk. A \ref{fig:normalized-eredeti.pelda}. és a \ref{fig:normalized-copy.pelda}. 
 ábrán láthatjuk a normalizálás eredményét.
 
 
 \begin{figure}[h]{}
 	
-	\begin{minipage}[r]{0.5\linewidth}
+	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/normalized-eredeti-pelda.png}
+		\captionsetup{justification=centering}
 		\caption{Egy normalizált eredeti nyomat.}
 		\label{fig:normalized-eredeti.pelda}
 		
 	\end{minipage}\hfill
-	\begin{minipage}[l]{0.5\linewidth}
+	\begin{minipage}[c]{0.5\linewidth}
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/normalized-copy-pelda.png}
+		\captionsetup{justification=centering}
 		\caption{Egy normalizált színes fénymásolat.}
 		\label{fig:normalized-copy.pelda}
 		
@@ -1707,12 +1709,11 @@ megtalálása egy erre készített neurális hálóval.
 
 
 Összességében azt várjuk, hogy a háló az eredeti és a hamis képeken más-más 
-jellemzőket talál és tanul meg a konvolúciós szűrők segítségével, és ezeket
-a \textit{feature-öket} a sűrű háló már könnyen kategorizálni tudja.
+konvolúciós szűrőket tanul meg, és ezeket
+a \textit{feature-öket} a sűrű réteg már könnyen kategorizálni tudja.
 
-Ahogy azt a mély hálóknál szokás, a rétegek fokozatosan csökkentik a probléma
-dimenzióját (kezdetben a teljes kép), amíg el nem érjük a keresett választ, azaz 0 vagy 1 - 
-egy dimenzió.
+Esetünkben rétegek fokozatosan csökkentik a probléma
+dimenzióját (kezdetben a teljes kép), amíg el nem érjük a keresett számszerű választ, azaz 0 vagy 1.
 
 \subsubsection{A háló szerkezete}
 
@@ -1721,23 +1722,27 @@ Bár több konfigurációt kipróbáltunk, a szerkezet alapvetően mindig a köv
 
 
 \begin{enumerate} [itemsep=-1ex]
-	\item Bemenet
-	\item Konvolúciós + alul mintavételező rétegek
-	\item Sűrű rétegek
-	\item Osztályozó réteg
-	\item Predikció
+	\item bemenet,
+	\item konvolúciós + alul mintavételező rétegek,
+	\item sűrű rétegek,
+	\item osztályozó réteg,
+	\item predikció.
 \end{enumerate}
 
 %A végső szerkezet Keras segítségével megvalósítva:
-\textbf{A végső modell}:
+%\textbf{A végső modell}:
+
+A végső hiperparaméter-kombináció a \ref{fig:predictor-halo-modell}. ábrán figyelhető meg.
+
 % konv lokális, dense nem
 % tikz, vagy rajz
 % TODO ellenőrizni a nyomtathatóságot
 \begin{figure} [h!]
-	\label{fig:predictor-halo-modell}
+
 	\centering
 	\includegraphics[scale=0.3]{img/predictor-network-modell.pdf}
-	\caption{A háló modellje.}
+	\caption{A háló architektúrája.}
+	\label{fig:predictor-halo-modell}
 \end{figure}
 
 %
