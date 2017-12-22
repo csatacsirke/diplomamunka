@@ -1517,14 +1517,15 @@ miatt lehet problémás, ezért egy jó köztes értéket érdemes választani.
 \noindent
 A tanítás $ \mathcal{O}(n^2) $ futási idejű, ezért nem jól skálázható. Bár a mi 
 esetünkben kiválóan működött, a csomag dokumentációjában azt olvashatjuk, hogy néhány tízezernél
-több mintára már nem alkalmazható hatékonyan. Ilyenkor használhatókor használhatók az optimalizált lineáris SVM-ek\footnotemark\footnotemark\cite{rahimi2008random}.
+több mintára már nem alkalmazható hatékonyan. Ilyenkor használható az optimalizált lineáris SVM implementáció\footnotemark \cite{fan2008liblinear} és a véges RBF közelítés\footnotemark \cite{rahimi2008random}.
 
 
 
 \addtocounter{footnote}{-1}
-\footnotetext{http://scikit-learn.org/stable/modules/generated/sklearn.kernel\_approximation.RBFSampler.html}
+\footnotetext{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html}}
+
 \addtocounter{footnote}{1}
-\footnotetext{http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html}
+\footnotetext{\url{http://scikit-learn.org/stable/modules/generated/sklearn.kernel\_approximation.RBFSampler.html}}
 
 Magát a tanítást a modellünk \texttt{fit(x, y)} függvényével tudjuk elvégezni, ezután 
 a \texttt{predict} metódussal tudunk egy-egy mintát osztályozni.

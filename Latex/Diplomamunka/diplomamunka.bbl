@@ -41,6 +41,11 @@ Dumitru Erhan, Yoshua Bengio, Aaron Courville, Pierre-Antoine Manzagol, Pascal
 \newblock Why does unsupervised pre-training help deep learning?
 \newblock {\em Journal of Machine Learning Research}, 11(Feb):625--660, 2010.
 
+\bibitem{fan2008liblinear}
+Rong-En Fan, Kai-Wei Chang, Cho-Jui Hsieh, Xiang-Rui Wang, and Chih-Jen Lin.
+\newblock Liblinear: A library for large linear classification.
+\newblock {\em Journal of machine learning research}, 9(Aug):1871--1874, 2008.
+
 \bibitem{rocanalysis}
 Tom Fawcett.
 \newblock An introduction to roc analysis.
