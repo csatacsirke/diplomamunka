@@ -288,7 +288,7 @@ transzformációjával.
 Ehhez definiáljuk az úgynevezett nemlineáris feature-leképezést, melyek a bemeneteket egy másik (általában magasabb dimenziós) térbe,
 a \textit{feature}-térbe képezik:
 \[
-\varphi\colon \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m \gg n.
+\varphi\colon \mathbb{R}^p \rightarrow \mathbb{R}^q, \quad q \gg p.
 \]
 Ekkor a feladat a következőképpen módosul:
 \begin{multline*}
@@ -570,9 +570,8 @@ Az alábbiakban áttekintjük, hogy a dolgozatban szereplő mély hálók milyen
 
 Sűrű rétegről beszélünk, ha a bemenet és kimenet minden komponense között van kapcsolat (\ref{fig:suru.reteg}. ábra). Általában egy aktivációs réteggel együtt használjuk. Ha $ x $ a réteg bemenete, $ \underline{\theta} = \{W, \underline{b}\} $ a réteg súlyai, és $ g $ nemlinearitás, akkor a réteg modellje a következőképpen írható fel:
 
-
-\[  
 %\hat{y} = f(W \underline{x} + \underline{b}) .
+\[  
 f(\underline{\theta}, \underline{x}) = g(W \underline{x} + \underline{b}) .
 \]
 
@@ -802,16 +801,16 @@ Matematikailag két tenzor konvolúciója egy- és kétdimenziós esetben:
 %\sum\limits_{j=-\infty}^{\infty} 
 %x[n, m] \cdot k[n-i, m-j] . \]
 
-\[  (\underline{x}*\underline{k})_{n} =  \sum\limits_{k=-\infty}^{\infty} x_{k} \cdot k_{n-k} , \]
-\[  (X*K)_{n, m} =  
-\sum\limits_{i=-\infty}^{\infty}  
-\sum\limits_{j=-\infty}^{\infty} 
-X_{n, m} \cdot K_{n-i, m-j} . \]
+\[  (\underline{x}*\underline{k})_{i} =  \sum\limits_{k_1=-\infty}^{\infty} x_{k_1} \cdot k_{i-k_1} , \]
+\[  (X*K)_{i, j} =  
+\sum\limits_{k_1=-\infty}^{\infty}  
+\sum\limits_{k_2=-\infty}^{\infty} 
+X_{k_1, k_2} \cdot K_{i-k_1, j-k_2} . \]
 
 
 
 %Ekkor $ k $-t kernelnek hívjuk.
-Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy $ n \times m $ dimenziós mátrix, ahol általában a dimenziók páratlanok, és sokszor $ n = m $ . A továbbiakban kétdimenziós konvolúciókkal foglalkozunk.
+Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy kétdimenziós dimenziós mátrix, ami sokszor négyzetes, és a dimenziók általában páratlanok. A továbbiakban kétdimenziós konvolúciókkal foglalkozunk.
 
 
 Konvolúciós hálóknál több ilyen kernelt rendelünk egy-egy réteghez.
@@ -825,6 +824,10 @@ Tanításnál ezeket a kerneleket javítjuk minden iterációban.
 Egy kétdimenziós konvolúciós réteg alakja tehát:
 
 \[  \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} , \]
+
+\[ f(\underline{\theta},X) = g( \sum_{i=1}^m W_i \ast X + B) \]
+
+
 
 \noindent
 ahol $ w, h,d $ az előző réteg szélessége, magassága és csatornáinak száma, 
@@ -1271,20 +1274,20 @@ A kimenetek megjelenítésére egy lehetséges módszer egy hisztogram készít�
 
 A gépi tanulást két helyen vizsgáljuk a témakörben.
 Először egy már meglévő applikáció mért eredményeit használjuk fel,
-javítva a döntési folyamatot. Ehhez Támasztóvektor Gépet(SVM) használunk.
-Másodszor konvolúciós hálók segítségével próbáljuk ugyanezt a döntést 
-a nyers adatból, a képből meghozni. 
+javítva a döntési folyamatot. Ehhez Támasztóvektor Gépet (SVM) használunk.
+Másodszor Konvolúciós hálók segítségével próbáljuk ugyanezt a döntést 
+a nyers adatból, a kép alapján meghozni. 
 
 \subsection{Eszközök}
 
-A megvalósítás nyelvének python-t választottunk.
+A megvalósítás nyelvének Python-t választottunk.
 A gépi tanuláshoz a \texttt{Keras}\footnote{\url{https://keras.io/}} \cite{chollet2015keras} és \texttt{Sklearn}\footnote{\url{http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html}} \cite{pedregosa2011scikit} könyvtárakat 
-használtuk. Ezek a \texttt{Tensorflow}\footnote{\url{https://www.tensorflow.org/}} \cite{abadi2016tensorflow} csomag segítségével képesek a
+használtuk. Előbbi a \texttt{Tensorflow}\footnote{\url{https://www.tensorflow.org/}} \cite{abadi2016tensorflow} csomag segítségével képesek a
 GPU-n futni, ezáltal gyorsítva a tanítás folyamatát. Ez különösképpen a 
 képfeldolgozásnál volt kritikus, mert egy közepes CPU és egy erős GPU között
 százszoros sebességnövekedést mértünk.
 
-Ahhoz, hogy a \texttt{Kerast} GPU-n tudjuk futtatni, szükségünk van az \texttt{Nvidia}
+Ahhoz, hogy a \texttt{Keras}-t GPU-n tudjuk futtatni, szükségünk van az \texttt{Nvidia}
 \texttt{Cuda}\footnote{\url{https://developer.nvidia.com/cuda-downloads}} csomagjára, amely a videókártya általános célú programozását 
 segíti, valamint a \texttt{cuDNN}\footnote{\url{https://developer.nvidia.com/cudnn}} könyvtárra, amely mély neuronhálók tanításához 
 szükséges komponensek hatékony implementációját tartalmazza. Fontos, hogy egyeztessük
@@ -1293,8 +1296,8 @@ ugyanis azok nem visszafelé kompatibilisek.
 
 Az említett csomagok az előző fejezetben leírt módszereket használva egy
 keretrendszert biztosítanak, amellyel könnyen tudunk prototípusokat készíteni,
-és azokat azonnal kipróbálni. Ezen kívül jól illeszkednek a python többi könyvtárához,
-például a \texttt{numpy}\footnote{\url{http://www.numpy.org}} (általános aritmetikai könyvtár) és \texttt{opencv}\footnote{\url{https://opencv.org/}}
+és azokat azonnal kipróbálni. Ezen kívül jól illeszkednek a Python többi könyvtárához,
+például a \texttt{numpy}\footnote{\url{http://www.numpy.org}} (általános numerikus számítási könyvtár) és \texttt{opencv}\footnote{\url{https://opencv.org/}}
 (computer vision, képfeldolgozás) csomagokhoz.
 
 
@@ -1305,14 +1308,15 @@ fejezetben írunk. Erre a programra a továbbiakban nem támaszkodtunk.
 
 
 
-\subsection{Döntéshozás SVM-mel}
+\subsection{Döntéshozás Támasztóvektor Géppel}
 
 A kiinduló ötletünk az volt, hogy alkalmazzunk gépi tanulást egy már meglévő projektben,
 és nézzük meg, hogy ezzel tudunk-e javítani rajta. Ez a meglévő projekt, bár több 
 alkalmazás készült egy-egy ipari megoldáshoz, lényegében egy képet elemez 
 különböző szempontok szerint, ez alapján fix darab számszerű jellemzőt készít, 
-majd ezek alapján döntést hoz. Ez az algoritmus minden alprojekthez egyesével
-volt kézzel megírva a szakértői tapasztalatok alapján. 
+majd ezek alapján hoz döntést. Ez az algoritmus minden alprojekthez egyesével,
+manuálisan volt finomhangolva, a szakértői tapasztalatok alapján.
+%volt manuálisan megírva a szakértői tapasztalatok alapján. 
 
 Ezt a mechanizmust szerettük volna automatizálni. Abban reménykedünk, hogy egy 
 mesterséges intelligencia esetleg olyan összefüggéseket is felismerhet a jellemzők
