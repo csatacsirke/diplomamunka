@@ -108,6 +108,12 @@ Lutz Prechelt.
 \newblock In {\em Neural networks: tricks of the trade}, pages 53--67.
   Springer, 2012.
 
+\bibitem{rahimi2008random}
+Ali Rahimi and Benjamin Recht.
+\newblock Random features for large-scale kernel machines.
+\newblock In {\em Advances in neural information processing systems}, pages
+  1177--1184, 2008.
+
 \bibitem{redmon2016you}
 Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
 \newblock You only look once: Unified, real-time object detection.

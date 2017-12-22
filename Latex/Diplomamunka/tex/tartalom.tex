@@ -1468,20 +1468,21 @@ kernel függvények megadására:
 \noindent
 Mi a dolgozatban végül \texttt{RBF} kernelt használtunk.
 
-\subsubsection{Egyéb paraméterek}
+\subsubsection{Egyéb hiperparaméterek}
 
 \subsubsubsection{SVC.class\_weight}
 
-Amennyiben az adatunk kiegyensúlyozatlan (márpedig nekünk az), ezzel adhatjuk meg
+Amennyiben az adatunk kiegyensúlyozatlan (márpedig pedig esetünkben az, mivel a pozitív példákból több van, mint a negatívokból), ezzel adhatjuk meg
  egy-egy osztály súlyát, amely általános esetben fordítottan arányos az elemszámmal.
 
-Ehhez használtuk a csomag \texttt{compute\_class\_weight} függvényét, ami éppen ezt csinálja.
+Ehhez használtuk a csomag \texttt{compute\_class\_weight} függvényét, ami éppen így számolja ki a megfelelő súlyokat.
 Paramétere  kívánt osztályok, és \textit{ground truth}-ok.
 
 
 \subsubsubsection{SVC.tol}
 
-Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
+Leállási feltétel tolerancia. Ha a célfüggvény változása ennél kisebb, akkor abbahagyhatja a modell a tanulást.
+%Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 
 
 
@@ -1503,10 +1504,10 @@ Hibatolerancia. Ha ezt elértük, akkor abbahagyhatja a modell a tanulást.
 %jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
 %miatt lehet problémás.
 
-Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségfüggvényének alakjára a \ref{sec:svm}. fejezetben, akkor az \texttt{sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
+Regularizációt\footnote{\url{http://scikit-learn.org/stable/auto_examples/svm/plot_svm_scale_c.html}} szabályozó paraméter. Ha visszatekintünk az SVM költségfüggvényének alakjára a \ref{sec:svm}. fejezetben, akkor az \texttt{Sklearn} $ C $ paramétere megegyeztethető $ \frac{1}{\lambda} $-val.
 Ha $ C $ kicsi, akkor simább a döntési felület és egyszerűbb modell, ha nagyobb, akkor 
-jobban próbál specializálni. Az első eset a túl nagy általánosság, a második a túltanulás
-miatt lehet problémás.
+jobban specializál a tanító halmazra. Az első eset a túl nagy általánosság, a második a túltanulás
+miatt lehet problémás, ezért egy jó köztes értéket érdemes választani.
 
 
 
@@ -1516,8 +1517,14 @@ miatt lehet problémás.
 \noindent
 A tanítás $ \mathcal{O}(n^2) $ futási idejű, ezért nem jól skálázható. Bár a mi 
 esetünkben kiválóan működött, a csomag dokumentációjában azt olvashatjuk, hogy néhány tízezernél
-több mintára már nem alkalmazható hatékonyan.
+több mintára már nem alkalmazható hatékonyan. Ilyenkor használhatókor használhatók az optimalizált lineáris SVM-ek\footnotemark\footnotemark\cite{rahimi2008random}.
 
+
+
+\addtocounter{footnote}{-1}
+\footnotetext{http://scikit-learn.org/stable/modules/generated/sklearn.kernel\_approximation.RBFSampler.html}
+\addtocounter{footnote}{1}
+\footnotetext{http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html}
 
 Magát a tanítást a modellünk \texttt{fit(x, y)} függvényével tudjuk elvégezni, ezután 
 a \texttt{predict} metódussal tudunk egy-egy mintát osztályozni.
