@@ -1,5 +1,6 @@
 import csv
 import os
+import glob
 import numpy as np
 
 from six.moves import cPickle as pickle
@@ -124,6 +125,18 @@ def read_full_input(inputFile, corners_list=None, zip_results=False, filter_none
 		return file_names, ground_truths
 
 
+def read_full_normalized_input_from_dir(dir):
+	ground_truths = []
+	file_names = []
+	for filename in glob.iglob(dir + '/**/normalized*.png', recursive=True):
+		
+		file_names.append(filename)
+		is_copy = 0 if "copy" in filename else 1
+		ground_truths.append(is_copy)
+		#print(filename, is_copy)
+	return file_names, ground_truths
+
+
 def filter_fnc_pos(tuple):
 	_, y = tuple
 	return y > 0.5
@@ -188,6 +201,65 @@ def filter_offset_counterfeits(file_names, ground_truths):
 	return filtered_file_names, filtered_ground_truths
 
 
+def create_new_random_dataset_separation_from_dir(dir):
+	
+	file_names, ground_truths = read_full_normalized_input_from_dir(dir)
+
+	log("total samples: ", len(file_names))
+
+	no_offset_counterfeit = True
+	if no_offset_counterfeit:
+		file_names, ground_truths = filter_offset_counterfeits(file_names, ground_truths)
+
+
+	#file_names, ground_truths = balance_input(file_names, ground_truths)
+
+	sample_count = len(file_names)
+
+	permutation = np.random.permutation(sample_count)
+
+
+	file_names = list(map(lambda x: file_names[x] , permutation))
+	ground_truths = list(map(lambda x: ground_truths[x] , permutation))
+
+	
+	training_ratio = 0.70
+	validation_ratio = 0.15
+	training_count = round(training_ratio * sample_count)
+	validation_count = round(validation_ratio * sample_count)
+
+	training_offset = 0
+	validation_offset = training_count
+	test_offset = validation_offset + validation_count
+
+	training_file_names = file_names[0:validation_offset]
+	training_ground_truths = ground_truths[0:validation_offset]
+	validation_file_names = file_names[validation_offset:]
+	validation_ground_truths = ground_truths[validation_offset:]
+	test_file_names = file_names[test_offset:]
+	test_ground_truths = ground_truths[test_offset:]
+
+	assert( len(training_file_names) == len(training_ground_truths) ) 
+	assert( len(validation_file_names) == len(validation_ground_truths) ) 
+
+
+	training_file_names, training_ground_truths = balance_input(training_file_names, training_ground_truths)
+
+
+
+	log("training samples: " + str(len(training_file_names)))
+	log("validation samples: " + str(len(validation_file_names)))
+
+	log("Created new dataset separation.")
+
+	dataset = (training_file_names, training_ground_truths,
+		validation_file_names, validation_ground_truths,
+		test_file_names, test_ground_truths)
+
+	save_dataset(dataset)
+
+	return dataset
+
 
 def create_new_random_dataset_separation(input_file):
 	
@@ -248,6 +320,34 @@ def create_new_random_dataset_separation(input_file):
 
 	return dataset
 
+def load_dataset_or_create_new_from_dir(dir):
+	global pickle_file
+
+	log("Loading dataset")
+
+	if os.path.isfile(pickle_file):
+	
+		with open(pickle_file, 'rb') as f:
+			saved_data = pickle.load(f)
+			training_file_names = saved_data['train_dataset']
+			training_ground_truths = saved_data['train_labels']
+			validation_file_names = saved_data['valid_dataset']
+			validation_ground_truths = saved_data['valid_labels']
+			test_file_names = saved_data['test_dataset']
+			test_ground_truths = saved_data['test_labels']
+
+
+			del saved_data  # hint to help gc free up memory
+			log("Loaded dataset")
+
+			return (training_file_names, training_ground_truths,
+				validation_file_names, validation_ground_truths,
+				test_file_names, test_ground_truths)
+		
+	else :
+		#return create_new_random_dataset_separation(csv_file_name)
+		return create_new_random_dataset_separation_from_dir(dir)
+	
 
 def load_dataset_or_create_new(csv_file_name):
 	
@@ -310,8 +410,10 @@ def save_dataset(dataset):
 
 
 def main():
-	default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
-	create_new_random_dataset_separation(default_input_file_name)
+	#default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
+	#create_new_random_dataset_separation(default_input_file_name)
+
+	read_full_normalized_input_from_dir("d:/Diplomamunka/SpaceTicket/")
 
 	return
 

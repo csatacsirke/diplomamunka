@@ -825,7 +825,7 @@ Egy kétdimenziós konvolúciós réteg alakja tehát:
 
 %\[  \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times m} , \]
 
-\[ f(\underline{\theta}, X)_i = g( \sum_{l=1}^m W_{i, l} \ast X_l + B) , \]
+\[ f(\underline{\theta}, X)_{\cdot, \cdot, i} = g( \sum_{l=1}^m W_{i, l} \ast X_{\cdot, \cdot, l} + B) , \]
 
 
 
@@ -1712,7 +1712,7 @@ megtalálása egy erre készített neurális hálóval.
 konvolúciós szűrőket tanul meg, és ezeket
 a \textit{feature-öket} a sűrű réteg már könnyen kategorizálni tudja.
 
-Esetünkben rétegek fokozatosan csökkentik a probléma
+Esetünkben a rétegek fokozatosan csökkentik a probléma
 dimenzióját (kezdetben a teljes kép), amíg el nem érjük a keresett számszerű választ, azaz 0 vagy 1.
 
 \subsubsection{A háló szerkezete}
@@ -1792,29 +1792,31 @@ A végső hiperparaméter-kombináció a \ref{fig:predictor-halo-modell}. ábrá
 %\end{lstlisting}
 
 
-Az $ 5 \times 5 $-ös kerneleket \textit{Relu} nemlinearitással találtuk legcélszerűbbnek,
-valamint $ 2 \times 2 $ \textit{max pooling}ot minden réteg után.
+Az $ 5 \times 5 $-ös kerneleket \textit{ReLU} nemlinearitással találtuk legcélszerűbbnek,
+valamint $ 2 \times 2 $ \textit{max pooling}-ot minden réteg után.
 A konvolúciós és a sűrű rétegek között egy \textit{Flatten} réteg található,
-ami a $ \mathbb{R}^{w \times h \times d} $ három dimenziós mátrix formából 
-$ \mathbb{R}^{w \cdot h \cdot d} $ vektort képez. Ezután további sűrű rétegek
-következnek \textit{Relu} nemlinearitással. Az utolsó az osztályozó
-réteg, amelynek két eleme van, és a \textit{softmax} függvény segítségével kapjuk
-a háló válaszát. Ez kategóriánként egy 0 és 1 közötti valós szám, ahol a kategóriák 
-összege 1 (ld. softmax függvény definíció). Bár nincs közük a valószínűségszámításhoz, 
-ezek a számok felfoghatók úgy, hogy mekkora eséllyel tartozik a minta az adott osztályba.
+amely háromdimenziós tenzorokból vektort képez.
+% a
+% $ \mathbb{R}^{w \times h \times d} $ 
+% három dimenziós mátrix formából 
+%$ \mathbb{R}^{w \cdot h \cdot d} $ vektort képez. 
+Ezután további sűrű rétegek
+következnek \textit{ReLU} nemlinearitással. Az utolsó az osztályozó
+réteg, amelynek két komponensű kimenete van, \textit{softmax} nemlinearitással.
+%Ez kategóriánként egy 0 és 1 közötti valós szám, ahol a kategóriák összege 1 (ld. softmax függvény definíció). 
+%Bár nincs közük a valószínűségszámításhoz, 
+Ezek a számok felfoghatók úgy, hogy mekkora eséllyel tartozik a minta az adott osztályba.
 Amennyiben közelebb vagyunk nullához vagy egyhez, akkor magabiztosabb a becslés, 
 $ \frac{1}{2} $ esetén bizonytalan.
 
-Költségfüggvénynek \textit{keresztentrópiát} használunk. Ez végtelen nagy ha $ |y-y'|=1 $,
-és 0, ha $ |y-y'|=0 $. Vegyük észre, hogy a \textit{softmax} miatt csak akkor lesz 0
-a költség, ha az egyik osztály pontosan 1, a másik pedig pontosan 0.
+Költségfüggvényként \textit{keresztentrópiát} használtunk.
+%Ez végtelen nagy ha $ |y-y'|=1 $, és 0, ha $ |y-y'|=0 $. Vegyük észre, hogy a \textit{softmax} miatt csak akkor lesz 0a költség, ha az egyik osztály pontosan 1, a másik pedig pontosan 0.
 
-A keresztentrópiának több változata létezik, de ezek csak az input formájában térnek
-el. Lehet például általános $ n $ elemű, bináris két elemű, vagy bináris egyváltozós.
-Mi az általános esetet használtuk, de a három közül bármelyik megfelelt volna.
+%A keresztentrópiának több változata létezik, de ezek csak az input formájában térnek el.
+% Lehet például általános $ n $ elemű, bináris két elemű, vagy bináris egyváltozós. Mi az általános esetet használtuk, de a három közül bármelyik megfelelt volna.
 
 
-\subsubsection{Tanítási paraméterek}
+\subsubsection{Hiperparaméterek}
 
 %\paragraph{Kötegméret}
 
@@ -1888,7 +1890,7 @@ A képek reprezentációja könyvtáraktól függően különbözhet továbbá a
 sorrendjében, ezért fontos hogy konzisztensek legyünk. Mi az \texttt{opencv}-hez
 igazodtunk, ahol a tömb \textit{alakja (shape)} : 
 $ \mathbb{R}^{height \times width \times channels } $. 
-Tehát egy pixel három színe három, fizikailag egymás mellett lévő érték,
+Tehát egy pixel három színe három, fizikailag egymás mellett lévő értékből áll,
 míg más reprezentációkban előfordul, hogy a csatornák vannak elől, azaz három különálló
 szürkeárnyalatos képünk van.
 
@@ -1900,28 +1902,34 @@ Körülbelül 1000 kép állt rendelkezésünkre tanításkor, ezek 80\%-a volt
 eredeti, a maradék 20\% hamisítvány. 
 
 
-Emiatt szükséges volt a mintát kiegyensúlyozni, tehát gondoskodni arról,
-hogy a tanításnál mindkét csoportból azonos valószínűséggel lásson mintát 
-a modell. Az egyik, kevésbé elegáns módszer szerint a kisebb (negatív) 
-halmazból addig szúrtunk be mintákat véletlenszerűen a tanító minták közé, 
-amíg egyenlő nem lett a két halmaz elemszáma.
-Ennél szofisztikáltabb megoldás, a \texttt{Keras} \texttt{class\_weights} paraméterét
-használni, amellyel megadhatjuk, hogy egy-egy osztályt milyen mértékben vegyen 
-figyelembe a tanításnál. Az \texttt{sklearn} csomag biztosít egy függvényt,
-\texttt{sklearn.utils.compute\_class\_weight} néven, vagy kézzel könnyen kiszámolhatjuk 
-magunknak:
+Emiatt szükséges volt az adatbázis kiegyensúlyozására, tehát gondoskodni arról,
+hogy a tanításnál mindkét osztályból azonos valószínűséggel lásson mintát 
+a modell. 
 
-\[  w_k' =  \dfrac{n}{ \sumn{i} \chi\{y_i = k\}}   \]
+A \texttt{Keras} \texttt{class\_weights} paraméterét az \texttt{Sklearn} csomag  \texttt{sklearn.utils.compute\_class\_weight} függvényével számoltuk ki.
+%
+%Az egyik, kevésbé elegáns módszer szerint a kisebb (negatív) 
+%halmazból addig szúrtunk be mintákat véletlenszerűen a tanító minták közé, 
+%amíg egyenlő nem lett a két halmaz elemszáma.
+%
+%Ennél szofisztikáltabb megoldás, a \texttt{Keras} \texttt{class\_weights} paraméterét
+%használni, amellyel megadhatjuk, hogy egy-egy osztályt milyen mértékben vegyen 
+%figyelembe a tanításnál. Az \texttt{sklearn} csomag biztosít egy függvényt,
+%\texttt{sklearn.utils.compute\_class\_weight} néven, vagy kézzel könnyen kiszámolhatjuk 
+%magunknak:
+%
+%\[  w_k' =  \dfrac{n}{ \sumn{i} \chi\{y_i = k\}}   \]
+%
+%\[  w_k =  \dfrac{w_k'}{\sumn{i} w_i'}  \]
+%%
 
-\[  w_k =  \dfrac{w_k'}{\sumn{i} w_i'}  \]
-
-
-A képek különböző telefonokkal készültek, némely állványról, a többi pedig kézből.
+A képek különböző telefonokkal készültek, némelyik állványról, a többi pedig kézből.
 Ez nagyban tudja befolyásolni a képminőséget.
 
 
-Tanítás előtt képezünk egy tanító, egy validációs és egy teszt halmazt, ahol 
-$ 70:15:15 $ az elemek számának aránya. Ezután, hacsak nem volt változás az adathalmazban,
+Tanítás előtt képezünk egy tanító, egy validációs és egy teszt halmazt, amik rendre a minták 70, 15 és 15 százalékát tartalmazták.
+%$ 70:15:15 $ az elemek számának aránya.
+ Ezután, hacsak nem volt változás az adathalmazban,
 ezeket használtuk a végsőkig.
 
 
@@ -1952,7 +1960,7 @@ eloszlást használtunk. Ez a módszer jó mind konvolúciós, mind a sűrű ré
 
 \subsubsubsection{Optimalizáló}
 
-Ahogy az korábban írtuk, a tanítás problémáját tulajdonképpen visszavezettük egy numerikus optimalizációs feladatra. Erre több módszer létezik, de általában a Gradiens Módszeren alapulnak. Mi az Adaptív Momentum Becslés (\textit{Adaptive Moment Estimation, Adam~\cite{kingma2014adam} }) módszert használtuk. Erről bővebben a \ref{sec:adam}. fejezetben írtunk.
+Ahogy az korábban írtuk, a tanítás problémáját tulajdonképpen visszavezettük egy numerikus optimalizációs feladatra. Erre több módszer létezik, de általában a Gradiens Módszeren alapulnak. Mi Adam \cite{kingma2014adam} módszert használtuk. Erről bővebben a \ref{sec:adam}. fejezetben írtunk.
 %
 %\noindent
 %Az algoritmus röviden:
@@ -1986,10 +1994,10 @@ Ha igen, akkor megpróbáljuk betölteni. Az elmentett modell kétféle lehet:
 \begin{samepage}
 	\begin{itemize}
 		\item 
-		"Csak súlyok"; csak akkor van értelme, ha már végleges verziónk van.
+		"Csak súlyok", csak akkor van értelme, ha már végleges verziónk van;
 		
 		\item 	
-		"Teljes modell"; ahol a súlyok mellett a háló szerkezete, és az optimalizáló állapota
+		"Teljes modell", ahol a súlyok mellett a háló szerkezete, és az optimalizáló állapota
 		is elmentésre kerül.
 	\end{itemize}
 \end{samepage}
@@ -2011,7 +2019,7 @@ eleinte, modell nélkül pedig "nulláról"(véletlenszerűen inicializált áll
 Az effektív tanítás \texttt{keras.models.Sequential.fit\_generator()} metódus segítségével 
 történik.
 
-Ennek a paramétereiként meg kell adnunk a tanító és a validációs halmazokat \texttt{python} 
+Ennek a paramétereiként meg kell adnunk a tanító és a validációs halmazokat Python
 generátorok formájában. Ezek olyan \texttt{numpy} tömbökkel térnek vissza, amely megfelelnek 
 egy-egy kötegnek, és egy-egy eleme egy kép. A \texttt{steps\_per\_epoch} paraméter segítségével azt adjuk
 meg, hogy egy \textit{periódus} hány köteg. A \texttt{callbacks} paraméterrel függvényeket
@@ -2033,8 +2041,8 @@ nem csökkent.
 \texttt{Kerasban} a validációs hibát a \texttt{on\_epoch\_end(self, epoch, logs=\{\})} 
 callback függvényben a \texttt{logs.get(self.monitor)} utasítással kapjuk meg.
 
-Megadhatunk explicit legtöbb periódus-számot is, és validációs hibahatárt, ami alá ha
-elérünk akkor elvégezettnek tekintjük a feladatot, de ezt a gyakorlatban nem használtuk.
+Megadhatunk explicit legtöbb periódus-számot és validációs hibahatárt is, ami alá ha
+elérünk, akkor elvégzettnek tekintjük a feladatot, de ezt a gyakorlatban nem használtuk.
 Addig tanítottuk, ameddig csak lehetett.
 
 %\paragraph{Ellenőrzőpont}
@@ -2079,7 +2087,7 @@ pozitív rátát.
 %\end{figure}
 %  innen ki let szedve egy ábra. Ellenőrizd hogy nem maradt e helyette hülyeség
 
-Ha az adathalmaz nem tökéletesen szeparálható ( a görbe alatti terület nem 1), akkor
+Ha a két osztály nem tökéletesen szeparálható (a görbe alatti terület nem 1), akkor
 nem tudunk univerzálisan jó vágópontot mondani, az viszont megállapítható, hogy egy adott ponthoz 
 mekkora fals és tényleges ráta tartozik. Ezek alapján el kell döntenünk, hogy az 
 első- vagy a másodfajú hiba a kritikusabb, erre meghatároznunk egy maximum hibarátát,
@@ -2141,7 +2149,7 @@ ez esetben új kép készítésével, vagy esetleg egy másik módszer ajánlás
 
 
 
-\subsection{Képelemzés Autoencoderrel}
+\subsection{Döntéshozás Mély Konvolúciós Autoencoderrel}
 \label{sec:autoencoder}
 
 Egy másik megközelítés volt a konvolúciós hálók alkalmazására, hogy autoencoder modellt 
@@ -2150,9 +2158,9 @@ Egy másik megközelítés volt a konvolúciós hálók alkalmazására, hogy au
 Egy autoencoder feladata hogy a kapott inputot úgy tömörítse a rejtett rétegeket
 használva, hogy a veszteség a lehető legkisebb legyen.
 
-Az modell tanításához kiválogattuk az eredeti képeket, és csak azokon tanítottunk.
+A modell tanításához kiválogattuk az eredeti képeket, és csak azokon tanítottunk.
 Azt vártuk, hogy jelentős különbséget fogunk tapasztalni az eredeti és a hamis 
-kimenetekben. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelentoseg}) fejezetben részletezzük. 
+minták rekonstrukciójában. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelentoseg}) fejezetben részletezzük. 
 
 
 \subsubsection{Modell}
@@ -2219,22 +2227,23 @@ kimenetekben. Ennek jelentőségét az Eredmények (\ref{sec:autoencoder.jelento
 %\end{lstlisting}
 
 
-Az előző fejezet konvolúciós hálójához hasonlóan Konvolúció-Relu-MaxPooling hármasokat
-fűztünk egymás után. Úgy találtuk hogy az általánosítás $ 7 \times 7 $-es kernelméret 
+Az előző fejezet konvolúciós hálójához hasonlóan Konvolúció-ReLU-MaxPooling hármasokat
+fűztünk egymás után. Úgy találtuk, hogy az általánosítás $ 7 \times 7 $-es kernelméret 
 mellett volt optimális. Ha ennél kisebb volt, akkor túltanult, ha jelentősen nagyobb 
 ($ 11 $ és felette), akkor  már nem volt képes értékelhető eredményt adni.
 
-A háló második fele az első fél tükrözve, figyelve arra, hogy a végső dimenzió pont akkora 
+A háló második felénél az első fél méreteit megfordítottuk, figyelve arra, hogy a végső dimenzió pont akkora 
 legyen, mint a bemenet. A \textit{Max poolingok} párja egy-egy \textit{Up sampling} réteg, amely az adott
 pixelt egy $ 2 \times 2 $-es ablakban megtöbbszörözi.
 
 Költségfüggvénynek átlagos hiba-négyzetet (\textit{MSE}) használunk, hiszen arra vagyunk 
-kíváncsiak, hogy fizikailag mennyire voltunk közel az eredeti képhez.
+kíváncsiak, hogy a rekonstruált kép mennyire volt közel az eredeti képhez.
+%, hogy fizikailag mennyire voltunk közel az eredeti képhez.
 
 
 Érdekessége a hálónak, hogy \textit{hely-invariáns}, azaz a kép koordinátáitól nem függ az adott
-adategységhez tartozó kimenet, kizárólag a szomszédaitól és a megtanult szűrőktől.
-Ezt ki is használjuk: az \texttt{ input\_shape=(None, None, 3)} utasítással annyit
+adategységhez tartozó kimenet, kizárólag a szomszédaitól és a megtanult szűrőktől. Ennek oka, hogy nem használtunk sűrű réteget.
+Ezt a tulajdonságot ki is használjuk: az \texttt{ input\_shape=(None, None, 3)} utasítással annyit
 specifikálunk csak, hogy az input 3 színcsatornával kell rendelkezzen, de tetszőleges
 lehet a szélesség és a magasság. Ekkor bár az kötött, hogy tanításkor a példák egyforma 
 dimenziójúak legyenek a hatékonyság miatt, de a méretük így is tetszőleges.
@@ -2242,8 +2251,8 @@ dimenziójúak legyenek a hatékonyság miatt, de a méretük így is tetszőleg
 
 Megtehetjük tehát, hogy tanításnál sok kis kockát mutatunk a modellnek, viszont tesztelésnél
 már az egész képet egyben használjuk, az eredmény ugyanaz lesz, mintha felkockáztuk 
-és összeillesztettük volna. Ez magyarázható a konvolúció 
-tulajdonságaival, erre alapul például jelfeldolgozásban az \textit{overlap-save} módszer.
+és összeillesztettük volna. 
+%Ez magyarázható a konvolúció tulajdonságaival, erre alapul például jelfeldolgozásban az \textit{overlap-save} módszer.
 
 
 
@@ -2593,7 +2602,7 @@ használni már jóval egyszerűbb, feltéve, hogy a modellt egy az egyben bele�
 alkalmazásba.
 
 
-A dolgozathoz a projekt \texttt{pythonban} készült. Ez egy rendkívül flexibilis nyelv, és
+A dolgozathoz a projekt Pythonban készült. Ez egy rendkívül flexibilis nyelv, és
 kiváló prototípus készítéshez, de tekintve, hogy egy szkriptnyelv, a hibakezelés a 
 típusosság hiányában sokkal nehezebb. Emiatt célszerűnek látom az éles környezetben 
 való használathoz egy fordítóval rendelkező, biztonságos, de mégis hatékony nyelven 
@@ -2646,7 +2655,7 @@ A forráskódok a \url{https://github.com/csatacsirke/diplomamunka/} weboldalon 
 egy prototípus, a kódhoz nem mellékelünk felhasználói dokumentációt.
 
 
-A projektet \texttt{python} nyelven készítettük. Ez kiválóan alkalmas prototípusok készítésére, amelyeket újrafordítás nélkül, akár egy-egy sort futtatva azonnal kipróbálhatunk. A  háttérkönyvtáraknak köszönhetően, amelyek natív kóddá fordítják a kritikus, számításigényes részeket, a  teljesítmény sem romlik jelentősen. Ezek alapján nem meglepő, hogy a legtöbb gépi tanulással foglalkozó programcsomagnak létezik \texttt{python} interfésze.
+A projektet Python nyelven készítettük. Ez kiválóan alkalmas prototípusok készítésére, amelyeket újrafordítás nélkül, akár egy-egy sort futtatva azonnal kipróbálhatunk. A  háttérkönyvtáraknak köszönhetően, amelyek natív kóddá fordítják a kritikus, számításigényes részeket, a  teljesítmény sem romlik jelentősen. Ezek alapján nem meglepő, hogy a legtöbb gépi tanulással foglalkozó programcsomagnak létezik Python interfésze.
 
 
 Mi \texttt{WinPython 3.5.4}\footnote{\url{https://winpython.github.io/}} disztribúciót használtunk, de bármelyik másik \texttt{python 3.x} jó lett volna. A szerző személyes tapasztalatai miatt Visual Studio IDE-ben fejlesztettünk. Emiatt a projekt könyvtárában található egy \texttt{.sln} és egy \texttt{.pyproj} fájlt, amelyek tartalmazzák a szükséges konfigurációkat a fejlesztőkörnyezet számára. Ezeket használva a program alapértelmezés szerint a \texttt{./working\_dir/} könyvtárban fut, valamint ott keres minden szükséges bemenetet, és ez a relatív elérési útvonalak alapja.
@@ -2748,10 +2757,10 @@ A projekt \texttt{python} forrásfájlokból áll. Ebből az alábbi négy futta
 
 
 \begin{itemize}
-	\item \texttt{cnn.py}
-	\item \texttt{statistics.py}
-	\item \texttt{verdict\_nn.py}
-	\item \texttt{batch\_normalize.py}
+	\item \texttt{cnn.py},
+	\item \texttt{statistics.py},
+	\item \texttt{verdict\_nn.py},
+	\item \texttt{batch\_normalize.py}.
 
 \end{itemize}
 

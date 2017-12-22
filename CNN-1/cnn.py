@@ -45,6 +45,7 @@ TODO kéne egy olyan futtatási opció amivel csak predikálni lehet
 
 #default_input_file_name = 'jura/11.14/Bpas-Verdict.csv'
 default_input_file_name = "jura\\2017.10.25\\Bpas-Verdict.csv"
+image_dir = "d:/Diplomamunka/SpaceTicket/"
 
 g_img_height, g_img_width = 256, 256
 
@@ -234,7 +235,8 @@ def evaluate():
 	
 	eval_full_dataset = True
 	if eval_full_dataset:
-		file_names, ground_truths = dataset_handler.read_full_input(default_input_file_name);
+		#file_names, ground_truths = dataset_handler.read_full_input(default_input_file_name);
+		file_names, ground_truths = dataset_handler.read_full_normalized_input_from_dir(image_dir)
 	else:
 		file_names = test_file_names
 		ground_truths = test_ground_truths
@@ -722,9 +724,13 @@ def save_model(model):
 
 ################################################################################################
 	
+#(training_file_names, training_ground_truths,
+#	validation_file_names, validation_ground_truths,
+#	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new(default_input_file_name)
+
 (training_file_names, training_ground_truths,
 	validation_file_names, validation_ground_truths,
-	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new(default_input_file_name)
+	test_file_names, test_ground_truths) = dataset_handler.load_dataset_or_create_new_from_dir(image_dir)
 
 
 training_generator = create_generator(training_file_names, training_ground_truths, use_autoencoder=use_autoencoder)
