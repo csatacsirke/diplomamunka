@@ -814,7 +814,7 @@ Ekkor $ k $, illetve $ K $ a konvolúció kernelje. Ez képeknél egy kétdimenz
 
 
 Konvolúciós hálóknál több ilyen kernelt rendelünk egy-egy réteghez.
-Iterációnként minden egyes kernellel konvolváljuk a bemeneti képünk csatornáit, majd az eredményt a csatorna dimenzió mentén összegezzük.
+Iterációnként több kernellel konvolváljuk a bemeneti képünk csatornáit, majd az eredményt a bemeneti csatorna dimenzió mentén összegezzük.
 Tanításnál ezeket a kerneleket javítjuk minden iterációban.
 % TODO
 %Tanításnál minden kernellel elkészítjük a kép konvolúcióját, majd a pixelekhez tartozó eredményeket egy-egy jellemzővektorban tároljuk.
@@ -823,15 +823,15 @@ Tanításnál ezeket a kerneleket javítjuk minden iterációban.
 \noindent
 Egy kétdimenziós konvolúciós réteg alakja tehát:
 
-\[  \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times n} , \]
+%\[  \mathbb{R}^{w \times h \times d} \rightarrow \mathbb{R}^{w \times h \times m} , \]
 
-\[ f(\underline{\theta},X) = g( \sum_{i=1}^m W_i \ast X + B) \]
+\[ f(\underline{\theta}, X)_i = g( \sum_{l=1}^m W_{i, l} \ast X_l + B) , \]
 
 
 
 \noindent
-ahol $ w, h,d $ az előző réteg szélessége, magassága és csatornáinak száma, 
-$ n $ pedig a kernelek száma. 
+%ahol $ w, h,d $ az előző réteg szélessége, magassága és csatornáinak száma, 
+ahol $ m $ a kimeneti csatornák száma. 
 
 A konvolúciós réteg jellegéből adódóan egy kimeneti pixel a bemeneti rétegnek csak egy meghatározott részhalmazától függ, ellentétben a sűrű rétegekkel. A konnektivitás tehát nem teljes, hanem csak lokális. Ez, jól használható arra, hogy csökkentsük a paramétereink számát, és ezzel is elkerüljük a túltanulást.
 
@@ -845,7 +845,7 @@ A konvolúció eredményének méreteiben lehet eltérés módszertől függően
 	\textbf{Same Padding}: Az eredeti adatot a határokon kiegészítjük nullákkal úgy, hogy a konvolúciót elvégezve akkora kimenetet kapjunk, mint amekkora a bemenet volt (\ref{fig:conv-pelda-same}. ábra).
 	
 	\item 
-	\textbf{Valid Padding}: A konvolúciót csak olyan helyeken számoljuk ki, ahol a művelet elvégzéséhez minden szükséges adat rendelkezésre áll, azaz nem indexelünk ki a képből. Ha a kernel $ k \times k $ méretű volt, akkor a kimenet mérete $ (k-1) \times (k-1) $-el csökken (\ref{fig:conv-pelda-valid}. ábra).
+	\textbf{Valid Padding}: A konvolúciót csak olyan helyeken számoljuk ki, ahol a művelet elvégzéséhez minden szükséges adat rendelkezésre áll, azaz nem indexelünk ki a képből. Ha a kernel $ k_1 \times k_2 $ méretű volt, akkor a kimenet mérete $ (k_1-1) \times (k_2-1) $-el csökken (\ref{fig:conv-pelda-valid}. ábra).
 	
 	\item 
 	\textbf{Full Padding}: Ha a két bemenetünk $ w_1 \times h_1 $ és $ w_2 \times h_2 $ méretű volt, akkor az eredmény ebben a módban $ (w_1 + w_2 - 1) \times (h_1 + h_2 - 1) $ méretű lesz. Minden ismeretlen adatot nullával helyettesítünk. Ebben a témakörben ezt jellemzően nem használjuk.
@@ -1334,9 +1334,10 @@ A jellemző adatokra fekete dobozként tekintettünk, semmilyen formában nem ha
 a jelentésüket, tehát hagytuk hogy a gép magától találjon összefüggéseket.
 
 
-Építhettünk volna egy neurális hálót is, de sokkal egyszerűbb, mégis hatékony
-megoldásnak bizonyult az SVM, amely kiváló ilyen bináris adat-klaszterezésekre.
-További előnye, hogy viszonylag kevés mintán is jól és gyorsan tud tanulni.
+Építhettünk volna egy mély neurális hálót is, de sokkal egyszerűbb, mégis hatékony
+megoldásnak bizonyult az SVM.
+%, amely kiváló ilyen bináris adat-klaszterezésekre.
+Előnye, hogy viszonylag kevés mintán is jól és gyorsan tud tanulni.
 Mindezek mellett kevesebb a hiperparamétere.
 
 
@@ -1345,7 +1346,7 @@ Mindezek mellett kevesebb a hiperparamétere.
 
 Az adatainkat egy \texttt{csv} fájlból olvassuk ki, amit az előzőekben említett program 
 generált. Egy-egy sor tartalmazza az adott fájl elérési útját, a \textit{ground truth}-t,
-a Jurás program predikcióját, néhány metaadatot, és végül a számunkra érdekes jellemzőket.
+a Jura Trade kft. programjának predikcióját, néhány metaadatot, és végül a számunkra érdekes jellemzőket.
 Körülbelül 1000 mintánk állt rendelkezésre.
 
 \noindent
@@ -1353,28 +1354,28 @@ A következő két adatfájlt használtuk:
 
 \begin{enumerate}
 \item
-	\texttt{bpas-verdict.csv}: Minden egyes kép adatai egyszer szerepelnek
+	\texttt{bpas-verdict.csv}: minden egyes kép adatai egyszer szerepelnek,
 \item
-	\texttt{bpas-merged.csv}: Az egymáshoz tartozó képek közül csak a jobbik szerepel benne
+	\texttt{bpas-merged.csv}: az egymáshoz tartozó képek közül csak a jobbik szerepel benne.
 \end{enumerate}
 
 Egy sor esetlegesen tartalmazhat hibaüzenetet, ha a képet nem sikerült előzetesen elemezni, például 
 ha annyira homályos, hogy célzóköröket nem sikerült megtalálni. Az ilyen sorokat figyelmen kívül hagyjuk.
 
-Tekintve, hogy a tanítás időtartama alatt nem változnak az adatok, a kézzel adjuk
+Tekintve, hogy a tanítás időtartama alatt nem változnak az adatok, kézzel adjuk
 meg a jellemzők oszlopindexeit. A kódban ez:
 \begin{lstlisting}  
 	valueableParamIndices = [18, 20, 22, 24, 26, 27, 29, 30, 32, 33, 35, 36, 38, 39, 41, 42]
 \end{lstlisting}
 
-Ezeket a rekordokat kigyűjtöttük egy $ x $ tömbbe, az elvárt eredményeket egy $ y $-ba:
+Ezeket a rekordokat kigyűjtöttük egy-egy $ \underline{x}_i $ vektorba, az elvárt eredményeket egy-egy $ y_i $ címkékbe:
 ezek lesznek a modellünk paraméterei.
 
 
 
 \subsubsection{A modell}
 
-Az SVN-ünket az \texttt{Sklearn} csomag \texttt{SVC} osztálya segítségével építjük fel. A következőekben ennek paramétereit tárgyaljuk.
+Az SVM-ünket az \texttt{Sklearn} csomag \texttt{SVC} osztálya segítségével építjük fel. A következőekben ennek hiperparamétereit tárgyaljuk.
 
 % kell ide a kód? vagy fölösleges
 %
@@ -1408,28 +1409,28 @@ Az SVN-ünket az \texttt{Sklearn} csomag \texttt{SVC} osztálya segítségével 
 %http://scikit-learn.org/stable/modules/svm.html#svm-kernels
 
 Mint azt a \ref{sec:kernelek}. fejezetben írtuk, a kernelek feladata, hogy megnöveljék a probléma
-dimenzióját annak érdekében, hogy az így lineárisan szeparálhatóvá váljon, mindezt 
+dimenzióját annak érdekében, hogy a két osztály így lineárisan szeparálhatóvá váljon, mindezt 
 úgy, hogy meglévő jellemzőpárokból újakat generálnak előre megadott képletek,
-bázisok segítségével. Nézzük \texttt{sklearn}-ben milyen lehetőségeink vannak a 
-kernel függvények megadására.
+bázisok segítségével. Nézzük \texttt{Sklearn}-ben, milyen lehetőségeink vannak a 
+kernel függvények megadására:
 
 \begin{itemize}
 \item
 	\textbf{Lineáris:} \\
-	\texttt{SVC.kernel='linear'}
+	\texttt{SVC.kernel='linear'},
 \item
 	\textbf{Polinomiális:} \\
-	\texttt{SVC.kernel='poly'}	\\
-	\texttt{SVC.degree} $ \rightarrow d $ \\
-	\texttt{SVC.coeff0} $ \rightarrow r $
+	\texttt{SVC.kernel='poly'},	\\
+	\texttt{SVC.degree} $ \rightarrow d, $ \\
+	\texttt{SVC.coeff0} $ \rightarrow r, $
 \item 
 	\textbf{Radiális Bázis Függvények:} \\
-	\texttt{SVC.kernel='rbf'}	\\
-	\texttt{SVC.gamma} $ \rightarrow \gamma $
+	\texttt{SVC.kernel='rbf'},	\\
+	\texttt{SVC.gamma} $ \rightarrow \gamma, $
 \item 
 	\textbf{Szigmoid:} \\
-	\texttt{SVC.kernel='sigmoid'}	\\
-	\texttt{SVC.coeff0} $ \rightarrow r $
+	\texttt{SVC.kernel='sigmoid'},	\\
+	\texttt{SVC.coeff0} $ \rightarrow r. $
 \end{itemize}
 %
 %\paragraph{Lineáris} (\texttt{linear})
