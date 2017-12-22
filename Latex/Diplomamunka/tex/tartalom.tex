@@ -1535,13 +1535,13 @@ a \texttt{predict} metódussal tudunk egy-egy mintát osztályozni.
 \subsubsection{Hiperparaméter optimalizálás}
 \label{sec:svm.hiperparameter.optimalizalas}
 
-Ahogy korábban láthattuk, még az egyes kernelekhez is többféle hiperparaméter választható. Ezek kiválasztása
+Ahogy korábban láthattuk, még az egyes kernelekhez is többféle hiperparaméter választható, sőt kernel típusa maga egy hiperparaméter. Ezek kiválasztása
 feladatfüggő, és nem triviális. Egy hiperparaméter jóságát a validációs hibával mérjük. Ennek 
 bevett módja a \textit{validation loss} mérése, aminek egy változata ugyan előállítható lett volna 
 az osztály valószínűségekből, mégis kézenfekvőnek tűnt egy másik mértéket bevezetni: az átlagos hibarátát.
 
-Az alapvető probléma az volt, hogy ha 1000 elemű a teljes mintahalmaz , akkor a validációs 
-halmaz ennél mindenképp kisebb. 
+%Az alapvető probléma az volt, hogy ha 1000 elemű a teljes mintahalmaz , akkor a validációs 
+%halmaz ennél mindenképp kisebb. 
 
 Az alapvető probléma az volt, nem volt elég nagy a teljes mintahalmaz, és ezáltal a validációs halmaz.
 A hibás klasszifikációk rátája kb. $ 0.01 $ volt az alapértelmezett paraméterek mellett, ami azt
@@ -1549,18 +1549,17 @@ jelenti, hogy kb. 10 darab hiba volt egy validációs halmazban. Ennek a számna
 tanító-tesztelő halmaz szeparációk mellett azt találtuk, hogy nem megbízható statisztika a 
 hiba ilyen módon történő mérése.
 
-Ezért valahányszor egy hiperparaméter kombinációt próbáltunk, újra és újra lefuttattuk a
-tanítást különböző felosztásokra, és ennek az átlagával számoltunk. Így kielégítően nagy 
-konfidencia mellett mondhatjuk, hogy ha egy hiperparaméter halmaz ilyen módon is jó eredményt
+Ezért valahányszor egy új hiperparaméter kombinációt próbáltunk, több különböző tanító-tesztelő halmazra futtattuk le, és ezek összesített eredményét mértük.
+Így kielégítően nagy konfidencia mellett mondhatjuk, hogy ha egy hiperparaméter halmaz ilyen módon is jó eredményt
 produkál, akkor nem fogja jelentősen befolyásolni a tanító halmaz megválasztása a validációs 
 eredmény eloszlását.
 
 A legjobb hiperparaméterek megtalálásához a \texttt{hyperopt}\footnote{\url{https://github.com/hyperopt/hyperopt}} csomagot vettük
-igénybe. Használatához meg kell adjuk, hogy milyen változókat milyen valószínűségi eloszlás szerint
+igénybe. Használatához meg kell adjuk, hogy milyen hiperparamétereket milyen valószínűségi eloszlás szerint
 mintavételezzen. Ezután a \texttt{fmin} függvényt meghívva a keretrendszer elkezdi véletlenszerűen
-kipróbálni a modellünket az egyes hiperparaméterekkel, majd visszatér a legjobbal. 
+kipróbálni a modellünket egyes hiperparaméter-kombinációkkal, majd visszatér a legjobbal. 
 
-Mi a \texttt{SVC.C} és a \texttt{SVC.gamma} paramétereket kerestük a [-0.001, 1000] intervallumban,  logaritmikusan egyenletes eloszlást használtunk, és 100 helyen értékeltük ki.
+Mi a \texttt{SVC.C} és a \texttt{SVC.gamma} paramétereket kerestük a [-0.001, 1000] intervallumban,  logaritmikusan egyenletes eloszlást használtunk, és 100 hiperparaméter-kombinációt értékeltünk ki.
 %
 %Az általunk használt konfiguráció a következő volt:
 %% szinezni
@@ -1595,35 +1594,39 @@ Mi a \texttt{SVC.C} és a \texttt{SVC.gamma} paramétereket kerestük a [-0.001,
 
 A legjobb eredményt a $ C=6.25 $ és $ \gamma = 3.3 \cdot 10^{-2} $ paraméterekkel érte el $ 100 $
 mintavételezésből. Ez természetesen hosszabb futtatással javítható. Látható viszont, hogy a csomag
-beépített paraméterei ($ C=1 , \gamma =\dfrac{1}{len(samples)} $) ehhez nagyságrendileg elég közel vannak,
+beépített paraméterei ($ C=1 , \gamma =\dfrac{1}{n} $) ehhez nagyságrendileg elég közel vannak,
 és alkalmasak a tanításra.
+
+%len(samples)
 
 
 \subsubsection{Dupla képes eljárás}
 \label{sec:dupla.kepes.eljaras}
 
-A dolgozat alapjául szolgáló alkalmazás úgy működött, hogy a nagyobb biztonságért két képet készített
-egymás után, hogy ha az egyik valami miatt rossz minőségű lett, akkor ki tudjuk választani a jobbat, 
+A dolgozat alapjául szolgáló alkalmazás úgy működött, hogy két képet készített
+egymás után, arra az esetre, ha az egyik valami miatt rossz minőségű lett. Ekkor ki tudjuk választani a jobbat, 
 és azt elemezni. Ezt mi is megpróbáltuk kihasználni. A \texttt{csv} fájlban az egymás után készült képek adatait
 összefűztük. Két ilyen fájlt onnan ismerünk meg, hogy csak egy \texttt{\_0.png} és \texttt{\_1.png}
 posztfixben térnek el.
 
-Ezek alapján három tanító módszert tudunk készíteni.:
+Ezek alapján három tanító módszert tudtunk készíteni\footnotemark:
 \begin{enumerate}
 	\item
-	Minden egyes képhez rendelünk egy döntést.
-	Adat: \texttt{bpas-verdict.csv}*
+	minden egyes képhez rendelünk egy döntést,
+	adat: \texttt{bpas-verdict.csv};
 	\item 
-	Minden, már eleve egybeolvasztott adatot úgy kezelünk, mintha az csak 
-	egy kép lenne. Adat: \texttt{bpas-merged.csv}*
+%	minden, már eleve egybeolvasztott adatot úgy kezelünk, mintha az csak 	egy kép lenne,
+	a két kép közül csak a manuálisan kiválasztott, jobb minőségűt használjuk,
+	adat: \texttt{bpas-merged.csv};
 	
 	\item 
-	A képek jellemzőit a fentiek szerint az input fájlból egymás mögé 
-	fűzünk, és az alapján dolgozunk.
-	Adat: \texttt{bpas-verdict.csv}*
+	a képek jellemzőit a fentiek szerint az input fájlból egymás mögé 
+	fűzünk, és az alapján dolgozunk,
+	adat: \texttt{bpas-verdict.csv}.
 \end{enumerate}
 
-\textit{*Lásd a \ref{sec:adatok} pontot.}
+\footnotetext{Lásd a \ref{sec:adatok} pontot.}
+%\textit{*Lásd a \ref{sec:adatok} pontot.}
 %
 %négyzetes tanítási idő, nem működik 100k példára
 %az svm kvázi determinisztikus
@@ -1643,7 +1646,7 @@ Ezek alapján három tanító módszert tudunk készíteni.:
 %hasonlóan működött az eredeti algo cska kézzel volt minden megcsinálva
 
 
-\newpage
+%\newpage
 \subsection{Képelemzés Konvolúciós Hálóval}
 \label{sec:cnn}
 
@@ -2956,6 +2959,7 @@ A következő szkriptek önmagukban nem futtathatóak, csak segédfüggvényeket
 %\end{thebibliography}
 
 \bibliographystyle{plain}
+%\bibliographystyle{unsrt}
 \bibliography{tex/references}{}
 
 
