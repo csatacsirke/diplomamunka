@@ -75,6 +75,51 @@
 
 \end{frame}
 
+\begin{frame}
+	\frametitle{Tanító adatok}
+	
+	Bementi képek: \textit{(Kb. 1000 darab)}
+	\begin{columns}[t]
+		
+		\begin{column}{.5\textwidth}
+			\includegraphics[width=0.8\textwidth, center]{img/eredeti-pelda.png}
+			\centering
+			Eredeti
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\includegraphics[width=0.8\textwidth, center]{img/copy-pelda.png}
+			
+			\centering
+			Fénymásolat
+			
+		\end{column}				
+	\end{columns}
+	
+	
+	
+	%	
+	%	\begin{figure}[h]
+	%		
+	%		
+	%		
+	%		\begin{minipage}[c]{0.5\linewidth}
+	%			\centering
+	%			\includegraphics[width=\textwidth]{img/eredeti-pelda.png}
+	%			\caption{Egy eredeti nyomat.}
+	%			\label{fig:eredeti.pelda}
+	%			
+	%		\end{minipage}\hfill
+	%		\begin{minipage}[c]{0.5\linewidth}
+	%			\centering
+	%			\includegraphics[width=\textwidth]{img/copy-pelda.png}
+	%			\caption{Egy színes fénymásolat.}
+	%			\label{fig:copy.pelda}
+	%			
+	%		\end{minipage}
+	%		
+	%	\end{figure}
+
+\end{frame}
 
 \begin{frame}
 	\frametitle{Ötlet}
@@ -93,51 +138,6 @@
 
 
 
-\begin{frame}
-	\frametitle{Tanító adatok}
-
-	Bementi képek: \textit{(Kb. 1000 darab)}
-	\begin{columns}[t]
-
-		\begin{column}{.5\textwidth}
-			\includegraphics[width=0.8\textwidth, center]{img/eredeti-pelda.png}
-			\centering
-			Eredeti
-		\end{column}
-		\begin{column}{.5\textwidth}
-			\includegraphics[width=0.8\textwidth, center]{img/copy-pelda.png}
-			
-			\centering
-			Fénymásolat
-
-		\end{column}				
-	\end{columns}
-
-
-
-%	
-%	\begin{figure}[h]
-%		
-%		
-%		
-%		\begin{minipage}[c]{0.5\linewidth}
-%			\centering
-%			\includegraphics[width=\textwidth]{img/eredeti-pelda.png}
-%			\caption{Egy eredeti nyomat.}
-%			\label{fig:eredeti.pelda}
-%			
-%		\end{minipage}\hfill
-%		\begin{minipage}[c]{0.5\linewidth}
-%			\centering
-%			\includegraphics[width=\textwidth]{img/copy-pelda.png}
-%			\caption{Egy színes fénymásolat.}
-%			\label{fig:copy.pelda}
-%			
-%		\end{minipage}
-%		
-%	\end{figure}
-
-\end{frame}
 
 \begin{frame}
 	\frametitle{Gépi tanulás}
@@ -202,6 +202,7 @@
 	\[
 %	L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = 
 %	\frac{1}{n} 
+	\min_{\underline{w},b}
 	\sum\limits_{i=1}^{n} 
 	%\max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
 	\max\big(0, 1 - y_i(\underline{w}^T \underline{x}_i - b)\big) + \lambda \lvert\underline{w}\rvert_2^2.
@@ -255,7 +256,7 @@
 	
 	\textbf{Kernel trükk: }
 	
-	A feladatban szereplő $ k(\underline{x}_i, \underline{x}_j) := \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatot bizonyos esetekben akkor is ki tudjuk hatékonyan számolni, ha $ x_i $ dimenziója nagy, vagy esetleg végtelen. (Ekkor $ k $-t nevezzük \textit{kernelnek}.)
+	A feladatban szereplő $ k(\underline{x}_i, \underline{x}_j) := \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatot bizonyos esetekben akkor is ki tudjuk hatékonyan számolni, ha $ \varphi(x_i) $ dimenziója nagy, vagy esetleg végtelen. (Ekkor $ k $-t nevezzük \textit{kernelnek}.)
 %	\[
 %	k(\underline{x}_i, \underline{x}_j) = \varphi(\underline{x}_i)^T \varphi(\underline{x}_j).
 %	\]
@@ -379,6 +380,8 @@
 			\end{enumerate}
 		\end{column}
 		\begin{column}{.5\textwidth}
+			
+			
 			\includegraphics[width=0.8\textwidth]{konv-pelda.pdf}
 			
 			\centering
@@ -421,14 +424,41 @@
 
 
 \begin{frame}
+\frametitle{Mély konvolúciós hálók}
+\framesubtitle{Kihívások}
+
+\begin{itemize}
+	\item 
+	Hiperparaméterek beállítása
+	\begin{enumerate}
+		\item 
+		Háló szerkezete
+		\item 
+		Minibatch-ek mérete
+	\end{enumerate}
+	
+	\item 
+	Túltanulás elkerülése
+	\begin{enumerate}
+		\item 
+		Dropout
+		\item 
+		Adatok mesterséges generálása (augmentation)
+	\end{enumerate}
+	
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
 	\frametitle{Mély konvolúciós hálók}
-	\framesubtitle{Nehézségek}
+	\framesubtitle{Kihívások}
+	
+	\textbf{Lokális szélső értékek}
 	
 	A gradiens módszer miatt előfordulhat hogy lokális minimumot találunk és a tanítás megáll. Ez előfordult a mi esetünkben is. A probléma alapja az volt, hogy néhány hamisítvány túlságosan hasonlított az eredetiekre, ezért a tanulás rosszul konvergált, és minden képet eredetinek osztályzott. Ezeket a képeket eltávolítva, a módszer stabilan működött. Ezután visszahelyeztük a kritikus eseteket a tanító halmazba, ekkor már jó eredményt adtak.
 	
 	
-	
-
 \end{frame}
 
 \begin{frame}
@@ -446,6 +476,62 @@
 	
 	
 
+
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Mély konvolúciós hálók}
+	\framesubtitle{Eredmények}
+	
+	
+	
+	
+	
+	\begin{columns} [t]
+		\begin{column}{.5\textwidth}
+			\centering
+			Teszt adathalmaz
+			
+			\includegraphics[scale=0.25]{ruc-curve-test-ujratanitva.pdf}
+			
+			\includegraphics[scale=0.25]{histogram-ujratanitott-log-skala-test.pdf}
+			
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\centering
+			Teljes adathalmaz
+			
+			\includegraphics[scale=0.25]{roc-curve-full-dataset-ujratanitva.pdf}
+			
+			\includegraphics[scale=0.25]{histogram-ujratanitott-log-skala-full.pdf}
+			
+		\end{column}				
+	\end{columns}
+
+
+
+%	
+%	\begin{figure}[ht]
+%		
+%		
+%		\begin{minipage}[c]{0.3\linewidth}
+%			\includegraphics[scale=0.3]{histogram-ujratanitott-log-skala-test.pdf}
+%			%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+%			\caption{Teszt halmaz.}
+%			\label{fig:hist-test}
+%			
+%		\end{minipage}\hfill
+%		\begin{minipage}[c]{0.3\linewidth}
+%			\includegraphics[scale=0.3]{histogram-ujratanitott-log-skala-full.pdf}
+%			%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+%			\caption{Tanító+Teszt adathalmaz.}\label{fig:hist-full}
+%			
+%		\end{minipage}
+%		%	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
+%		\label{fig:histogram-ujratanitott}
+%	\end{figure}
 
 
 \end{frame}
@@ -482,60 +568,6 @@
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Mély konvolúciós hálók}
-\framesubtitle{Eredmények}
-
-
-
-
-
-\begin{columns} [t]
-	\begin{column}{.5\textwidth}
-		\centering
-		Teszt adathalmaz
-		
-		\includegraphics[scale=0.25]{ruc-curve-test-ujratanitva.pdf}
-		
-		\includegraphics[scale=0.25]{histogram-ujratanitott-log-skala-test.pdf}
-		
-	\end{column}
-	\begin{column}{.5\textwidth}
-		\centering
-		Teljes adathalmaz
-		
-		\includegraphics[scale=0.25]{roc-curve-full-dataset-ujratanitva.pdf}
-		
-		\includegraphics[scale=0.25]{histogram-ujratanitott-log-skala-full.pdf}
-		
-	\end{column}				
-\end{columns}
-
-
-
-%	
-%	\begin{figure}[ht]
-%		
-%		
-%		\begin{minipage}[c]{0.3\linewidth}
-%			\includegraphics[scale=0.3]{histogram-ujratanitott-log-skala-test.pdf}
-%			%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-%			\caption{Teszt halmaz.}
-%			\label{fig:hist-test}
-%			
-%		\end{minipage}\hfill
-%		\begin{minipage}[c]{0.3\linewidth}
-%			\includegraphics[scale=0.3]{histogram-ujratanitott-log-skala-full.pdf}
-%			%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
-%			\caption{Tanító+Teszt adathalmaz.}\label{fig:hist-full}
-%			
-%		\end{minipage}
-%		%	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
-%		\label{fig:histogram-ujratanitott}
-%	\end{figure}
-
-
-\end{frame}
 
 
 
