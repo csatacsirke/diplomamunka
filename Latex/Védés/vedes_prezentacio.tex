@@ -431,7 +431,24 @@
 
 \end{frame}
 
+\begin{frame}
+	\frametitle{Autoencoder}
+	
+	Ennek a problémának a felderítésében segített az autoencoder modell:
+	
+	\includegraphics[width=0.8\textwidth]{autoencoder-network-modell.pdf}
 
+	Lényege, hogy a képet konvolúciós rétegek segítségével betömörítjük, majd kitömörítjük, és a rekonstrukciós hibát mérjük, úgy hogy csak az eredeti képeken tanítunk. Azt vártuk, hogy az ismeretlen, azaz hamis képekre a hiba nagyobb lesz.
+	
+	Ekkor láthatóvá vált, hogy bizonyos hamis képek nagyban hasonlítanak az eredetiekre.
+	
+	Bár a módszer működik, messze nem olyan hatékony mint az előző, predikciós mély háló.
+	
+	
+
+
+
+\end{frame}
 
 
 \begin{frame}
@@ -443,13 +460,13 @@
 	\begin{figure} [h!]
 		\centering
 		\begin{tabular}{ l c c c c  }
-			\underline{Módszer} 			& Összes minta 	& Bizonytalan	& FP	& FN \\
+			\underline{Módszer} 			& Összes(db) 	& Bizonytalan	& FP	& FN \\
 			\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
 			\texttt{bpas-merged.csv}  	& 496			& 0.10			& 0.14545 	& 0.00259   \\
 			
 			\hline
-			Konvolúviós háló redukálva\footnotemark 	& 894			& 0				& 0.02798	& 0.00972	\\
-			Konvolúviós háló újratanítva& 894			& 0				& 0.05555	& 0.00900	\\
+			Konv. háló redukálva\footnotemark 	& 894			& 0				& 0.02798	& 0.00972	\\
+			Konv. háló újratanítva& 894			& 0				& 0.05555	& 0.00900	\\
 			
 			
 		\end{tabular} 
@@ -526,7 +543,43 @@
 	\frametitle{Konklúzió}
 %	\framesubtitle{Eredmények}
 
-	majdm indjárt kitalálom ide mi jön
+	\begin{enumerate}
+	\item SVM
+		\begin{itemize}
+			\item 
+			Jobban működik, mint a kézzel írt algoritmus
+			\item 
+			Relatív kevés mintán is tud hatékonyan tanulni
+			\item 
+			Gyorsan tanítható
+			\item
+			Hasonló projektre könnyen újra felhasználható
+		\end{itemize}
+	
+	\item
+		Mély konvolúciós háló
+		\begin{itemize}
+		\item 
+			A mély hálók ígéretesek de még vannak feladatok, valamint több mintaadat kell, hogy való életben is használható legyen
+		\item 
+			Lassan tanul
+		\item
+			Nem tudjuk belevinni a nyomdászi szakértelmet, mindent elölről tanul
+		\end{itemize}
+	\end{enumerate}
+
+
+%	\begin{itemize}
+%	\item 
+%		Az SVM jobban működik, mint a kézzel írt algoritmus
+%	\item 
+%		A mély hálók ígéretesek de még vannak feladatok, valamint több mintaadat kell, hogy való életben is használható legyen
+%	\end{itemize}
+%	
+%	majdm indjárt kitalálom ide mi jön
+%	
+%	-több minta
+%	
 
 
 \end{frame}
