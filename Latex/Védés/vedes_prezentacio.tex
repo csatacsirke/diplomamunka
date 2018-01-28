@@ -113,6 +113,8 @@
 		\end{column}				
 	\end{columns}
 
+
+
 %	
 %	\begin{figure}[h]
 %		
@@ -141,6 +143,17 @@
 	\frametitle{Gépi tanulás}
 	\framesubtitle{Használt módszerek}
 	
+	
+	\begin{block}{A kanonikus tanulási feladat}
+			\[ 
+		\min\limits_{\underline{\theta}} L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, \underline{y}_1, \dots, \underline{y}_n) = \frac{1}{n}  \sumn i l\big(f(\underline{\theta}, \underline{x}_i), \underline{y}_i\big) + R(\underline{\theta})
+		, \]
+	\textit{$ \theta $: tanulandó paraméterek, $ l $: költségfüggvény, $ f $: modell, $ R $: regularizáció}
+	\end{block}
+
+
+	
+	Általunk használt modellek:
 	\begin{itemize}
 	\item 
 		Felügyelt tanulás
@@ -270,11 +283,253 @@
 	\frametitle{SVM - Alkalmazás}
 	
 	Mi az SVM-et arra használjuk, hogy az említett alkalmazás által számolt jellemzőkből gépi tanulás segítségével hozzunk döntést.
+	\begin{block}{Megjegyzés}
+		Az jellemzőket fekete doboznak tekintjük, nem használjuk fel a mögöttes tartalmukat. A cél, hogy az algoritmus magától találjon összefüggéseket.
+	\end{block}
+
+	Az alkalmazás eredményeit egy \texttt{.csv} fájlból töltjük be \texttt{python} segítségével. Az osztályozást az \texttt{sklearn} csomaggal végezzük.
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{SVM - Eredmények}
+	\framesubtitle{Fals pozitív(FP) és fals negatív(FN) hibarátákkal}
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tabular}{ l c c c c }
+			\underline{Módszer} 		& Összes minta 	& Bizonytalan	& FP	& FN \\
+			\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
+			\texttt{bpas-merged.csv}\footnote{Egymás után készült két kép közül a jobb eredmény} 	& 496			& 0.10			& 0.14545 	& 0.00259   \\
+			
+			\hline
+			(1) verdict+SVM					& 894			& 0				& 0.00297	& 0.00566	\\
+			(2) merged+SVM					& 453			& 0				& 0.01493	& 0.00771	\\
+			(3) verdict+SVM 2 képpel		& 423			& 0				& 0.01420	& 0.01059   \\
+			
+		\end{tabular}
+		
+		%	\begin{flushleft}
+		%	\textit{*Lásd a \ref{sec:adatok} pontot.}
+		%	\end{flushleft}
+		\caption{Az SVM eredményei összehasonlítva az eredeti algoritmusokéval.}
+		
+	\end{figure}
+
+	Összességében elmondható, hogy az SVM jobban teljesített a manuálisan gyártott algoritmusoknál.
+	
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Mély konvolúciós hálók}
+	\framesubtitle{Rövid áttekintés}
+	
+	Egy mély háló egy paraméterezett, többszörösen összetett függvény, amely elvárás szerint a bemenetet az elvárt kimenetre képzi. A belső paramétereket gradiens módszer segítségével optimalizáljuk.
+	
+	Jellemző rétegek:
+%	\begin{enumerate}
+%	\item
+%		Sűrű réteg
+%	\item 
+%		Konvolúciós réteg
+%	\item 
+%		Aktivációs rétegek
+%		\begin{itemize}
+%		\item 
+%			ReLU
+%		\item
+%			Softmax
+%		\end{itemize}
+%	\item 
+%		Alul-, felülmintavételező réteg
+%	\item 
+%		Költségfüggvény\footnote{Nem igazi réteg}
+%		\begin{itemize}
+%		\item 
+%			Keresztentrópia
+%		\end{itemize}
+%	\end{enumerate}
+
+	\begin{columns}
+		
+		\begin{column}{.5\textwidth}
+				\begin{enumerate}
+				\item
+				Sűrű réteg
+				\item 
+				Konvolúciós réteg
+				\item 
+				Aktivációs rétegek
+				\begin{itemize}
+					\item 
+					ReLU
+					\item
+					Softmax
+				\end{itemize}
+				\item 
+				Alul-, felülmintavételező réteg
+				\item 
+				Költségfüggvény\footnotemark 
+				\begin{itemize}
+					\item 
+					Keresztentrópia
+				\end{itemize}
+			\end{enumerate}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\includegraphics[width=0.8\textwidth]{konv-pelda.pdf}
+			
+			\centering
+			Konvolúció
+			
+		\end{column}				
+	\end{columns}
+	\footnotetext{Nem igazi réteg}
 	
 
 \end{frame}
 
 
+\begin{frame}
+	\frametitle{Mély konvolúciós hálók}
+	\framesubtitle{Alkalmazás}
+	
+	A bemeneti képek alapján tanítunk egy konvolúciós hálót. A megvalósításhoz a \texttt{python} \texttt{Keras} csomagját használtuk.	
+	
+	A háló modellje:
+	\includegraphics[width=0.8\textwidth, center]{predictor-network-modell.pdf}
+	
+	
+	
+
+%	\begin{columns}
+%		\begin{column}{.5\textwidth}
+%			\includegraphics[width=0.8\textwidth, center]{predictor-network-modell.pdf}
+%			A bemeneti képek alapján tanítunk egy konvolúciós hálót.
+%		\end{column}
+%		\begin{column}{.5\textwidth}
+%			\includegraphics[width=0.8\textwidth, center]{predictor-network-modell.pdf}
+%			
+%		\end{column}				
+%	\end{columns}
+	
+	
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Mély konvolúciós hálók}
+	\framesubtitle{Nehézségek}
+	
+	A gradiens módszer miatt előfordulhat hogy lokális minimumot találunk és a tanítás megáll. Ez előfordult a mi esetünkben is. A probléma alapja az volt, hogy néhány hamisítvány túlságosan hasonlított az eredetiekre, ezért a tanulás rosszul konvergált, és minden képet eredetinek osztályzott. Ezeket a képeket eltávolítva, a módszer stabilan működött. Ezután visszahelyeztük a kritikus eseteket a tanító halmazba, ekkor már jó eredményt adtak.
+	
+	
+	
+
+\end{frame}
+
+
+
+
+\begin{frame}
+	\frametitle{Mély konvolúciós hálók}
+	\framesubtitle{Eredmények}
+
+	A mély konvolúciós háló eredményei:
+	
+	\begin{figure} [h!]
+		\centering
+		\begin{tabular}{ l c c c c  }
+			\underline{Módszer} 			& Összes minta 	& Bizonytalan	& FP	& FN \\
+			\texttt{bpas-verdict.csv} 	& 959 			& 0.21			& 0.10215 	& 0.00905 	\\
+			\texttt{bpas-merged.csv}  	& 496			& 0.10			& 0.14545 	& 0.00259   \\
+			
+			\hline
+			Konvolúviós háló redukálva\footnotemark 	& 894			& 0				& 0.02798	& 0.00972	\\
+			Konvolúviós háló újratanítva& 894			& 0				& 0.05555	& 0.00900	\\
+			
+			
+		\end{tabular} 
+		
+%		\caption{A mély konvolúciós háló eredményei.}
+		%	\caption{A mély konvolúciós háló eredményei összehasonlítva az eredeti algoritmusokéval}
+	\end{figure}
+
+%\addtocounter{footnote}{-1}
+%\footnotetext{Lásd a \ref{sec:adatok} pontot.}
+%\addtocounter{footnote}{1}
+\footnotetext{A fentiek szerint szűrt mintákon.}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Mély konvolúciós hálók}
+\framesubtitle{Eredmények}
+
+
+
+
+
+\begin{columns} [t]
+	\begin{column}{.5\textwidth}
+		\centering
+		Teszt adathalmaz
+		
+		\includegraphics[scale=0.25]{ruc-curve-test-ujratanitva.pdf}
+		
+		\includegraphics[scale=0.25]{histogram-ujratanitott-log-skala-test.pdf}
+		
+	\end{column}
+	\begin{column}{.5\textwidth}
+		\centering
+		Teljes adathalmaz
+		
+		\includegraphics[scale=0.25]{roc-curve-full-dataset-ujratanitva.pdf}
+		
+		\includegraphics[scale=0.25]{histogram-ujratanitott-log-skala-full.pdf}
+		
+	\end{column}				
+\end{columns}
+
+
+
+%	
+%	\begin{figure}[ht]
+%		
+%		
+%		\begin{minipage}[c]{0.3\linewidth}
+%			\includegraphics[scale=0.3]{histogram-ujratanitott-log-skala-test.pdf}
+%			%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+%			\caption{Teszt halmaz.}
+%			\label{fig:hist-test}
+%			
+%		\end{minipage}\hfill
+%		\begin{minipage}[c]{0.3\linewidth}
+%			\includegraphics[scale=0.3]{histogram-ujratanitott-log-skala-full.pdf}
+%			%		\includegraphics[width=\linewidth]{img/ruc-curve-test.svg}
+%			\caption{Tanító+Teszt adathalmaz.}\label{fig:hist-full}
+%			
+%		\end{minipage}
+%		%	\caption{\textbf{Az újratanított háló predikciós hisztogramja}}
+%		\label{fig:histogram-ujratanitott}
+%	\end{figure}
+
+
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Konklúzió}
+%	\framesubtitle{Eredmények}
+
+	majdm indjárt kitalálom ide mi jön
+
+
+\end{frame}
 
 
 
