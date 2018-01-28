@@ -1,0 +1,292 @@
+\documentclass[11pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+%\usetheme{default}
+\usetheme{Madrid}
+
+\usepackage[export]{adjustbox}
+\usepackage{graphicx}
+\graphicspath{{./img/}}
+
+
+\newcommand{\sumn}[1]{\sum\limits_{{#1}=1}^{n}}
+
+
+\author{Bálint Márton}
+\title[Diplomamunka]{Biztonsági nyomatok eredetiségének ellenőrzése mesterséges neurális hálózatokkal}
+%\subtitle{}
+%\logo{\includegraphics[width=10pt]{elte-cimer.jpg}}
+\institute[ELTE]{Eötvös Loránd Tudományegyetem}
+\date{2018. január 29.}
+%\subject{}
+%\setbeamercovered{transparent}
+%\setbeamertemplate{navigation symbols}{}
+
+
+\begin{document}
+	
+\begin{frame}[plain]
+	\maketitle
+\end{frame}
+
+\begin{frame}
+	\frametitle{Motiváció}
+	
+	\begin{itemize}
+	\item 
+		Hamisítás
+		
+		A pénzeket, dokumentumokat hamisítják, ezek eredetiségét ellenőrizni kell.
+		
+	\item 
+		Módszerek a hamisítás ellen:
+	
+		\begin{enumerate}
+			\item
+			Az utca embere által ellenőrizhető védelem
+			
+			(Vízjel, hologramcsík, dombornyomás, stb.)
+			
+			\item
+			Speciális eszközzel, képzett emberek által ellenőrizhető védelem
+			
+			(Pl. UV tinta)
+		\end{enumerate}
+		
+	\item 
+		Köztes megoldás:
+		
+		Az ellenőrizendő nyomatot egy okostelefonnal lefényképezzük, majd azon egy applikáció kiértékeli az eredményt. 
+		
+			\begin{enumerate}
+			\item
+			Mindenki számára elérhető
+			
+			\item
+			Szakértelmet visz az ellenőrzésbe
+			
+		\end{enumerate}
+		
+		Ilyen alkalmazást fejlesztett például a Jura Trade Kft.\footnote{http://jura.hu}. 
+		
+		
+	\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Ötlet}
+	
+	
+	\begin{itemize}
+		\item 
+		Az említett alkalmazás méréseket végez a képen, ezekből 10-20 mérőszámot állít elő, majd ezek alapján ad eredményt, hogy a kép eredeti, hamis, vagy nem tudja eldönteni.
+		
+		\item 
+		A dolgozat célja az volt, hogy ezt az alkalmazást továbbfejlesszük különböző gépi tanulási módszerekkel.
+		
+		
+	\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Tanító adatok}
+
+	Bementi képek: \textit{(Kb. 1000 darab)}
+	\begin{columns}[t]
+
+		\begin{column}{.5\textwidth}
+			\includegraphics[width=0.8\textwidth, center]{img/eredeti-pelda.png}
+			\centering
+			Eredeti
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\includegraphics[width=0.8\textwidth, center]{img/copy-pelda.png}
+			
+			\centering
+			Fénymásolat
+
+		\end{column}				
+	\end{columns}
+
+%	
+%	\begin{figure}[h]
+%		
+%		
+%		
+%		\begin{minipage}[c]{0.5\linewidth}
+%			\centering
+%			\includegraphics[width=\textwidth]{img/eredeti-pelda.png}
+%			\caption{Egy eredeti nyomat.}
+%			\label{fig:eredeti.pelda}
+%			
+%		\end{minipage}\hfill
+%		\begin{minipage}[c]{0.5\linewidth}
+%			\centering
+%			\includegraphics[width=\textwidth]{img/copy-pelda.png}
+%			\caption{Egy színes fénymásolat.}
+%			\label{fig:copy.pelda}
+%			
+%		\end{minipage}
+%		
+%	\end{figure}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Gépi tanulás}
+	\framesubtitle{Használt módszerek}
+	
+	\begin{itemize}
+	\item 
+		Felügyelt tanulás
+		
+		\begin{enumerate}
+		\item 
+			SVM	
+		\item 
+			Mély konvolúciós háló
+		
+		\end{enumerate}
+		
+	\item 
+		Felügyelet nélküli tanulás
+		
+		\begin{enumerate}
+		\setcounter{enumi}{2}
+		\item 
+			Konvolúciós autoencoder
+		\end{enumerate}		
+		
+	\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}
+	\frametitle{Support Vector Machine (SVM) - Támasztóvektor Gép}
+	\framesubtitle{Rövid áttekintés}
+		
+	Feladat: 
+	
+	Adott $ \underline{x}_i $ jellemzők, $ \underline{y}_i $ bináris osztályok, 
+	határozzunk meg egy $ (\underline{x}, b) $ hipersíkot úgy, hogy: 
+	
+	\[
+	\begin{cases}
+	\underline{x}_i^T \underline{w} - b \geq +1, & \text{ ha }  y_i=1, \\
+	\underline{x}_i^T \underline{w} - b \leq -1, & \text{ ha }  y_i=-1.
+	\end{cases}
+	\]	
+	
+	Ennek megoldásához a következő kifejezést kell minimalizálnunk:
+	
+	\[
+%	L(\underline{\theta}, \underline{x}_1, \dots, \underline{x}_n, y_1, \dots, y_n)  = 
+%	\frac{1}{n} 
+	\sum\limits_{i=1}^{n} 
+	%\max\big(0, 1 - y_i(\underline{w} \cdot \underline{x}_i - b)\big) + \lambda \norm{\underline{w}}_2^2.
+	\max\big(0, 1 - y_i(\underline{w}^T \underline{x}_i - b)\big) + \lambda \lvert\underline{w}\rvert_2^2.
+	\]
+	
+	
+	
+\end{frame}
+
+\begin{frame}
+	\frametitle{Support Vector Machine (SVM) - Támasztóvektor Gép}
+	\framesubtitle{Rövid áttekintés}
+	
+	Belátható, hogy ez a következő kvadratikus programozási feladatra vezethető vissza:
+	\begin{multline*}
+	\max\limits_{\underline{c}} \sum\limits_{i=1}^{n}c_i -  
+	\frac{1}{2}\sumn{i}\sumn{j} y_i c_i (\underline{x}_i^T \underline{x}_j) y_i c_j \\
+	\text{ s.t. } \quad 
+	\sumn{i} c_i y_i = 0, \quad
+	0 \leq c_i \leq \frac{1}{2n\lambda}, \quad 
+	i=1,\dots,n.
+	\end{multline*}
+	
+	Ekkor a keresett paraméterek:
+	\[
+	\underline{w} = \sumn{i} c_i y_i \underline{x}_i.
+	\]
+	
+%	Keressünk egy margón lévő $ (\underline{x}_i, y_i) $ párt:
+%	\[
+%	b = \underline{w}^T \underline{x}_i  - y_i.
+%	\]
+	
+	\textit{Megjegyzés: Ha nem tökéletesen szeparálható a két adathalmaz, akkor $ b $ megfelelő választásával lehet részrehajlást (bias) állítani.}
+\end{frame}
+
+
+
+
+\begin{frame}
+	\frametitle{SVM - Kernel trükk}
+	\framesubtitle{Rövid áttekintés}
+	\textbf{Nemlineáris osztályozás:}
+	
+	Megnöveljük a bemenetünk dimenzióját úgy, hogy új értékeket számolunk ki az előzőek alapján. Ehhez definiáljuk a következő függvényt:
+	\[
+	\varphi\colon \mathbb{R}^p \rightarrow \mathbb{R}^q, \quad q \gg p.
+	\]
+	
+	Ezután $ x_i $ minta helyett $ \varphi(x_i) $ bemenettel számolunk.
+	
+	\textbf{Kernel trükk: }
+	
+	A feladatban szereplő $ k(\underline{x}_i, \underline{x}_j) := \varphi(\underline{x}_i)^T \varphi(\underline{x}_j) $ skaláris szorzatot bizonyos esetekben akkor is ki tudjuk hatékonyan számolni, ha $ x_i $ dimenziója nagy, vagy esetleg végtelen. (Ekkor $ k $-t nevezzük \textit{kernelnek}.)
+%	\[
+%	k(\underline{x}_i, \underline{x}_j) = \varphi(\underline{x}_i)^T \varphi(\underline{x}_j).
+%	\]
+	
+
+
+\end{frame}
+
+%\begin{frame}
+%	\frametitle{Support Vector Machine (SVM) - Támasztóvektor Gép}
+%	
+%	%A cél az volt, hogy az eredeti alkalmazás által számolt jellemzőkből hozzunk döntést.
+%	
+%
+%	\begin{enumerate}
+%	\item 
+%		
+%	\end{enumerate}		
+%
+%
+%\end{frame}
+
+
+\begin{frame}
+	\frametitle{SVM - Alkalmazás}
+	
+	Mi az SVM-et arra használjuk, hogy az említett alkalmazás által számolt jellemzőkből gépi tanulás segítségével hozzunk döntést.
+	
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+
+	\centering
+	Köszönöm a figyelmet!
+
+\end{frame}
+
+
+
+
+
+\end{document}
